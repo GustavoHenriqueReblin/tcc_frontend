@@ -1,0 +1,64 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependency directories
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+build/
+
+# Local env files
+.env
+.env.*.local
+
+# Vite cache
+.vite/
+vite.config.timestamp-*
+vite.config.mjs.timestamp-*
+
+# TypeScript
+*.tsbuildinfo
+
+# Editor directories and config
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional: Test coverage
+coverage/
+
+# Optional: PWA generated files
+public/manifest.webmanifest
+public/sw.js
+public/workbox-*.js
+public/service-worker.js
+
+# Optional: Local certificates (if HTTPS dev)
+*.pem
+*.crt
+*.key
+
+# Optional: Temp files
+.tmp/
+temp/
+cache/
+
+# Optional: If using React Query Devtools
+*.swp
