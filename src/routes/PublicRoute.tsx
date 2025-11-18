@@ -18,6 +18,8 @@ export const PublicRoute: React.FC = () => {
         enabled: !isAuthenticated,
         staleTime: 0,
         refetchOnMount: "always",
+        retry: false,
+        refetchOnWindowFocus: false,
     });
 
     useEffect(() => {

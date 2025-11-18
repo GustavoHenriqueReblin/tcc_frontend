@@ -18,6 +18,8 @@ export const ProtectedRoute: React.FC = () => {
         },
         staleTime: 0,
         refetchOnMount: "always",
+        retry: false,
+        refetchOnWindowFocus: false,
     });
 
     useEffect(() => {
@@ -25,12 +27,16 @@ export const ProtectedRoute: React.FC = () => {
             setUser(data.data);
         }
     }, [data, setUser]);
+    
+    if (isError) {
+        return <Navigate to="/login" state={{ from: location }} replace />;
+    }
 
     if (isLoading) {
         return <Loading />;
     }
 
-    if (isError || !data?.success || !data.data) {
+    if (!data?.success || !data.data) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
