@@ -16,4 +16,3 @@ export const Loading: React.FC = () => {
         </Flex>
     );
 };
-

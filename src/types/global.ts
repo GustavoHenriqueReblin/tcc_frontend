@@ -1,0 +1,44 @@
+import type {
+    AssetMaintenanceTypeEnum,
+    AssetStatusEnum,
+    BranchEnum,
+    MaritalStatusEnum,
+    MovementSourceEnum,
+    MovementTypeEnum,
+    OrderStatusEnum,
+    PaymentMethodEnum,
+    PaymentStatusEnum,
+    PersonTypeEnum,
+    PlanEnum,
+    ProductDefinitionTypeEnum,
+    ProductionOrderStatusEnum,
+    RoleEnum,
+    StatusEnum,
+    TransactionTypeEnum,
+} from "./enums";
+
+export type Status = (typeof StatusEnum)[keyof typeof StatusEnum];
+export type Plan = (typeof PlanEnum)[keyof typeof PlanEnum];
+export type Branch = (typeof BranchEnum)[keyof typeof BranchEnum];
+export type Role = (typeof RoleEnum)[keyof typeof RoleEnum];
+export type MaritalStatus = (typeof MaritalStatusEnum)[keyof typeof MaritalStatusEnum];
+export type PersonType = (typeof PersonTypeEnum)[keyof typeof PersonTypeEnum];
+export type MovementType = (typeof MovementTypeEnum)[keyof typeof MovementTypeEnum];
+export type MovementSource = (typeof MovementSourceEnum)[keyof typeof MovementSourceEnum];
+export type OrderStatus = (typeof OrderStatusEnum)[keyof typeof OrderStatusEnum];
+export type TransactionType = (typeof TransactionTypeEnum)[keyof typeof TransactionTypeEnum];
+export type PaymentStatus = (typeof PaymentStatusEnum)[keyof typeof PaymentStatusEnum];
+export type PaymentMethod = (typeof PaymentMethodEnum)[keyof typeof PaymentMethodEnum];
+export type AssetStatus = (typeof AssetStatusEnum)[keyof typeof AssetStatusEnum];
+export type AssetMaintenanceType =
+    (typeof AssetMaintenanceTypeEnum)[keyof typeof AssetMaintenanceTypeEnum];
+export type ProductionOrderStatus =
+    (typeof ProductionOrderStatusEnum)[keyof typeof ProductionOrderStatusEnum];
+export type ProductDefinitionType =
+    (typeof ProductDefinitionTypeEnum)[keyof typeof ProductDefinitionTypeEnum];
+
+export interface ApiResponse<T> {
+    success: boolean;
+    message: string;
+    data: T;
+}

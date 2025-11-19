@@ -27,7 +27,7 @@ export const ProtectedRoute: React.FC = () => {
             setUser(data.data);
         }
     }, [data, setUser]);
-    
+
     if (isError) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
