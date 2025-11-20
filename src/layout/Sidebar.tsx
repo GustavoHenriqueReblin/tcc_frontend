@@ -1,7 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
-import { Gauge, LayoutDashboard, Package, Sparkles, Users } from "lucide-react";
+import { Gauge, LayoutDashboard, Package, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export const menuItems = [
@@ -25,7 +24,7 @@ export function Sidebar({
     const width = collapsed ? "w-20" : "w-64";
 
     const baseClasses = cn(
-        "flex min-h-screen flex-col border-r bg-sidebar/95 text-sidebar-foreground backdrop-blur transition-all duration-300",
+        "sticky top-0 flex h-screen flex-col overflow-y-auto border-r bg-sidebar/95 text-sidebar-foreground backdrop-blur transition-all duration-300",
         width
     );
 
