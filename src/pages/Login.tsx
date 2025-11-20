@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Text, Heading } from "@radix-ui/themes";
 import { useLogin } from "../hooks/useLogin";
 import { loginSchema, type LoginFormValues } from "../schemas/auth/login.schema";
 
@@ -64,12 +63,10 @@ export function Login() {
                     <div className="flex-1">
                         <div className="mx-auto w-full max-w-md rounded-2xl border border-slate-800 bg-slate-950/95 p-5 shadow-lg shadow-black/40 sm:p-6">
                             <div className="mb-5 space-y-1 text-center">
-                                <Heading as="h2" size="4" className="text-slate-50">
-                                    Entrar no sistema
-                                </Heading>
-                                <Text size="2" className="text-slate-400">
+                                <h2 className="text-slate-50">Entrar no sistema</h2>
+                                <span className="text-slate-400">
                                     Informe suas credenciais de acesso.
-                                </Text>
+                                </span>
                             </div>
 
                             <form onSubmit={handleSubmit} className="space-y-4">
@@ -95,9 +92,7 @@ export function Login() {
                                         autoComplete="username"
                                     />
                                     {errors.username && (
-                                        <Text size="2" className="text-red-400">
-                                            {errors.username}
-                                        </Text>
+                                        <span className="text-red-400">{errors.username}</span>
                                     )}
                                 </div>
 
@@ -123,9 +118,7 @@ export function Login() {
                                         autoComplete="current-password"
                                     />
                                     {errors.password && (
-                                        <Text size="2" className="text-red-400">
-                                            {errors.password}
-                                        </Text>
+                                        <span className="text-red-400">{errors.password}</span>
                                     )}
                                 </div>
 
@@ -135,7 +128,7 @@ export function Login() {
                                     </div>
                                 )}
 
-                                <Button
+                                <button
                                     type="submit"
                                     style={{ cursor: "pointer" }}
                                     disabled={isLoading}
@@ -147,7 +140,7 @@ export function Login() {
                                     <span className="text-slate-50">
                                         {isLoading ? "Entrando..." : "Entrar"}
                                     </span>
-                                </Button>
+                                </button>
                             </form>
                         </div>
                     </div>
