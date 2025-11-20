@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Menu, PanelLeftClose, PanelLeftOpen, LogOut } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Bell, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
@@ -14,32 +16,74 @@ export function Header({
 }) {
     const { user, logout } = useAuth();
     const isMobile = useIsMobile();
+    const fallback = (user?.username?.slice(0, 2) || "US").toUpperCase();
 
     return (
-        <header className="px-4 h-14 flex items-center justify-between border-b bg-background">
-            {isMobile ? (
-                <Button variant="ghost" size="icon" onClick={onToggleMobile}>
-                    <Menu className="size-5" />
-                </Button>
-            ) : (
-                <Button variant="ghost" size="icon" onClick={onToggleDesktop}>
-                    {desktopExpanded ? <PanelLeftClose /> : <PanelLeftOpen />}
-                </Button>
-            )}
+        <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur supports-backdrop-filter:backdrop-blur">
+            <div className="flex h-16 items-center gap-3 px-4">
+                {isMobile ? (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={onToggleMobile}
+                        className="rounded-full"
+                    >
+                        <Menu className="size-5" />
+                    </Button>
+                ) : (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={onToggleDesktop}
+                        className="rounded-full"
+                    >
+                        {desktopExpanded ? <PanelLeftClose /> : <PanelLeftOpen />}
+                    </Button>
+                )}
 
-            <span className="font-medium text-sm md:text-base">
-                Bem-vindo{user?.username ? `, ${user.username}` : ""}!
-            </span>
+                <div className="hidden flex-1 items-center md:flex">
+                    <label className="relative flex w-full max-w-xl items-center">
+                        <Search className="pointer-events-none absolute left-3 size-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Buscar ordens, clientes ou ações rápidas"
+                            className="w-full rounded-full border bg-muted/60 pl-9 pr-3 text-sm focus-visible:ring-2"
+                        />
+                    </label>
+                </div>
 
-            <Button
-                variant="ghost"
-                size="sm"
-                className="flex items-center gap-2"
-                onClick={() => logout()}
-            >
-                <LogOut className="size-5" />
-                Sair
-            </Button>
+                <div className="ml-auto flex items-center gap-2">
+                    <Button variant="ghost" size="icon-sm" className="rounded-full">
+                        <Bell className="size-4" />
+                    </Button>
+
+                    <div className="flex items-center gap-3 rounded-full border bg-card/70 px-3 py-1.5">
+                        <Avatar className="size-8 border">
+                            <AvatarFallback className="text-xs font-semibold uppercase">
+                                {fallback}
+                            </AvatarFallback>
+                        </Avatar>
+
+                        <div className="hidden leading-tight md:flex md:flex-col">
+                            <span className="text-sm font-semibold">
+                                {user?.username || "Usuario"}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground">
+                                Acesso interno
+                            </span>
+                        </div>
+
+                        <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="rounded-full"
+                            onClick={() => logout()}
+                            aria-label="Sair"
+                        >
+                            <LogOut className="size-4" />
+                        </Button>
+                    </div>
+                </div>
+            </div>
         </header>
     );
 }
