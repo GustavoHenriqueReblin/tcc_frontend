@@ -1,12 +1,13 @@
-import type React from "react";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Navigate, Outlet } from "react-router-dom";
-import { api, type ApiResponse } from "../api/client";
-import { useAuth, type User } from "../context/AuthContext";
+import { api } from "../api/client";
+import { useAuth } from "../context/AuthContext";
 import { Loading } from "../components/Loading";
+import { ApiResponse } from "@/types/global";
+import { User } from "@/types/auth";
 
-export const PublicRoute: React.FC = () => {
+export function PublicRoute() {
     const { isAuthenticated, setUser } = useAuth();
 
     const { data, isLoading } = useQuery<ApiResponse<User>>({
@@ -37,4 +38,4 @@ export const PublicRoute: React.FC = () => {
     }
 
     return <Outlet />;
-};
+}

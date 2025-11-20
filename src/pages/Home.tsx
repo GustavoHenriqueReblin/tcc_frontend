@@ -1,7 +1,6 @@
-import type React from "react";
 import { useAuth } from "../context/AuthContext";
 
-export const Home: React.FC = () => {
+export function Home() {
     const { user } = useAuth();
 
     return (
@@ -10,4 +9,4 @@ export const Home: React.FC = () => {
             <span>Bem-vindo{user?.username ? `, ${user.username}` : ""}!</span>
         </div>
     );
-};
+}

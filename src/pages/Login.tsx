@@ -1,6 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, FormEvent } from "react";
 import { useLogin } from "../hooks/useLogin";
 import { loginSchema, type LoginFormValues } from "../schemas/auth/login.schema";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Label } from "@radix-ui/react-label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export function Login() {
     const [values, setValues] = useState<LoginFormValues>({
@@ -18,7 +22,7 @@ export function Login() {
         usernameInputRef.current?.focus();
     }, []);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         const parsed = loginSchema.safeParse(values);
 
@@ -41,109 +45,97 @@ export function Login() {
     }, [errorMessage]);
 
     return (
-        <div className="login-page min-h-screen bg-slate-950 text-slate-50">
-            <div className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6">
-                <div className="flex w-full max-w-4xl flex-col gap-8 md:flex-row md:items-center md:gap-10">
-                    <div className="flex-1 space-y-4 text-center md:text-left">
-                        <span className="inline-flex items-center justify-center rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1 text-[0.7rem] font-medium text-slate-200">
-                            Ambiente corporativo • Acesso restrito
-                        </span>
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-8 sm:px-6">
+            <div className="flex w-full max-w-4xl flex-col gap-8 md:flex-row md:items-center md:gap-10">
+                <div className="hidden md:block flex-1 space-y-4 text-center md:text-left">
+                    <span className="inline-flex items-center justify-center rounded-full border px-3 py-1 text-[0.7rem] font-medium">
+                        Ambiente corporativo • Acesso restrito
+                    </span>
 
-                        <h1 className="text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl">
-                            Acesso ao painel do sistema
-                        </h1>
+                    <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                        Acesso ao painel do sistema
+                    </h1>
 
-                        <p className="mx-auto max-w-md text-xs text-slate-300 sm:text-sm md:mx-0">
-                            Autentique-se para acessar funcionalidades administrativas, relatórios e
-                            indicadores de desempenho. Somente usuários autorizados podem
-                            prosseguir.
-                        </p>
-                    </div>
+                    <p className="mx-auto max-w-md text-xs text-muted-foreground sm:text-sm md:mx-0">
+                        Autentique-se para acessar funcionalidades administrativas, relatórios e
+                        indicadores de desempenho. Somente usuários autorizados podem prosseguir.
+                    </p>
+                </div>
 
-                    <div className="flex-1">
-                        <div className="mx-auto w-full max-w-md rounded-2xl border border-slate-800 bg-slate-950/95 p-5 shadow-lg shadow-black/40 sm:p-6">
-                            <div className="mb-5 space-y-1 text-center">
-                                <h2 className="text-slate-50">Entrar no sistema</h2>
-                                <span className="text-slate-400">
-                                    Informe suas credenciais de acesso.
-                                </span>
-                            </div>
+                <div className="flex-1">
+                    <Card className="mx-auto w-full max-w-md">
+                        <CardHeader className="text-center">
+                            <h2 className="text-xl font-semibold">Entrar no sistema</h2>
+                            <p className="text-sm text-muted-foreground">
+                                Informe suas credenciais de acesso.
+                            </p>
+                        </CardHeader>
 
+                        <CardContent>
                             <form onSubmit={handleSubmit} className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="block text-[0.7rem] font-medium uppercase tracking-wide text-slate-300">
+                                <div className="grid gap-2">
+                                    <Label
+                                        htmlFor="username"
+                                        className="text-xs uppercase tracking-wide"
+                                    >
                                         Usuário
-                                    </label>
-                                    <input
+                                    </Label>
+                                    <Input
+                                        id="username"
                                         ref={usernameInputRef}
                                         value={values.username}
+                                        autoComplete="username"
                                         onChange={(e) => {
                                             const value = e.target.value;
                                             setValues((prev) => ({ ...prev, username: value }));
-                                            setErrors((prev) => ({
-                                                ...prev,
-                                                username: undefined,
-                                            }));
-                                            if (errorMessage) {
-                                                reset();
-                                            }
+                                            setErrors((prev) => ({ ...prev, username: undefined }));
+                                            if (errorMessage) reset();
                                         }}
-                                        className="block w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-500 outline-none ring-0 transition focus:border-indigo-400 focus:ring-1 focus:ring-indigo-500/60"
-                                        autoComplete="username"
                                     />
                                     {errors.username && (
-                                        <span className="text-red-400">{errors.username}</span>
+                                        <p className="text-red-800 text-xs">{errors.username}</p>
                                     )}
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="block text-[0.7rem] font-medium uppercase tracking-wide text-slate-300">
+                                <div className="grid gap-2">
+                                    <Label
+                                        htmlFor="password"
+                                        className="text-xs uppercase tracking-wide"
+                                    >
                                         Senha
-                                    </label>
-                                    <input
+                                    </Label>
+                                    <Input
+                                        id="password"
                                         type="password"
+                                        autoComplete="current-password"
                                         value={values.password}
                                         onChange={(e) => {
                                             const value = e.target.value;
                                             setValues((prev) => ({ ...prev, password: value }));
-                                            setErrors((prev) => ({
-                                                ...prev,
-                                                password: undefined,
-                                            }));
-                                            if (errorMessage) {
-                                                reset();
-                                            }
+                                            setErrors((prev) => ({ ...prev, password: undefined }));
+                                            if (errorMessage) reset();
                                         }}
-                                        className="block w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-500 outline-none ring-0 transition focus:border-indigo-400 focus:ring-1 focus:ring-indigo-500/60"
-                                        autoComplete="current-password"
                                     />
                                     {errors.password && (
-                                        <span className="text-red-400">{errors.password}</span>
+                                        <p className="text-red-800 text-xs">{errors.password}</p>
                                     )}
                                 </div>
 
                                 {errorMessage && (
-                                    <div className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                                    <div className="rounded-md border border-red-800/50 bg-red-500/10 px-3 py-2 text-xs text-red-800">
                                         {errorMessage}
                                     </div>
                                 )}
 
-                                <button
-                                    type="submit"
-                                    style={{ cursor: "pointer" }}
-                                    disabled={isLoading}
-                                    className="mt-2 inline-flex w-full items-center justify-center rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-slate-50 shadow-sm shadow-black/30 transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
-                                >
+                                <Button type="submit" className="w-full mt-2" disabled={isLoading}>
                                     {isLoading && (
-                                        <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-50 border-t-transparent" />
+                                        <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                                     )}
-                                    <span className="text-slate-50">
-                                        {isLoading ? "Entrando..." : "Entrar"}
-                                    </span>
-                                </button>
+                                    {isLoading ? "Entrando..." : "Entrar"}
+                                </Button>
                             </form>
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </div>

@@ -1,12 +1,13 @@
-import type React from "react";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { api, type ApiResponse } from "../api/client";
-import { useAuth, type User } from "../context/AuthContext";
+import { api } from "../api/client";
+import { useAuth } from "../context/AuthContext";
 import { Loading } from "../components/Loading";
+import { ApiResponse } from "@/types/global";
+import { User } from "@/types/auth";
 
-export const ProtectedRoute: React.FC = () => {
+export function ProtectedRoute() {
     const location = useLocation();
     const { setUser } = useAuth();
 
@@ -41,4 +42,4 @@ export const ProtectedRoute: React.FC = () => {
     }
 
     return <Outlet />;
-};
+}

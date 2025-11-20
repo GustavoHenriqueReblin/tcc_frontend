@@ -1,4 +1,4 @@
-import type React from "react";
+import { ReactNode, FC } from "react";
 import { createContext, useContext, useMemo, useState } from "react";
 import type { User } from "../types/auth";
 
@@ -11,10 +11,10 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 type AuthProviderProps = {
-    children: React.ReactNode;
+    children: ReactNode;
 };
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
 
     const value: AuthContextValue = useMemo(
