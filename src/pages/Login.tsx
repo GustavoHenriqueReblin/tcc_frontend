@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, FormEvent } from "react";
-import { useLogin } from "../hooks/useLogin";
 import { loginSchema, type LoginFormValues } from "../schemas/auth/login.schema";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export function Login() {
     const [values, setValues] = useState<LoginFormValues>({
@@ -12,17 +13,12 @@ export function Login() {
         password: "",
     });
 
+    const { login, isLoading, errorMessage, resetLogin } = useAuth();
+    const navigate = useNavigate();
     const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
-
     const usernameInputRef = useRef<HTMLInputElement | null>(null);
 
-    const { login, isLoading, errorMessage, reset } = useLogin();
-
-    useEffect(() => {
-        usernameInputRef.current?.focus();
-    }, []);
-
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         const parsed = loginSchema.safeParse(values);
 
@@ -34,8 +30,9 @@ export function Login() {
         }
 
         setErrors({});
-        reset();
-        login(parsed.data);
+        resetLogin();
+        await login(parsed.data);
+        navigate("/", { replace: true });
     };
 
     useEffect(() => {
@@ -43,6 +40,14 @@ export function Login() {
             usernameInputRef.current?.focus();
         }
     }, [errorMessage]);
+
+    useEffect(() => {
+        return resetLogin();
+    }, [resetLogin]);
+
+    useEffect(() => {
+        usernameInputRef.current?.focus();
+    }, []);
 
     return (
         <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-8 sm:px-6">
@@ -89,7 +94,7 @@ export function Login() {
                                             const value = e.target.value;
                                             setValues((prev) => ({ ...prev, username: value }));
                                             setErrors((prev) => ({ ...prev, username: undefined }));
-                                            if (errorMessage) reset();
+                                            if (errorMessage) resetLogin();
                                         }}
                                     />
                                     {errors.username && (
@@ -113,7 +118,7 @@ export function Login() {
                                             const value = e.target.value;
                                             setValues((prev) => ({ ...prev, password: value }));
                                             setErrors((prev) => ({ ...prev, password: undefined }));
-                                            if (errorMessage) reset();
+                                            if (errorMessage) resetLogin();
                                         }}
                                     />
                                     {errors.password && (

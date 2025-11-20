@@ -1,12 +1,11 @@
-import { useAuth } from "../context/AuthContext";
-
 export function Home() {
-    const { user } = useAuth();
-
     return (
-        <div className="d-flex gap-1">
-            <h2>Home</h2>
-            <span>Bem-vindo{user?.username ? `, ${user.username}` : ""}!</span>
+        <div className="p-6">
+            <h2 className="text-xl font-semibold mb-2">Home</h2>
+
+            <p className="text-muted-foreground">
+                Aqui será exibido o dashboard, gráficos, notificações e atalhos do sistema.
+            </p>
         </div>
     );
 }

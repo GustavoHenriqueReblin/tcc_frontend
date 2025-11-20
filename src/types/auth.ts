@@ -16,3 +16,11 @@ export interface LoginResponse {
         user: User;
     };
 }
+
+export interface LogoutResponse {
+    success: boolean;
+    message: string;
+    data: {
+        message: string;
+    };
+}
