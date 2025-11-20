@@ -8,20 +8,23 @@ import {
     type ColumnDef,
 } from "@tanstack/react-table";
 
+import { ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 
-export interface DataTableMobileField {
+export interface DataTableMobileField<TData, TValue> {
     label: string;
     value: string;
+    render?: (value: TValue, row: TData) => ReactNode;
 }
 
 export interface DataTableProps<TData extends object, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
-    mobileFields?: DataTableMobileField[];
+    mobileFields?: DataTableMobileField<TData, TValue>[];
     isLoading?: boolean;
     searchable?: boolean;
     className?: string;
@@ -74,6 +77,7 @@ export function DataTable<TData extends object, TValue>({
             <div className={cn("space-y-4", className)}>
                 {searchable && (
                     <Input
+                        id="table-input"
                         placeholder="Pesquisar..."
                         className="w-full"
                         onChange={(e) => table.setGlobalFilter(e.target.value)}
@@ -89,14 +93,28 @@ export function DataTable<TData extends object, TValue>({
                                 key={row.id}
                                 className="rounded-lg border p-4 bg-card text-card-foreground space-y-1"
                             >
-                                {mobileFields.map((field) => (
-                                    <div key={field.value} className="flex justify-between text-sm">
-                                        <span className="font-medium text-muted-foreground">
-                                            {field.label}:
-                                        </span>
-                                        <span>{getDeepValue(row.original, field.value)}</span>
-                                    </div>
-                                ))}
+                                {mobileFields.map((field) => {
+                                    const rawValue = getDeepValue(
+                                        row.original,
+                                        field.value
+                                    ) as TValue;
+
+                                    return (
+                                        <div
+                                            key={field.value}
+                                            className="flex justify-between text-sm"
+                                        >
+                                            <span className="font-medium text-muted-foreground">
+                                                {field.label}:
+                                            </span>
+                                            <span>
+                                                {field.render
+                                                    ? field.render(rawValue, row.original)
+                                                    : String(rawValue)}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         ))}
                     </div>
@@ -135,6 +153,7 @@ export function DataTable<TData extends object, TValue>({
         <div className={cn("space-y-4", className)}>
             {searchable && (
                 <Input
+                    id="table-input"
                     placeholder="Pesquisar..."
                     className="w-full md:w-72"
                     onChange={(e) => table.setGlobalFilter(e.target.value)}
@@ -157,11 +176,26 @@ export function DataTable<TData extends object, TValue>({
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={header.column.getToggleSortingHandler()}
-                                                    className="px-1"
+                                                    className="px-1 flex items-center gap-1 select-none"
                                                 >
                                                     {flexRender(
                                                         header.column.columnDef.header,
                                                         header.getContext()
+                                                    )}
+
+                                                    {header.column.getIsSorted() === "asc" && (
+                                                        <ArrowUp
+                                                            size={1}
+                                                            className="size-3 opacity-100"
+                                                        />
+                                                    )}
+
+                                                    {header.column.getIsSorted() === "desc" && (
+                                                        <ArrowDown className="size-3 opacity-100" />
+                                                    )}
+
+                                                    {!header.column.getIsSorted() && (
+                                                        <ArrowUpDown className="size-3 opacity-30" />
                                                     )}
                                                 </Button>
                                             )}

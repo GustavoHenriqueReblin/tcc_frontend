@@ -93,9 +93,15 @@ export function Customers() {
                 const status = row.original.status;
 
                 const classes =
-                    status === StatusEnum.ACTIVE ? "text-green-500 font-medium" : "text-red-500 font-medium";
+                    status === StatusEnum.ACTIVE
+                        ? "text-green-500 font-medium"
+                        : "text-red-500 font-medium";
 
-                return <span className={classes}>{status === StatusEnum.ACTIVE ? "Ativo" : "Inativo"}</span>;
+                return (
+                    <span className={classes}>
+                        {status === StatusEnum.ACTIVE ? "Ativo" : "Inativo"}
+                    </span>
+                );
             },
         },
     ];
@@ -114,7 +120,11 @@ export function Customers() {
                     { label: "Nome", value: "person.name" },
                     { label: "Telefone", value: "person.phone" },
                     { label: "Cidade", value: "person.city.name" },
-                    { label: "Status", value: "status" },
+                    {
+                        label: "Status",
+                        value: "status",
+                        render: (value) => (value === StatusEnum.ACTIVE ? "Ativo" : "Inativo"),
+                    },
                 ]}
             />
         </div>

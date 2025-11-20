@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bell, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
+import { Bell, LogOut, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +17,7 @@ export function Header({
     const { user, logout } = useAuth();
     const isMobile = useIsMobile();
     const navigate = useNavigate();
-    const fallback = (user?.username?.slice(0, 2) || "US").toUpperCase();
+    const fallback = (user?.username?.slice(0, 1) || "U").toUpperCase();
 
     const handleLogout = async () => {
         await logout();
