@@ -24,7 +24,7 @@ export function Sidebar({
     const width = collapsed ? "w-20" : "w-64";
 
     const baseClasses = cn(
-        "sticky top-0 flex h-screen flex-col overflow-y-auto border-r bg-sidebar/95 text-sidebar-foreground backdrop-blur transition-all duration-300",
+        "flex flex-col h-screen shrink-0 overflow-y-auto border-r bg-sidebar/95 text-sidebar-foreground backdrop-blur transition-all duration-300",
         width
     );
 
@@ -51,10 +51,10 @@ export function Sidebar({
 
                         {!collapsed && (
                             <div className="space-y-0.5">
-                                <p className="text-sm font-semibold leading-tight">
+                                <p className="text-sm font-semibold leading-tight text-nowrap">
                                     ERP Industrial
                                 </p>
-                                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                                <p className="text-[11px] tracking-wide text-muted-foreground text-nowrap">
                                     {user?.enterpriseName}
                                 </p>
                             </div>

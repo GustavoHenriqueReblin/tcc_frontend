@@ -48,7 +48,7 @@ export function Header({
                     </Button>
                 )}
 
-                <div className="hidden flex-1 items-center md:flex">
+                {/* <div className="hidden flex-1 items-center md:flex">
                     <label className="relative flex w-full max-w-xl items-center">
                         <Search className="pointer-events-none absolute left-3 size-4 text-muted-foreground" />
                         <Input
@@ -56,7 +56,7 @@ export function Header({
                             className="w-full rounded-full border bg-muted/60 pl-9 pr-3 text-sm focus-visible:ring-2"
                         />
                     </label>
-                </div>
+                </div> */}
 
                 <div className="ml-auto flex items-center gap-2">
                     <Button variant="ghost" size="icon-sm" className="rounded-full">

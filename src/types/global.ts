@@ -42,3 +42,24 @@ export interface ApiResponse<T> {
     message: string;
     data: T;
 }
+
+export interface City {
+    id: number;
+    stateId: number;
+    name: string;
+    ibgeCode: number;
+}
+
+export interface State {
+    id: number;
+    countryId: number;
+    name: string;
+    uf: string;
+    ibgeCode: number;
+}
+
+export interface Country {
+    id: number;
+    name: string;
+    isoCode: string;
+}

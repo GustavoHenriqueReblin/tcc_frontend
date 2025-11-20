@@ -21,17 +21,17 @@ export function AppLayout() {
         <div className="min-h-screen flex bg-background text-foreground">
             <Sidebar mode={sidebarMode} open={open} onClose={() => setMobileOpen(false)} />
 
-            <main className="flex-1 flex flex-col transition-all duration-300">
+            <div className="flex-1 flex flex-col transition-all duration-300 min-w-0">
                 <Header
                     onToggleMobile={() => setMobileOpen(!mobileOpen)}
                     desktopExpanded={desktopExpanded}
                     onToggleDesktop={() => setDesktopExpanded(!desktopExpanded)}
                 />
 
-                <div className="p-6">
+                <main className="p-6 flex-1 overflow-x-auto">
                     <Outlet />
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     );
 }
