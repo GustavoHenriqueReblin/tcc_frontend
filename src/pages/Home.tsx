@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { cn } from "@/lib/utils";
 import {
     Activity,
@@ -124,6 +125,8 @@ const featuredModules = [
 ];
 
 export function Home() {
+    usePageTitle("Dashboard - ERP Industrial");
+
     return (
         <div className="mx-auto max-w-7xl space-y-8">
             <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">

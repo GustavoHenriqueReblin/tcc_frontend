@@ -53,9 +53,11 @@ export function Login() {
         <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-8 sm:px-6">
             <div className="flex w-full max-w-4xl flex-col gap-8 md:flex-row md:items-center md:gap-10">
                 <div className="hidden md:block flex-1 space-y-4 text-center md:text-left">
-                    <span className="inline-flex items-center justify-center rounded-full border px-3 py-1 text-[0.7rem] font-medium">
-                        Ambiente corporativo • Acesso restrito
-                    </span>
+                    <div className="inline-flex gap-3 items-center justify-center rounded-full border px-3 py-1 text-[0.7rem] font-medium">
+                        <span className="">Ambiente corporativo</span>
+                        <span className="text-purple-950">•</span>
+                        <span className="">Acesso restrito</span>
+                    </div>
 
                     <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
                         Acesso ao painel do sistema
@@ -79,14 +81,12 @@ export function Login() {
                         <CardContent>
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="grid gap-2">
-                                    <Label
-                                        htmlFor="username"
-                                        className="text-xs uppercase tracking-wide"
-                                    >
+                                    <Label htmlFor="username" className="text-xs tracking-wide">
                                         Usuário
                                     </Label>
                                     <Input
                                         id="username"
+                                        placeholder="seu_usuario@email.com.br"
                                         ref={usernameInputRef}
                                         value={values.username}
                                         autoComplete="username"
@@ -103,14 +103,12 @@ export function Login() {
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label
-                                        htmlFor="password"
-                                        className="text-xs uppercase tracking-wide"
-                                    >
+                                    <Label htmlFor="password" className="text-xs tracking-wide">
                                         Senha
                                     </Label>
                                     <Input
                                         id="password"
+                                        placeholder="••••••••••••"
                                         type="password"
                                         autoComplete="current-password"
                                         value={values.password}

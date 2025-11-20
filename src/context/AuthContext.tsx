@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import type { LoginFormValues } from "../schemas/auth/login.schema";
 import type { LoginResponse, LogoutResponse, User } from "../types/auth";
 import { api } from "../api/client";
+import { AxiosError } from "axios";
 
 type AuthContextValue = {
     user: User | null;
@@ -19,6 +20,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const mutationLogin = useMutation<User, Error, LoginFormValues>({
         mutationFn: async (payload) => {
@@ -32,6 +34,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
         onSuccess: (user) => {
             setUser(user);
+        },
+        onError: (error: AxiosError<LoginResponse>) => {
+            setError(error.response.data.message);
         },
     });
 
@@ -48,6 +53,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         onSuccess: () => {
             setUser(null);
         },
+        onError: (error: AxiosError<LogoutResponse>) => {
+            setError(error.response.data.message);
+        },
     });
 
     const value: AuthContextValue = {
@@ -57,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login: mutationLogin.mutateAsync,
         logout: mutationLogout.mutateAsync,
         isLoading: mutationLogin.isPending || mutationLogout.isPending,
-        errorMessage: mutationLogin.error?.message ?? mutationLogout.error?.message ?? null,
+        errorMessage: error,
         resetLogin: mutationLogin.reset,
     };
 
