@@ -117,9 +117,19 @@ export function Customers() {
                 isLoading={isLoading}
                 searchable
                 mobileFields={[
-                    { label: "Nome", value: "person.name" },
-                    { label: "Telefone", value: "person.phone" },
-                    { label: "Cidade", value: "person.city.name" },
+                    {
+                        label: "Nome",
+                        value: "person.name",
+                    },
+                    {
+                        label: "Telefone",
+                        value: "person.phone",
+                    },
+                    {
+                        label: "Cidade",
+                        value: "person.city.name",
+                    },
+                    { label: "Cidade", value: "person.state.uf" },
                     {
                         label: "Status",
                         value: "status",

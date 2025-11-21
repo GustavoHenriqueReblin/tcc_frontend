@@ -14,17 +14,18 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Loading } from "../Loading";
 
-export interface DataTableMobileField<TData, TValue> {
+export interface DataTableMobileField<TData> {
     label: string;
     value: string;
-    render?: (value: TValue, row: TData) => ReactNode;
+    render?: (value: string, row: TData) => ReactNode;
 }
 
 export interface DataTableProps<TData extends object, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
-    mobileFields?: DataTableMobileField<TData, TValue>[];
+    mobileFields?: DataTableMobileField<TData>[];
     isLoading?: boolean;
     searchable?: boolean;
     className?: string;
@@ -85,38 +86,37 @@ export function DataTable<TData extends object, TValue>({
                 )}
 
                 {isLoading ? (
-                    <p className="text-sm text-muted-foreground">Carregando...</p>
+                    <Loading />
                 ) : (
                     <div className="space-y-3">
-                        {table.getRowModel().rows.map((row) => (
-                            <div
-                                key={row.id}
-                                className="rounded-lg border p-4 bg-card text-card-foreground space-y-1"
-                            >
-                                {mobileFields.map((field) => {
-                                    const rawValue = getDeepValue(
-                                        row.original,
-                                        field.value
-                                    ) as TValue;
+                        {table.getRowModel().rows.map((row) => {
+                            const resolve = (i: number) => {
+                                const value = getDeepValue(row.original, mobileFields[i]!.value);
 
-                                    return (
-                                        <div
-                                            key={field.value}
-                                            className="flex justify-between text-sm"
-                                        >
-                                            <span className="font-medium text-muted-foreground">
-                                                {field.label}:
-                                            </span>
-                                            <span>
-                                                {field.render
-                                                    ? field.render(rawValue, row.original)
-                                                    : String(rawValue)}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ))}
+                                return mobileFields[i]?.render
+                                    ? mobileFields[i]!.render(value, row.original)
+                                    : value;
+                            };
+
+                            const v0 = resolve(0);
+                            const v1 = resolve(1);
+                            const v2 = resolve(2);
+                            const v3 = resolve(3);
+
+                            return (
+                                <div
+                                    key={row.id}
+                                    className="rounded-lg border p-4 bg-card text-card-foreground"
+                                >
+                                    <div className="font-medium text-lg truncate mb-1">{v0}</div>
+                                    <div className="text-sm text-muted-foreground">{v1}</div>
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <div className="text-muted-foreground">{v2}</div>
+                                        <div className="text-muted-foreground">{v3}</div>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
 
@@ -207,11 +207,18 @@ export function DataTable<TData extends object, TValue>({
 
                         {isLoading ? (
                             <tbody>
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <tr key={i} className="border-b">
-                                        <td className="px-4 py-3" colSpan={columns.length}>
-                                            <div className="animate-pulse h-4 w-1/2 bg-muted rounded" />
-                                        </td>
+                                {Array.from({ length: 8 }).map((_, row) => (
+                                    <tr key={row} className="border-b">
+                                        {Array.from({ length: columns.length }).map((_, col) => (
+                                            <td key={col} className="px-4 py-3">
+                                                <div
+                                                    className="h-4 rounded bg-muted animate-pulse"
+                                                    style={{
+                                                        width: `${60 + Math.random() * 80}px`,
+                                                    }}
+                                                />
+                                            </td>
+                                        ))}
                                     </tr>
                                 ))}
                             </tbody>
@@ -222,7 +229,7 @@ export function DataTable<TData extends object, TValue>({
                                         {row.getVisibleCells().map((cell) => (
                                             <td
                                                 key={cell.id}
-                                                className="px-4 py-3 whitespace-nowrap"
+                                                className="px-6 py-3 whitespace-nowrap"
                                             >
                                                 {flexRender(
                                                     cell.column.columnDef.cell,

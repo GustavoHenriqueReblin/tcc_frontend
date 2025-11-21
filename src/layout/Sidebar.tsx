@@ -24,7 +24,7 @@ export function Sidebar({
     const width = collapsed ? "w-20" : "w-64";
 
     const baseClasses = cn(
-        "flex flex-col h-screen shrink-0 overflow-y-auto border-r bg-sidebar/95 text-sidebar-foreground backdrop-blur transition-all duration-300",
+        "sticky top-0 flex flex-col h-screen shrink-0 overflow-y-auto border-r bg-sidebar/95 text-sidebar-foreground backdrop-blur transition-all duration-300",
         width
     );
 
