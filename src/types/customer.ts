@@ -1,4 +1,4 @@
-import { PersonType, Status } from "./global";
+import { Pagination, PersonType, Status } from "./global";
 import { Person } from "./person";
 
 export interface DeliveryAddress {
@@ -50,10 +50,6 @@ export interface CustomersResponse {
     message: string;
     data: {
         customers: Customer[];
-        meta: {
-            total: number;
-            page: number;
-            totalPages: number;
-        };
+        meta: Pagination;
     };
 }

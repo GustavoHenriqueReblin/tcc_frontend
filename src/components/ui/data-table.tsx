@@ -1,20 +1,22 @@
 import {
     flexRender,
     getCoreRowModel,
-    getFilteredRowModel,
     getPaginationRowModel,
-    getSortedRowModel,
     useReactTable,
     type ColumnDef,
+    type SortingState,
 } from "@tanstack/react-table";
 
-import { ReactNode } from "react";
+import { useState, ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { Loading } from "../Loading";
+import { api } from "@/api/client";
+import { useQuery } from "@tanstack/react-query";
+import type { ApiResponse, Pagination } from "@/types/global";
 
 export interface DataTableMobileField<TData> {
     label: string;
@@ -22,68 +24,132 @@ export interface DataTableMobileField<TData> {
     render?: (value: string, row: TData) => ReactNode;
 }
 
-export interface DataTableProps<TData extends object, TValue> {
-    columns: ColumnDef<TData, TValue>[];
-    data: TData[];
+export interface DataTableProps<TData extends object> {
+    columns: ColumnDef<TData, unknown>[];
+    endpoint: string;
     mobileFields?: DataTableMobileField<TData>[];
-    isLoading?: boolean;
-    searchable?: boolean;
+    defaultSort?: { sortBy: string; sortOrder: "asc" | "desc" };
+    defaultPageSize?: number;
     className?: string;
 }
 
-export function DataTable<TData extends object, TValue>({
+interface ServerList<TData> {
+    items: TData[];
+    meta: Pagination;
+}
+
+export function DataTable<TData extends object>({
     columns,
-    data,
-    isLoading = false,
-    searchable = true,
-    className,
+    endpoint,
     mobileFields = [],
-}: DataTableProps<TData, TValue>) {
+    defaultSort = { sortBy: "id", sortOrder: "asc" },
+    defaultPageSize = 10,
+    className,
+}: DataTableProps<TData>) {
     const isMobile = useIsMobile();
 
+    const [sorting, setSorting] = useState<SortingState>(
+        defaultSort
+            ? [
+                  {
+                      id: defaultSort.sortBy,
+                      desc: defaultSort.sortOrder === "desc",
+                  },
+              ]
+            : []
+    );
+
+    const [pagination, setPagination] = useState({
+        pageIndex: 0,
+        pageSize: defaultPageSize,
+    });
+
+    const [search, setSearch] = useState("");
+
+    const extractSortKey = (key: string): string => key.split(".").pop()!;
+
+    const currentSort = sorting[0];
+    const sortBy =
+        currentSort?.id !== undefined
+            ? extractSortKey(currentSort.id as string)
+            : extractSortKey(defaultSort.sortBy);
+
+    const sortOrder: "asc" | "desc" =
+        (currentSort?.desc ?? defaultSort.sortOrder === "desc") ? "desc" : "asc";
+
+    const { data, isLoading } = useQuery<ApiResponse<ServerList<TData>>>({
+        queryKey: [
+            "datatable",
+            endpoint,
+            pagination.pageIndex,
+            pagination.pageSize,
+            search,
+            sortBy,
+            sortOrder,
+        ],
+        queryFn: async () => {
+            const response = await api.get<ApiResponse<ServerList<TData>>>(endpoint, {
+                params: {
+                    page: pagination.pageIndex + 1,
+                    limit: pagination.pageSize,
+                    search,
+                    sortBy,
+                    sortOrder,
+                },
+            });
+            return response.data;
+        },
+    });
+
+    const rowsData = data?.data.items ?? [];
+    const meta = data?.data.meta ?? { total: 0, page: 1, totalPages: 1 };
+
     const table = useReactTable({
-        data,
+        data: rowsData,
         columns,
-        state: {},
+        state: {
+            sorting,
+            pagination,
+        },
+        onSortingChange: setSorting,
+        onPaginationChange: setPagination,
+        manualSorting: true,
+        manualPagination: true,
+        pageCount: meta.totalPages,
         getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
     });
 
-    function getDeepValue<T extends object>(obj: T, path: string): string {
-        if (typeof obj !== "object" || obj === null) return "";
-
+    function getDeepValue(obj: unknown, path: string): string {
+        if (obj === null || typeof obj !== "object") return "";
         const keys = path.split(".");
-
         let current: unknown = obj;
 
         for (const key of keys) {
-            if (typeof current !== "object" || current === null || !(key in current)) {
+            if (
+                current &&
+                typeof current === "object" &&
+                key in (current as Record<string, unknown>)
+            ) {
+                current = (current as Record<string, unknown>)[key];
+            } else {
                 return "";
             }
-
-            current = (current as Record<string, unknown>)[key];
         }
 
-        if (current === null || current === undefined) {
-            return "";
-        }
-
-        return String(current);
+        return current != null ? String(current) : "";
     }
 
     if (isMobile) {
         return (
             <div className={cn("space-y-4", className)}>
-                {searchable && (
-                    <Input
-                        id="table-input"
-                        placeholder="Pesquisar..."
-                        className="w-full"
-                        onChange={(e) => table.setGlobalFilter(e.target.value)}
-                    />
-                )}
+                <Input
+                    placeholder="Pesquisar..."
+                    onChange={(e) => {
+                        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                        setSearch(e.target.value);
+                    }}
+                />
 
                 {isLoading ? (
                     <Loading />
@@ -91,11 +157,10 @@ export function DataTable<TData extends object, TValue>({
                     <div className="space-y-3">
                         {table.getRowModel().rows.map((row) => {
                             const resolve = (i: number) => {
-                                const value = getDeepValue(row.original, mobileFields[i]!.value);
-
-                                return mobileFields[i]?.render
-                                    ? mobileFields[i]!.render(value, row.original)
-                                    : value;
+                                const field = mobileFields[i];
+                                if (!field) return "";
+                                const value = getDeepValue(row.original, field.value);
+                                return field.render ? field.render(value, row.original) : value;
                             };
 
                             const v0 = resolve(0);
@@ -111,8 +176,8 @@ export function DataTable<TData extends object, TValue>({
                                     <div className="font-medium text-lg truncate mb-1">{v0}</div>
                                     <div className="text-sm text-muted-foreground">{v1}</div>
                                     <div className="flex items-center gap-2 text-sm">
-                                        <div className="text-muted-foreground">{v2}</div>
-                                        <div className="text-muted-foreground">{v3}</div>
+                                        <span className="text-muted-foreground">{v2}</span>
+                                        <span className="text-muted-foreground">{v3}</span>
                                     </div>
                                 </div>
                             );
@@ -122,7 +187,7 @@ export function DataTable<TData extends object, TValue>({
 
                 <div className="flex items-center justify-between pt-2">
                     <p className="text-sm text-muted-foreground">
-                        Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+                        Página {pagination.pageIndex + 1} de {meta.totalPages}
                     </p>
 
                     <div className="flex items-center gap-2">
@@ -151,14 +216,14 @@ export function DataTable<TData extends object, TValue>({
 
     return (
         <div className={cn("space-y-4", className)}>
-            {searchable && (
-                <Input
-                    id="table-input"
-                    placeholder="Pesquisar..."
-                    className="w-full md:w-72"
-                    onChange={(e) => table.setGlobalFilter(e.target.value)}
-                />
-            )}
+            <Input
+                placeholder="Pesquisar..."
+                className="w-full md:w-72"
+                onChange={(e) => {
+                    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                    setSearch(e.target.value);
+                }}
+            />
 
             <div className="w-full h-full overflow-auto">
                 <div className="min-w-full overflow-x-auto rounded-md border bg-card text-card-foreground pb-2">
@@ -184,10 +249,7 @@ export function DataTable<TData extends object, TValue>({
                                                     )}
 
                                                     {header.column.getIsSorted() === "asc" && (
-                                                        <ArrowUp
-                                                            size={1}
-                                                            className="size-3 opacity-100"
-                                                        />
+                                                        <ArrowUp className="size-3 opacity-100" />
                                                     )}
 
                                                     {header.column.getIsSorted() === "desc" && (
@@ -209,7 +271,9 @@ export function DataTable<TData extends object, TValue>({
                             <tbody>
                                 {Array.from({ length: 8 }).map((_, row) => (
                                     <tr key={row} className="border-b">
-                                        {Array.from({ length: columns.length }).map((_, col) => (
+                                        {Array.from({
+                                            length: columns.length,
+                                        }).map((_, col) => (
                                             <td key={col} className="px-4 py-3">
                                                 <div
                                                     className="h-4 rounded bg-muted animate-pulse"
@@ -247,7 +311,7 @@ export function DataTable<TData extends object, TValue>({
 
             <div className="flex items-center justify-between pt-2">
                 <p className="text-sm text-muted-foreground">
-                    Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+                    Página {pagination.pageIndex + 1} de {meta.totalPages}
                 </p>
 
                 <div className="flex items-center gap-2">

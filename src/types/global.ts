@@ -37,10 +37,17 @@ export type ProductionOrderStatus =
 export type ProductDefinitionType =
     (typeof ProductDefinitionTypeEnum)[keyof typeof ProductDefinitionTypeEnum];
 
+export interface Pagination {
+    total: number;
+    page: number;
+    totalPages: number;
+}
+
 export interface ApiResponse<T> {
     success: boolean;
     message: string;
     data: T;
+    meta: Pagination;
 }
 
 export interface City {
