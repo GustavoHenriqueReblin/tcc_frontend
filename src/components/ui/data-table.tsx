@@ -87,6 +87,7 @@ export function DataTable<TData extends object>({
             sortBy,
             sortOrder,
         ],
+        staleTime: 1000 * 60 * 5,
         queryFn: async () => {
             const response = await api.get<ApiResponse<ServerList<TData>>>(endpoint, {
                 params: {
