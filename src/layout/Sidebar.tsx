@@ -1,12 +1,47 @@
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
-import { Gauge, LayoutDashboard, Package, Users } from "lucide-react";
+import {
+    BoxIcon,
+    ChevronDown,
+    Gauge,
+    LayoutDashboard,
+    Package,
+    Users,
+    Warehouse,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 
-export const menuItems = [
-    { label: "Inicio", to: "/", icon: LayoutDashboard },
-    { label: "Produtos", to: "/products", icon: Package },
-    { label: "Clientes", to: "/customers", icon: Users },
+export const menuConfig = [
+    {
+        type: "item",
+        label: "Início",
+        to: "/",
+        icon: LayoutDashboard,
+    },
+
+    {
+        type: "group",
+        label: "Cadastros",
+        items: [
+            { label: "Clientes", to: "/customers", icon: Users },
+            { label: "Fornecedores", to: "/suppliers", icon: Users },
+            {
+                label: "Definições de Produto",
+                to: "/product-definitions",
+                icon: BoxIcon,
+            },
+        ],
+    },
+
+    {
+        type: "group",
+        label: "Estoque",
+        items: [
+            { label: "Produtos", to: "/products", icon: Package },
+            { label: "Depósitos", to: "/warehouses", icon: Warehouse },
+        ],
+    },
 ];
 
 export function Sidebar({
@@ -23,12 +58,22 @@ export function Sidebar({
     const collapsed = mode === "desktop-collapsed";
     const width = collapsed ? "w-20" : "w-64";
 
+    const initialOpen = menuConfig.filter((m) => m.type === "group").map((g) => g.label);
+
+    const [openGroups, setOpenGroups] = useState<string[]>(initialOpen);
+
+    const toggleGroup = (label: string) => {
+        setOpenGroups((prev) =>
+            prev.includes(label) ? prev.filter((g) => g !== label) : [...prev, label]
+        );
+    };
+
     const baseClasses = cn(
         "sticky top-0 flex flex-col h-screen shrink-0 overflow-y-auto border-r bg-sidebar/95 text-sidebar-foreground backdrop-blur transition-all duration-300",
         width
     );
 
-    const mobileOverlayClasses = cn(
+    const mobileClasses = cn(
         "fixed inset-y-0 left-0 w-64 border-r bg-sidebar/95 text-sidebar-foreground shadow-xl backdrop-blur z-50 transform transition-transform",
         open ? "translate-x-0" : "-translate-x-64"
     );
@@ -37,7 +82,7 @@ export function Sidebar({
 
     return (
         <>
-            <aside className={isMobile ? mobileOverlayClasses : baseClasses}>
+            <aside className={isMobile ? mobileClasses : baseClasses}>
                 <div className={cn("px-4 pb-2 pt-5", collapsed && "px-2")}>
                     <div
                         className={cn(
@@ -51,10 +96,10 @@ export function Sidebar({
 
                         {!collapsed && (
                             <div className="space-y-0.5">
-                                <p className="text-sm font-semibold leading-tight text-nowrap">
+                                <p className="text-sm font-semibold leading-tight">
                                     ERP Industrial
                                 </p>
-                                <p className="text-[11px] tracking-wide text-muted-foreground text-nowrap">
+                                <p className="text-[11px] tracking-wide text-muted-foreground">
                                     {user?.enterpriseName}
                                 </p>
                             </div>
@@ -62,47 +107,108 @@ export function Sidebar({
                     </div>
                 </div>
 
-                <nav className="flex-1 space-y-1 px-3 py-2">
-                    {menuItems.map((item) => {
-                        const active = location.pathname === item.to;
-                        const Icon = item.icon;
+                <nav className="flex-1 px-3 py-2 space-y-2">
+                    {menuConfig.map((entry) => {
+                        if (entry.type === "item") {
+                            const active = location.pathname === entry.to;
+                            const Icon = entry.icon;
 
-                        return (
-                            <Link
-                                key={item.to}
-                                to={item.to}
-                                onClick={isMobile ? onClose : undefined}
-                                className={cn(
-                                    "group relative flex items-center overflow-hidden rounded-lg px-3 py-2 text-sm font-medium transition",
-                                    collapsed ? "justify-center gap-0 px-2" : "gap-3",
-                                    active
-                                        ? "bg-primary text-primary-foreground shadow-sm"
-                                        : "hover:bg-sidebar-accent/60 hover:text-foreground"
-                                )}
-                                aria-current={active ? "page" : undefined}
-                            >
-                                <span
+                            return (
+                                <Link
+                                    key={entry.to}
+                                    to={entry.to}
+                                    onClick={isMobile ? onClose : undefined}
                                     className={cn(
-                                        "absolute left-0 top-0 h-full w-1 bg-primary/70 transition",
-                                        active ? "opacity-100" : "opacity-0 group-hover:opacity-50"
-                                    )}
-                                />
-
-                                <span
-                                    className={cn(
-                                        "flex size-9 items-center justify-center rounded-lg border bg-card/70 text-foreground transition",
-                                        active &&
-                                            "border-primary/30 bg-primary/25 text-primary-foreground"
+                                        "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition cursor-pointer",
+                                        collapsed ? "justify-center gap-0 px-2" : "gap-3",
+                                        active
+                                            ? "bg-primary text-primary-foreground shadow-sm"
+                                            : "hover:bg-sidebar-accent/60 hover:text-foreground"
                                     )}
                                 >
-                                    <Icon className="size-4" />
-                                </span>
+                                    <span
+                                        className={cn(
+                                            "flex size-9 items-center justify-center rounded-lg border bg-card/70 transition",
+                                            active && "border-primary/30 bg-primary/25"
+                                        )}
+                                    >
+                                        <Icon className="size-4" />
+                                    </span>
 
-                                <span className={cn("truncate transition", collapsed && "sr-only")}>
-                                    {item.label}
-                                </span>
-                            </Link>
-                        );
+                                    {!collapsed && <span className="truncate">{entry.label}</span>}
+                                </Link>
+                            );
+                        }
+
+                        if (entry.type === "group") {
+                            const isOpen = openGroups.includes(entry.label);
+
+                            return (
+                                <div key={entry.label}>
+                                    {!collapsed && (
+                                        <button
+                                            onClick={() => toggleGroup(entry.label)}
+                                            className="flex w-full items-center justify-between px-2 py-1 text-xs font-semibold tracking-wide text-muted-foreground hover:text-foreground transition cursor-pointer"
+                                        >
+                                            {entry.label}
+                                            <ChevronDown
+                                                className={cn(
+                                                    "size-4 transition-transform",
+                                                    isOpen ? "rotate-180" : "rotate-0"
+                                                )}
+                                            />
+                                        </button>
+                                    )}
+
+                                    <div
+                                        className={cn(
+                                            "mt-1 overflow-hidden transition-all duration-300",
+                                            collapsed || isOpen ? "max-h-96" : "max-h-0"
+                                        )}
+                                    >
+                                        {entry.items.map((item) => {
+                                            const active = location.pathname === item.to;
+                                            const Icon = item.icon;
+
+                                            return (
+                                                <Link
+                                                    key={item.to}
+                                                    to={item.to}
+                                                    onClick={isMobile ? onClose : undefined}
+                                                    className={cn(
+                                                        "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition cursor-pointer",
+                                                        collapsed
+                                                            ? "justify-center gap-0 px-2"
+                                                            : "gap-3",
+                                                        active
+                                                            ? "bg-primary text-primary-foreground shadow-sm"
+                                                            : "hover:bg-sidebar-accent/60 hover:text-foreground"
+                                                    )}
+                                                >
+                                                    <span
+                                                        className={cn(
+                                                            "flex size-9 items-center justify-center rounded-lg border bg-card/70 transition",
+                                                            active &&
+                                                                "border-primary/30 bg-primary/25"
+                                                        )}
+                                                    >
+                                                        <Icon className="size-4" />
+                                                    </span>
+
+                                                    {!collapsed && (
+                                                        <span className="truncate">
+                                                            {item.label}
+                                                        </span>
+                                                    )}
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        return null;
                     })}
                 </nav>
             </aside>

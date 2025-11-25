@@ -27,7 +27,9 @@ export function Products() {
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
                 const unity = row.original.unity.simbol;
-                return inv ? String(Number(inv.quantity).toLocaleString("pt-BR") + " " + unity) : "";
+                return inv
+                    ? String(Number(inv.quantity).toLocaleString("pt-BR") + " " + unity)
+                    : "";
             },
         },
         {
