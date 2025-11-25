@@ -2,8 +2,11 @@ import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Customer } from "@/types/customer";
 import { StatusEnum } from "@/types/enums";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export function Customers() {
+    usePageTitle("Clientes - ERP Industrial");
+
     const columns: ColumnDef<Customer>[] = [
         { accessorKey: "person.name", id: "person.name", header: "Nome", meta: { sortable: true } },
         {
@@ -45,7 +48,7 @@ export function Customers() {
     ];
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-2">
             <h2 className="text-xl font-semibold">Clientes</h2>
 
             <DataTable<Customer>

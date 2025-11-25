@@ -44,7 +44,7 @@ export function DataTable<TData extends object>({
     endpoint,
     mobileFields = [],
     defaultSort = { sortBy: "id", sortOrder: "asc" },
-    defaultPageSize = 5,
+    defaultPageSize = 8,
     showSearch = true,
     className,
 }: DataTableProps<TData>) {
@@ -251,7 +251,7 @@ export function DataTable<TData extends object>({
                                         return (
                                             <th
                                                 key={header.id}
-                                                className="text-left px-4 py-3 font-medium"
+                                                className="text-left px-4 py-1 font-medium"
                                             >
                                                 {header.isPlaceholder ? null : (
                                                     <>
