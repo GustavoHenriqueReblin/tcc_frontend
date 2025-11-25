@@ -158,6 +158,7 @@ export function DataTable<TData extends object>({
             <div className={cn("space-y-4", className)}>
                 {showSearch && (
                     <Input
+                        autoFocus
                         placeholder="Pesquisar..."
                         onChange={(e) => setSearchInput(e.target.value)}
                     />
@@ -230,6 +231,7 @@ export function DataTable<TData extends object>({
         <div className={cn("space-y-4", className)}>
             {showSearch && (
                 <Input
+                    autoFocus
                     placeholder="Pesquisar..."
                     className="w-full md:w-72"
                     onChange={(e) => setSearchInput(e.target.value)}
