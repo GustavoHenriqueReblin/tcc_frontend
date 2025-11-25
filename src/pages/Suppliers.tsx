@@ -45,8 +45,7 @@ export function Suppliers() {
             id: "createdAt",
             header: "Criado em",
             meta: { sortable: true },
-            cell: ({ row }) =>
-                new Date(row.original.createdAt).toLocaleDateString("pt-BR"),
+            cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString("pt-BR"),
         },
     ];
 
