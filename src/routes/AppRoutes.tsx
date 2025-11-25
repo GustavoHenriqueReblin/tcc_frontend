@@ -8,6 +8,7 @@ import { Customers } from "@/pages/Customers";
 import { Warehouses } from "@/pages/Warehouses";
 import { ProductDefinitions } from "@/pages/ProductDefinitions";
 import { Suppliers } from "@/pages/Suppliers";
+import { Unities } from "@/pages/Unities";
 
 export function AppRoutes() {
     return (
@@ -31,6 +32,10 @@ export function AppRoutes() {
 
                 <Route element={<ProtectedRoute />}>
                     <Route path="/products" element={<Products />} />
+                </Route>
+
+                <Route element={<ProtectedRoute />}>
+                    <Route path="/unities" element={<Unities />} />
                 </Route>
 
                 <Route element={<ProtectedRoute />}>

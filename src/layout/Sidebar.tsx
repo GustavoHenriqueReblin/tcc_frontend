@@ -8,6 +8,7 @@ import {
     Package,
     Users,
     Warehouse,
+    Weight,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
@@ -39,6 +40,7 @@ export const menuConfig = [
         label: "Estoque",
         items: [
             { label: "Produtos", to: "/products", icon: Package },
+            { label: "Unidades de medida", to: "/unities", icon: Weight },
             { label: "Depósitos", to: "/warehouses", icon: Warehouse },
         ],
     },

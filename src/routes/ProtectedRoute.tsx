@@ -5,7 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { Loading } from "../components/Loading";
 import { ApiResponse } from "@/types/global";
-import { User } from "@/types/auth";
+import { Me } from "@/types/auth";
 import { AppLayout } from "@/layout/AppLayout";
 
 export function ProtectedRoute() {
@@ -13,10 +13,10 @@ export function ProtectedRoute() {
     const navigate = useNavigate();
     const { logout, setUser } = useAuth();
 
-    const { data, isLoading, isError } = useQuery<ApiResponse<User>>({
+    const { data, isLoading, isError } = useQuery<ApiResponse<Me>>({
         queryKey: ["auth", "me"],
         queryFn: async () => {
-            const response = await api.get<ApiResponse<User>>("/auth/me");
+            const response = await api.get<ApiResponse<Me>>("/auth/me");
             return response.data;
         },
         staleTime: 0,
@@ -26,18 +26,25 @@ export function ProtectedRoute() {
     });
 
     useEffect(() => {
-        const validateUser = async () => {
-            if (isLoading) return;
+        if (isLoading) return;
 
-            if (!data?.success || !data.data) {
-                await logout();
-                navigate("/login", { replace: true });
-            }
+        if (!data?.success || !data.data) {
+            logout();
+            navigate("/login", { replace: true });
+            return;
+        }
 
-            setUser(data.data);
-        };
-        validateUser();
-    }, [data, setUser, isLoading, logout, navigate]);
+        const me = data.data.user;
+
+        setUser({
+            id: me.id,
+            username: me.username,
+            role: me.role,
+            status: me.status,
+            personName: me.person.name,
+            enterpriseName: me.enterprise.name,
+        });
+    }, [data, isLoading, logout, navigate, setUser]);
 
     if (isError) {
         return <Navigate to="/login" state={{ from: location }} replace />;
