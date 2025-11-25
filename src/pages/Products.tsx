@@ -26,7 +26,8 @@ export function Products() {
             meta: { sortable: true },
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
-                return inv ? Number(inv.quantity).toLocaleString("pt-BR") : "-";
+                const unity = row.original.unity.simbol;
+                return inv ? String(Number(inv.quantity).toLocaleString("pt-BR") + " " + unity) : "";
             },
         },
         {
@@ -62,12 +63,6 @@ export function Products() {
                       )
                     : "";
             },
-        },
-        {
-            accessorKey: "unity.simbol",
-            id: "unity.simbol",
-            header: "Unid.",
-            meta: { sortable: false },
         },
         {
             accessorKey: "createdAt",

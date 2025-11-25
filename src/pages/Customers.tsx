@@ -16,9 +16,9 @@ export function Customers() {
             meta: { sortable: false },
         },
         {
-            accessorKey: "person.email",
-            id: "person.email",
-            header: "E-mail",
+            accessorKey: "person.taxId",
+            id: "person.taxId",
+            header: "CPF/CNPJ",
             meta: { sortable: false },
         },
         {
@@ -26,24 +26,18 @@ export function Customers() {
             id: "person.city.name",
             header: "Cidade",
             meta: { sortable: false },
+            cell: ({ row }) => {
+                const city = row.original.person.city.name;
+                const uf = row.original.person.state.uf;
+                return city + " - " + uf;
+            },
         },
         {
-            accessorKey: "person.state.uf",
-            id: "person.state.uf",
-            header: "UF",
-            meta: { sortable: false },
-        },
-        {
-            accessorKey: "status",
-            id: "status",
-            header: "Status",
-            meta: { sortable: false },
-            cell: ({ row }) =>
-                row.original.status === StatusEnum.ACTIVE ? (
-                    <span className="text-green-500">Ativo</span>
-                ) : (
-                    <span className="text-red-500">Inativo</span>
-                ),
+            accessorKey: "createdAt",
+            id: "createdAt",
+            header: "Criado em",
+            meta: { sortable: true },
+            cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString("pt-BR"),
         },
     ];
 

@@ -239,7 +239,7 @@ export function DataTable<TData extends object>({
             )}
 
             <div className="w-full h-full overflow-auto">
-                <div className="min-w-full overflow-x-auto rounded-md border bg-card text-card-foreground pb-2">
+                <div className="min-w-full overflow-x-auto rounded-md border bg-card text-card-foreground">
                     <table className="w-full text-sm min-w-max">
                         <thead className="bg-muted/50">
                             {table.getHeaderGroups().map((headerGroup) => (
