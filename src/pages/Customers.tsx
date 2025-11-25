@@ -5,14 +5,36 @@ import { StatusEnum } from "@/types/enums";
 
 export function Customers() {
     const columns: ColumnDef<Customer>[] = [
-        { accessorKey: "person.name", header: "Nome" },
-        { accessorKey: "person.phone", header: "Telefone" },
-        { accessorKey: "person.email", header: "E-mail" },
-        { accessorKey: "person.city.name", header: "Cidade" },
-        { accessorKey: "person.state.uf", header: "UF" },
+        { accessorKey: "person.name", id: "person.name", header: "Nome", meta: { sortable: true } },
+        {
+            accessorKey: "person.phone",
+            id: "person.phone",
+            header: "Telefone",
+            meta: { sortable: false },
+        },
+        {
+            accessorKey: "person.email",
+            id: "person.email",
+            header: "E-mail",
+            meta: { sortable: false },
+        },
+        {
+            accessorKey: "person.city.name",
+            id: "person.city.name",
+            header: "Cidade",
+            meta: { sortable: false },
+        },
+        {
+            accessorKey: "person.state.uf",
+            id: "person.state.uf",
+            header: "UF",
+            meta: { sortable: false },
+        },
         {
             accessorKey: "status",
+            id: "status",
             header: "Status",
+            meta: { sortable: false },
             cell: ({ row }) =>
                 row.original.status === StatusEnum.ACTIVE ? (
                     <span className="text-green-500">Ativo</span>

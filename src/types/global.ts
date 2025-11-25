@@ -1,3 +1,4 @@
+import "@tanstack/react-table";
 import type {
     AssetMaintenanceTypeEnum,
     AssetStatusEnum,
@@ -36,6 +37,14 @@ export type ProductionOrderStatus =
     (typeof ProductionOrderStatusEnum)[keyof typeof ProductionOrderStatusEnum];
 export type ProductDefinitionType =
     (typeof ProductDefinitionTypeEnum)[keyof typeof ProductDefinitionTypeEnum];
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
+declare module "@tanstack/react-table" {
+    interface ColumnMeta<TData, TValue> {
+        sortable?: boolean;
+    }
+}
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 export interface Pagination {
     total: number;

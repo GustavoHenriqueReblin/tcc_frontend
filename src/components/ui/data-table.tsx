@@ -7,7 +7,7 @@ import {
     type SortingState,
 } from "@tanstack/react-table";
 
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -30,6 +30,7 @@ export interface DataTableProps<TData extends object> {
     mobileFields?: DataTableMobileField<TData>[];
     defaultSort?: { sortBy: string; sortOrder: "asc" | "desc" };
     defaultPageSize?: number;
+    showSearch?: boolean;
     className?: string;
 }
 
@@ -43,7 +44,8 @@ export function DataTable<TData extends object>({
     endpoint,
     mobileFields = [],
     defaultSort = { sortBy: "id", sortOrder: "asc" },
-    defaultPageSize = 10,
+    defaultPageSize = 5,
+    showSearch = true,
     className,
 }: DataTableProps<TData>) {
     const isMobile = useIsMobile();
@@ -64,6 +66,7 @@ export function DataTable<TData extends object>({
         pageSize: defaultPageSize,
     });
 
+    const [searchInput, setSearchInput] = useState("");
     const [search, setSearch] = useState("");
 
     const extractSortKey = (key: string): string => key.split(".").pop()!;
@@ -76,6 +79,15 @@ export function DataTable<TData extends object>({
 
     const sortOrder: "asc" | "desc" =
         (currentSort?.desc ?? defaultSort.sortOrder === "desc") ? "desc" : "asc";
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            setPagination((p) => ({ ...p, pageIndex: 0 }));
+            setSearch(searchInput);
+        }, 400);
+
+        return () => clearTimeout(timeout);
+    }, [searchInput]);
 
     const { data, isLoading } = useQuery<ApiResponse<ServerList<TData>>>({
         queryKey: [
@@ -144,13 +156,12 @@ export function DataTable<TData extends object>({
     if (isMobile) {
         return (
             <div className={cn("space-y-4", className)}>
-                <Input
-                    placeholder="Pesquisar..."
-                    onChange={(e) => {
-                        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-                        setSearch(e.target.value);
-                    }}
-                />
+                {showSearch && (
+                    <Input
+                        placeholder="Pesquisar..."
+                        onChange={(e) => setSearchInput(e.target.value)}
+                    />
+                )}
 
                 {isLoading ? (
                     <Loading />
@@ -217,14 +228,13 @@ export function DataTable<TData extends object>({
 
     return (
         <div className={cn("space-y-4", className)}>
-            <Input
-                placeholder="Pesquisar..."
-                className="w-full md:w-72"
-                onChange={(e) => {
-                    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-                    setSearch(e.target.value);
-                }}
-            />
+            {showSearch && (
+                <Input
+                    placeholder="Pesquisar..."
+                    className="w-full md:w-72"
+                    onChange={(e) => setSearchInput(e.target.value)}
+                />
+            )}
 
             <div className="w-full h-full overflow-auto">
                 <div className="min-w-full overflow-x-auto rounded-md border bg-card text-card-foreground pb-2">
@@ -232,38 +242,54 @@ export function DataTable<TData extends object>({
                         <thead className="bg-muted/50">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <tr key={headerGroup.id} className="border-b">
-                                    {headerGroup.headers.map((header) => (
-                                        <th
-                                            key={header.id}
-                                            className="text-left px-4 py-3 font-medium"
-                                        >
-                                            {header.isPlaceholder ? null : (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={header.column.getToggleSortingHandler()}
-                                                    className="px-1 flex items-center gap-1 select-none"
-                                                >
-                                                    {flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
-                                                    )}
+                                    {headerGroup.headers.map((header) => {
+                                        const sortable =
+                                            header.column.columnDef.meta?.sortable !== false;
 
-                                                    {header.column.getIsSorted() === "asc" && (
-                                                        <ArrowUp className="size-3 opacity-100" />
-                                                    )}
+                                        return (
+                                            <th
+                                                key={header.id}
+                                                className="text-left px-4 py-3 font-medium"
+                                            >
+                                                {header.isPlaceholder ? null : (
+                                                    <>
+                                                        {sortable ? (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={header.column.getToggleSortingHandler()}
+                                                                className="px-1 flex items-center gap-1 select-none"
+                                                            >
+                                                                {flexRender(
+                                                                    header.column.columnDef.header,
+                                                                    header.getContext()
+                                                                )}
 
-                                                    {header.column.getIsSorted() === "desc" && (
-                                                        <ArrowDown className="size-3 opacity-100" />
-                                                    )}
-
-                                                    {!header.column.getIsSorted() && (
-                                                        <ArrowUpDown className="size-3 opacity-30" />
-                                                    )}
-                                                </Button>
-                                            )}
-                                        </th>
-                                    ))}
+                                                                {header.column.getIsSorted() ===
+                                                                    "asc" && (
+                                                                    <ArrowUp className="size-3 opacity-100" />
+                                                                )}
+                                                                {header.column.getIsSorted() ===
+                                                                    "desc" && (
+                                                                    <ArrowDown className="size-3 opacity-100" />
+                                                                )}
+                                                                {!header.column.getIsSorted() && (
+                                                                    <ArrowUpDown className="size-3 opacity-30" />
+                                                                )}
+                                                            </Button>
+                                                        ) : (
+                                                            <span>
+                                                                {flexRender(
+                                                                    header.column.columnDef.header,
+                                                                    header.getContext()
+                                                                )}
+                                                            </span>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </th>
+                                        );
+                                    })}
                                 </tr>
                             ))}
                         </thead>
@@ -294,7 +320,7 @@ export function DataTable<TData extends object>({
                                         {row.getVisibleCells().map((cell) => (
                                             <td
                                                 key={cell.id}
-                                                className="px-6 py-3 whitespace-nowrap"
+                                                className="px-4 py-3 whitespace-nowrap"
                                             >
                                                 {flexRender(
                                                     cell.column.columnDef.cell,
