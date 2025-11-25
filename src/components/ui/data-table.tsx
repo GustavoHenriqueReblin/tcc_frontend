@@ -280,12 +280,16 @@ export function DataTable<TData extends object>({
                                                                 )}
                                                             </Button>
                                                         ) : (
-                                                            <span>
+                                                            <div className="px-2 flex items-center gap-1 select-none h-8">
                                                                 {flexRender(
                                                                     header.column.columnDef.header,
                                                                     header.getContext()
                                                                 )}
-                                                            </span>
+
+                                                                <span className="inline-block size-3 opacity-0">
+                                                                    <ArrowUpDown className="size-3" />
+                                                                </span>
+                                                            </div>
                                                         )}
                                                     </>
                                                 )}
@@ -322,7 +326,7 @@ export function DataTable<TData extends object>({
                                         {row.getVisibleCells().map((cell) => (
                                             <td
                                                 key={cell.id}
-                                                className="px-4 py-3 whitespace-nowrap"
+                                                className="px-6 py-3 whitespace-nowrap"
                                             >
                                                 {flexRender(
                                                     cell.column.columnDef.cell,
