@@ -179,7 +179,7 @@ export function FieldsGrid({ cols, children }: { cols: number; children: ReactNo
     return (
         <div
             className={cn(
-                "grid gap-4",
+                "grid gap-4 items-start",
                 cols === 1 && "md:grid-cols-1",
                 cols === 2 && "md:grid-cols-2",
                 cols === 3 && "md:grid-cols-3",

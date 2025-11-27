@@ -1,14 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import {
-    Section,
-    FieldsGrid,
-    TextField,
-    TextAreaField,
-    EnumSelect,
-    NumberField,
-} from "@/components/Fields";
+import { Section, FieldsGrid, TextField, TextAreaField, EnumSelect } from "@/components/Fields";
 
 import { customerFormSchema, CustomerFormValues } from "@/schemas/customer/customer.schema";
 
@@ -20,6 +13,7 @@ import { FormFooterFloating } from "@/components/FormFooterFloating";
 import { maskCEP, maskCPFOrCNPJ, maskPhone } from "@/lib/utils";
 import { maritalStatusLabels, personTypeLabels, statusLabels } from "@/types/global";
 import { useEffect } from "react";
+import { ComboboxQuery } from "@/components/ComboboxQuery";
 
 interface Props {
     defaultValues: CustomerFormValues;
@@ -56,6 +50,8 @@ export function CustomerForm({
     }
 
     const { handleSubmit, control, formState } = form;
+    const countryId = form.watch("person.countryId");
+    const stateId = form.watch("person.stateId");
 
     return (
         <div className="rounded-md border bg-card text-card-foreground p-6">
@@ -149,20 +145,35 @@ export function CustomerForm({
                         </FieldsGrid>
 
                         <FieldsGrid cols={3}>
-                            <NumberField
+                            <ComboboxQuery
                                 control={control}
                                 name="person.countryId"
-                                label="País (ID)"
+                                label="País"
+                                endpoint="/countries"
+                                valueField="id"
+                                labelField="name"
                             />
-                            <NumberField
+
+                            <ComboboxQuery
                                 control={control}
                                 name="person.stateId"
-                                label="Estado (ID)"
+                                label="Estado"
+                                endpoint="/states"
+                                valueField="id"
+                                labelField="name"
+                                disabled={!countryId}
+                                extraParams={{ countryId }}
                             />
-                            <NumberField
+
+                            <ComboboxQuery
                                 control={control}
                                 name="person.cityId"
-                                label="Cidade (ID)"
+                                label="Cidade"
+                                endpoint="/cities"
+                                valueField="id"
+                                labelField="name"
+                                disabled={!stateId}
+                                extraParams={{ stateId }}
                             />
                         </FieldsGrid>
 
@@ -246,7 +257,7 @@ export const defaultCustomerFormValues: CustomerFormValues = {
     contactPhone: null,
     contactEmail: null,
     person: {
-        name: null,
+        name: "",
         legalName: null,
         taxId: null,
         nationalId: null,

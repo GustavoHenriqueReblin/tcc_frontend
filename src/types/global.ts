@@ -65,6 +65,11 @@ declare module "@tanstack/react-table" {
 }
 /* eslint-enable @typescript-eslint/no-unused-vars */
 
+export interface ServerList<TData> {
+    items: TData[];
+    meta: Pagination;
+}
+
 export interface Pagination {
     total: number;
     page: number;

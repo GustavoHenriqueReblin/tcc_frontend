@@ -16,7 +16,7 @@ import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "lucide-react";
 import { Loading } from "../Loading";
 import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
-import type { ApiResponse, Pagination } from "@/types/global";
+import type { ApiResponse, ServerList } from "@/types/global";
 import { useNavigate } from "react-router-dom";
 
 export interface DataTableMobileField<TData> {
@@ -35,11 +35,6 @@ export interface DataTableProps<TData extends object> {
     showSearch?: boolean;
     className?: string;
     onRowClick?: (row: TData) => void;
-}
-
-interface ServerList<TData> {
-    items: TData[];
-    meta: Pagination;
 }
 
 export function DataTable<TData extends object>({
