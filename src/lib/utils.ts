@@ -1,3 +1,4 @@
+import { KeyboardEvent } from "react";
 import { ApiResponse } from "@/types/global";
 import { AxiosError } from "axios";
 import { clsx, type ClassValue } from "clsx";
@@ -33,7 +34,7 @@ export function maskCPFOrCNPJ(value: string) {
 
 export function maskRG(value: string) {
     return value
-        .replace(/\D/g, "") 
+        .replace(/\D/g, "")
         .replace(/^(\d{2})(\d)/, "$1.$2")
         .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
         .replace(/\.(\d{3})(\d)/, ".$1-$2")
@@ -130,3 +131,13 @@ export function isValidEmail(email: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+export function nextFocus(e: KeyboardEvent<HTMLElement>) {
+    e.preventDefault();
+
+    const target = e.currentTarget as HTMLInputElement;
+    const form = target.form;
+    const index = Array.prototype.indexOf.call(form, e.currentTarget);
+    const next = form.elements[index + 1] as HTMLElement | undefined;
+
+    next?.focus();
+}

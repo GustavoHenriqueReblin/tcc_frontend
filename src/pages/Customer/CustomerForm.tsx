@@ -56,13 +56,18 @@ export function CustomerForm({
     return (
         <div className="rounded-md border bg-card text-card-foreground p-6">
             <Form {...form}>
-                <form onSubmit={handleSubmit(onSubmit)} className="">
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <Section
                         title="Dados da pessoa"
                         description="Informações gerais e documentos da pessoa vinculada ao cliente."
                     >
                         <FieldsGrid cols={2}>
-                            <TextField control={control} name="person.name" label="Nome" autoFocus />
+                            <TextField
+                                control={control}
+                                name="person.name"
+                                label="Nome"
+                                autoFocus
+                            />
                             <TextField
                                 control={control}
                                 name="person.legalName"
@@ -77,7 +82,12 @@ export function CustomerForm({
                                 label="CPF/CNPJ"
                                 mask={maskCPFOrCNPJ}
                             />
-                            <TextField control={control} name="person.nationalId" label="RG" mask={maskRG} />
+                            <TextField
+                                control={control}
+                                name="person.nationalId"
+                                label="RG"
+                                mask={maskRG}
+                            />
                             <TextField
                                 control={control}
                                 name="person.dateOfBirth"
@@ -95,11 +105,7 @@ export function CustomerForm({
                         </FieldsGrid>
 
                         <FieldsGrid cols={3}>
-                            <TextField
-                                control={control}
-                                name="person.email"
-                                label="E-mail"
-                            />
+                            <TextField control={control} name="person.email" label="E-mail" />
                             <TextField
                                 control={control}
                                 name="person.phone"

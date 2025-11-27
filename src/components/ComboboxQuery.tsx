@@ -10,7 +10,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, nextFocus } from "@/lib/utils";
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/client";
@@ -19,7 +19,7 @@ import { ApiResponse, ServerList } from "@/types/global";
 import { Control, FieldPath, FieldValues } from "react-hook-form";
 
 import { FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/components/ui/form";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 interface ComboboxQueryProps<
     TFieldValues extends FieldValues,
@@ -51,6 +51,7 @@ export function ComboboxQuery<
     extraParams = {},
 }: ComboboxQueryProps<TFieldValues, TItem>) {
     const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLButtonElement>(null);
 
     const query = useQuery({
         queryKey: [endpoint, extraParams],
@@ -75,7 +76,26 @@ export function ComboboxQuery<
                     <FormLabel>{label}</FormLabel>
 
                     <Popover open={open} onOpenChange={setOpen}>
-                        <PopoverTrigger asChild>
+                        <PopoverTrigger
+                            ref={ref}
+                            asChild
+                            onKeyDown={(e) => {
+                                switch (e.key) {
+                                    case "Enter": {
+                                        nextFocus(e);
+                                        break;
+                                    }
+
+                                    case "ArrowDown": {
+                                        ref.current.click();
+                                        break;
+                                    }
+
+                                    default:
+                                        break;
+                                }
+                            }}
+                        >
                             <FormControl>
                                 <Button
                                     disabled={disabled}

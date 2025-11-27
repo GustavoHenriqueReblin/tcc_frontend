@@ -2,7 +2,7 @@ import { ReactNode, useRef, useState } from "react";
 import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { cn, nextFocus } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
 
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
@@ -264,6 +264,7 @@ export function EnumSelect<T extends FieldValues>({
     labels,
     allowEmpty = false,
 }: EnumSelectProps<T>) {
+    const ref = useRef<HTMLButtonElement>(null);
     const [open, setOpen] = useState(false);
     const entries = Object.entries(enumObject) as [string, string][];
 
@@ -282,7 +283,26 @@ export function EnumSelect<T extends FieldValues>({
                         <FormLabel>{label}</FormLabel>
 
                         <Popover open={open} onOpenChange={setOpen}>
-                            <PopoverTrigger asChild>
+                            <PopoverTrigger
+                                ref={ref}
+                                asChild
+                                onKeyDown={(e) => {
+                                    switch (e.key) {
+                                        case "Enter": {
+                                            nextFocus(e);
+                                            break;
+                                        }
+
+                                        case "ArrowDown": {
+                                            ref.current.click();
+                                            break;
+                                        }
+
+                                        default:
+                                            break;
+                                    }
+                                }}
+                            >
                                 <FormControl>
                                     <Button
                                         type="button"

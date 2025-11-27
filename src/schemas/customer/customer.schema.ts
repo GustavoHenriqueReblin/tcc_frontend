@@ -10,7 +10,7 @@ export const customerFormSchema = z.object({
         .optional()
         .nullable()
         .refine((v) => !v || isValidEmail(v), "E-mail inválido"),
-    
+
     type: z.enum(PersonTypeEnum),
     status: z.enum(StatusEnum),
 
