@@ -159,13 +159,15 @@ export function DataTable<TData extends object>({
             <div className={cn("space-y-4", className)}>
                 {showSearch && (
                     <>
-                        <Button
-                            onClick={() => navigate(`${endpoint}/create`)}
-                            className="w-full flex items-center gap-2"
-                        >
-                            <Plus className="size-4" />
-                            <span style={{ fontSize: 13 }}>{createButtonDescription}</span>
-                        </Button>
+                        {createButtonDescription && (
+                            <Button
+                                onClick={() => navigate(`${endpoint}/create`)}
+                                className="w-full flex items-center gap-2"
+                            >
+                                <Plus className="size-4" />
+                                <span style={{ fontSize: 13 }}>{createButtonDescription}</span>
+                            </Button>
+                        )}
                         <Input
                             autoFocus
                             placeholder="Pesquisar..."
@@ -254,13 +256,15 @@ export function DataTable<TData extends object>({
         <div className={cn("space-y-4", className)}>
             {showSearch && (
                 <div className="flex gap-2 items-center">
-                    <Button
-                        onClick={() => navigate(`${endpoint}/create`)}
-                        className="flex items-center gap-2"
-                    >
-                        <Plus className="size-4" />
-                        <span style={{ fontSize: 13 }}>{createButtonDescription}</span>
-                    </Button>
+                    {createButtonDescription && (
+                        <Button
+                            onClick={() => navigate(`${endpoint}/create`)}
+                            className="flex items-center gap-2"
+                        >
+                            <Plus className="size-4" />
+                            <span style={{ fontSize: 13 }}>{createButtonDescription}</span>
+                        </Button>
+                    )}
                     <Input
                         autoFocus
                         placeholder="Pesquisar..."

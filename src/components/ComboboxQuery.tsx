@@ -111,6 +111,7 @@ export function ComboboxQuery<
 
                                         return (
                                             <CommandItem
+                                                className="cursor-pointer hover:bg-accent"
                                                 key={value}
                                                 value={labelText}
                                                 onSelect={() => {

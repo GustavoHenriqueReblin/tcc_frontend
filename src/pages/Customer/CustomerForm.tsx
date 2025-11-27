@@ -70,7 +70,7 @@ export function CustomerForm({
                             />
                         </FieldsGrid>
 
-                        <FieldsGrid cols={3}>
+                        <FieldsGrid cols={4}>
                             <TextField
                                 control={control}
                                 name="person.taxId"
@@ -78,6 +78,12 @@ export function CustomerForm({
                                 mask={maskCPFOrCNPJ}
                             />
                             <TextField control={control} name="person.nationalId" label="RG" />
+                            <TextField
+                                control={control}
+                                name="person.dateOfBirth"
+                                label="Data de nascimento"
+                                type="date"
+                            />
                             <EnumSelect
                                 control={control}
                                 name="person.maritalStatus"
@@ -101,15 +107,11 @@ export function CustomerForm({
                                 label="Telefone"
                                 mask={maskPhone}
                             />
-                            <TextField control={control} name="person.cellphone" label="Celular" />
-                        </FieldsGrid>
-
-                        <FieldsGrid cols={3}>
                             <TextField
                                 control={control}
-                                name="person.dateOfBirth"
-                                label="Data de nascimento"
-                                type="date"
+                                name="person.cellphone"
+                                label="Celular"
+                                mask={maskPhone}
                             />
                         </FieldsGrid>
                     </Section>
@@ -213,6 +215,7 @@ export function CustomerForm({
                                 control={control}
                                 name="contactPhone"
                                 label="Telefone do contato"
+                                mask={maskPhone}
                             />
                             <TextField
                                 control={control}
@@ -270,9 +273,9 @@ export const defaultCustomerFormValues: CustomerFormValues = {
         number: null,
         complement: null,
         postalCode: null,
-        notes: null,
+        notes: "",
         dateOfBirth: null,
-        countryId: null,
+        countryId: 1,
         stateId: null,
         cityId: null,
     },
