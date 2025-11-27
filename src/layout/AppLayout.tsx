@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { Toaster } from "@/components/ui/sonner";
 
 export function AppLayout() {
     const isMobile = useIsMobile();
@@ -27,6 +28,8 @@ export function AppLayout() {
                     desktopExpanded={desktopExpanded}
                     onToggleDesktop={() => setDesktopExpanded(!desktopExpanded)}
                 />
+
+                <Toaster richColors closeButton position="top-center" />
 
                 <main className="p-6 flex-1 overflow-x-auto">
                     <Outlet />

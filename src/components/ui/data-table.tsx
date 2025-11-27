@@ -12,11 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "lucide-react";
 import { Loading } from "../Loading";
 import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import type { ApiResponse, Pagination } from "@/types/global";
+import { useNavigate } from "react-router-dom";
 
 export interface DataTableMobileField<TData> {
     label: string;
@@ -27,11 +28,13 @@ export interface DataTableMobileField<TData> {
 export interface DataTableProps<TData extends object> {
     columns: ColumnDef<TData, unknown>[];
     endpoint: string;
+    createButtonDescription: string;
     mobileFields?: DataTableMobileField<TData>[];
     defaultSort?: { sortBy: string; sortOrder: "asc" | "desc" };
     defaultPageSize?: number;
     showSearch?: boolean;
     className?: string;
+    onRowClick?: (row: TData) => void;
 }
 
 interface ServerList<TData> {
@@ -42,13 +45,16 @@ interface ServerList<TData> {
 export function DataTable<TData extends object>({
     columns,
     endpoint,
+    createButtonDescription,
     mobileFields = [],
     defaultSort = { sortBy: "id", sortOrder: "asc" },
     defaultPageSize = 8,
     showSearch = true,
     className,
+    onRowClick,
 }: DataTableProps<TData>) {
     const isMobile = useIsMobile();
+    const navigate = useNavigate();
 
     const [sorting, setSorting] = useState<SortingState>(
         defaultSort
@@ -99,7 +105,7 @@ export function DataTable<TData extends object>({
             sortBy,
             sortOrder,
         ],
-        staleTime: 1000 * 60 * 5,
+        staleTime: 0,
         queryFn: async () => {
             const response = await api.get<ApiResponse<ServerList<TData>>>(endpoint, {
                 params: {
@@ -157,17 +163,26 @@ export function DataTable<TData extends object>({
         return (
             <div className={cn("space-y-4", className)}>
                 {showSearch && (
-                    <Input
-                        autoFocus
-                        placeholder="Pesquisar..."
-                        onChange={(e) => setSearchInput(e.target.value)}
-                    />
+                    <>
+                        <Button
+                            onClick={() => navigate(`${endpoint}/create`)}
+                            className="w-full flex items-center gap-2"
+                        >
+                            <Plus className="size-4" />
+                            <span style={{ fontSize: 13 }}>{createButtonDescription}</span>
+                        </Button>
+                        <Input
+                            autoFocus
+                            placeholder="Pesquisar..."
+                            onChange={(e) => setSearchInput(e.target.value)}
+                        />
+                    </>
                 )}
 
                 {isLoading ? (
                     <Loading />
                 ) : (
-                    <div className="space-y-3">
+                    <div>
                         {table.getRowModel().rows.map((row) => {
                             const resolve = (i: number) => {
                                 const field = mobileFields[i];
@@ -181,10 +196,23 @@ export function DataTable<TData extends object>({
                             const v2 = resolve(2);
                             const v3 = resolve(3);
 
+                            const clickableCardProps = onRowClick
+                                ? {
+                                      role: "button" as const,
+                                      tabIndex: 0,
+                                      onClick: () => onRowClick?.(row.original),
+                                  }
+                                : {};
+
                             return (
                                 <div
                                     key={row.id}
-                                    className="rounded-lg border p-4 bg-card text-card-foreground"
+                                    className={cn(
+                                        "rounded-lg border p-4 bg-card text-card-foreground",
+                                        onRowClick &&
+                                            "cursor-pointer hover:bg-muted/50 transition-colors"
+                                    )}
+                                    {...clickableCardProps}
                                 >
                                     <div className="font-medium text-lg truncate mb-1">{v0}</div>
                                     <div className="text-sm text-muted-foreground">{v1}</div>
@@ -230,12 +258,21 @@ export function DataTable<TData extends object>({
     return (
         <div className={cn("space-y-4", className)}>
             {showSearch && (
-                <Input
-                    autoFocus
-                    placeholder="Pesquisar..."
-                    className="w-full md:w-72"
-                    onChange={(e) => setSearchInput(e.target.value)}
-                />
+                <div className="flex gap-2 items-center">
+                    <Button
+                        onClick={() => navigate(`${endpoint}/create`)}
+                        className="flex items-center gap-2"
+                    >
+                        <Plus className="size-4" />
+                        <span style={{ fontSize: 13 }}>{createButtonDescription}</span>
+                    </Button>
+                    <Input
+                        autoFocus
+                        placeholder="Pesquisar..."
+                        className="w-full md:w-72"
+                        onChange={(e) => setSearchInput(e.target.value)}
+                    />
+                </div>
             )}
 
             <div className="w-full h-full overflow-auto">
@@ -321,21 +358,40 @@ export function DataTable<TData extends object>({
                             </tbody>
                         ) : (
                             <tbody>
-                                {table.getRowModel().rows.map((row) => (
-                                    <tr key={row.id} className="border-b hover:bg-muted/30">
-                                        {row.getVisibleCells().map((cell) => (
-                                            <td
-                                                key={cell.id}
-                                                className="px-6 py-3 whitespace-nowrap"
-                                            >
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
+                                {table.getRowModel().rows.map((row) => {
+                                    const clickableRowProps = onRowClick
+                                        ? {
+                                              role: "button" as const,
+                                              tabIndex: 0,
+                                              onClick: () => onRowClick?.(row.original),
+                                          }
+                                        : {};
+
+                                    return (
+                                        <tr
+                                            key={row.id}
+                                            className={cn(
+                                                "border-b",
+                                                onRowClick
+                                                    ? "cursor-pointer hover:bg-muted/80"
+                                                    : "hover:bg-muted/80"
+                                            )}
+                                            {...clickableRowProps}
+                                        >
+                                            {row.getVisibleCells().map((cell) => (
+                                                <td
+                                                    key={cell.id}
+                                                    className="px-6 py-3 whitespace-nowrap"
+                                                >
+                                                    {flexRender(
+                                                        cell.column.columnDef.cell,
+                                                        cell.getContext()
+                                                    )}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         )}
                     </table>

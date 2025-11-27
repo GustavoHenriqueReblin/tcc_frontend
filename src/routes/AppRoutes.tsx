@@ -4,11 +4,11 @@ import { Login } from "../pages/Login";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
 import { Products } from "@/pages/Products";
-import { Customers } from "@/pages/Customers";
 import { Warehouses } from "@/pages/Warehouses";
 import { ProductDefinitions } from "@/pages/ProductDefinitions";
 import { Suppliers } from "@/pages/Suppliers";
 import { Unities } from "@/pages/Unities";
+import { CustomerRoutes } from "./CustomerRoutes";
 
 export function AppRoutes() {
     return (
@@ -20,29 +20,13 @@ export function AppRoutes() {
 
                 <Route element={<ProtectedRoute />}>
                     <Route path="/" element={<Home />} />
-                </Route>
 
-                <Route element={<ProtectedRoute />}>
-                    <Route path="/customers" element={<Customers />} />
-                </Route>
+                    {CustomerRoutes()}
 
-                <Route element={<ProtectedRoute />}>
                     <Route path="/suppliers" element={<Suppliers />} />
-                </Route>
-
-                <Route element={<ProtectedRoute />}>
                     <Route path="/products" element={<Products />} />
-                </Route>
-
-                <Route element={<ProtectedRoute />}>
                     <Route path="/unities" element={<Unities />} />
-                </Route>
-
-                <Route element={<ProtectedRoute />}>
                     <Route path="/warehouses" element={<Warehouses />} />
-                </Route>
-
-                <Route element={<ProtectedRoute />}>
                     <Route path="/product-definitions" element={<ProductDefinitions />} />
                 </Route>
             </Routes>

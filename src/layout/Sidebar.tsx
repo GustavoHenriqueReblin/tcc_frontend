@@ -125,7 +125,7 @@ export function Sidebar({
                                         collapsed ? "justify-center gap-0 px-2" : "gap-3",
                                         active
                                             ? "bg-primary text-primary-foreground shadow-sm"
-                                            : "hover:bg-sidebar-accent/60 hover:text-foreground"
+                                            : "hover:bg-zinc-200 hover:text-foreground"
                                     )}
                                 >
                                     <span
@@ -184,7 +184,7 @@ export function Sidebar({
                                                             : "gap-3",
                                                         active
                                                             ? "bg-primary text-primary-foreground shadow-sm"
-                                                            : "hover:bg-sidebar-accent/60 hover:text-foreground"
+                                                            : "hover:bg-zinc-200 hover:text-foreground"
                                                     )}
                                                 >
                                                     <span

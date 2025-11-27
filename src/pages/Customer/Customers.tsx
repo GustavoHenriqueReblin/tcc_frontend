@@ -2,9 +2,11 @@ import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Customer } from "@/types/customer";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useNavigate } from "react-router-dom";
 
 export function Customers() {
     usePageTitle("Clientes - ERP Industrial");
+    const navigate = useNavigate();
 
     const columns: ColumnDef<Customer>[] = [
         { accessorKey: "person.name", id: "person.name", header: "Nome", meta: { sortable: true } },
@@ -40,14 +42,22 @@ export function Customers() {
         },
     ];
 
+    const handleRowClick = (row: Customer) => {
+        navigate(`/customers/edit/${row.id}`);
+    };
+
     return (
         <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Clientes</h2>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+                <h2 className="text-xl font-semibold">Clientes</h2>
+            </div>
 
             <DataTable<Customer>
                 columns={columns}
                 endpoint="/customers"
+                createButtonDescription="Novo Cliente"
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
+                onRowClick={handleRowClick}
                 mobileFields={[
                     { label: "Nome", value: "person.name" },
                     { label: "Telefone", value: "person.phone" },

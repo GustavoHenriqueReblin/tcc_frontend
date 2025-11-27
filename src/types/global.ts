@@ -1,5 +1,5 @@
 import "@tanstack/react-table";
-import type {
+import {
     AssetMaintenanceTypeEnum,
     AssetStatusEnum,
     BranchEnum,
@@ -37,6 +37,25 @@ export type ProductionOrderStatus =
     (typeof ProductionOrderStatusEnum)[keyof typeof ProductionOrderStatusEnum];
 export type ProductDefinitionType =
     (typeof ProductDefinitionTypeEnum)[keyof typeof ProductDefinitionTypeEnum];
+
+export const personTypeLabels: Record<keyof typeof PersonTypeEnum, string> = {
+    INDIVIDUAL: "Pessoa física",
+    BUSINESS: "Pessoa jurídica",
+};
+
+export const statusLabels: Record<keyof typeof StatusEnum, string> = {
+    ACTIVE: "Ativo",
+    INACTIVE: "Inativo",
+};
+
+export const maritalStatusLabels: Record<keyof typeof MaritalStatusEnum, string> = {
+    SINGLE: "Solteiro(a)",
+    MARRIED: "Casado(a)",
+    DIVORCED: "Divorciado(a)",
+    WIDOWED: "Viúvo(a)",
+    SEPARATED: "Separado(a)",
+    OTHER: "Outro",
+};
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 declare module "@tanstack/react-table" {
