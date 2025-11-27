@@ -31,6 +31,15 @@ export function maskCPFOrCNPJ(value: string) {
     return numbers.length <= 11 ? maskCPF(value) : maskCNPJ(value);
 }
 
+export function maskRG(value: string) {
+    return value
+        .replace(/\D/g, "") 
+        .replace(/^(\d{2})(\d)/, "$1.$2")
+        .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{3})(\d)/, ".$1-$2")
+        .replace(/(-\d{1})\d+?$/, "$1");
+}
+
 export function maskPhone(value: string) {
     return value
         .replace(/\D/g, "")
@@ -60,3 +69,64 @@ export function buildApiError(error: unknown, fallbackMessage: string): Error {
 
     return new Error(fallbackMessage);
 }
+
+// CPF
+export function isValidCPF(cpf: string) {
+    cpf = cpf.replace(/\D/g, "");
+    if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+
+    let sum = 0;
+    for (let i = 0; i < 9; i++) sum += parseInt(cpf[i]) * (10 - i);
+    let rev = 11 - (sum % 11);
+    if (rev >= 10) rev = 0;
+    if (rev !== parseInt(cpf[9])) return false;
+
+    sum = 0;
+    for (let i = 0; i < 10; i++) sum += parseInt(cpf[i]) * (11 - i);
+    rev = 11 - (sum % 11);
+    if (rev >= 10) rev = 0;
+    return rev === parseInt(cpf[10]);
+}
+
+export function isValidCNPJ(cnpj: string) {
+    cnpj = cnpj.replace(/\D/g, "");
+    if (cnpj.length !== 14) return false;
+
+    let length = cnpj.length - 2;
+    let numbers = cnpj.substring(0, length);
+    const digits = cnpj.substring(length);
+    let sum = 0;
+    let pos = length - 7;
+
+    for (let i = length; i >= 1; i--) {
+        sum += parseInt(numbers[length - i]) * pos--;
+        if (pos < 2) pos = 9;
+    }
+
+    let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+    if (result !== parseInt(digits[0])) return false;
+
+    length = length + 1;
+    numbers = cnpj.substring(0, length);
+    sum = 0;
+    pos = length - 7;
+
+    for (let i = length; i >= 1; i--) {
+        sum += parseInt(numbers[length - i]) * pos--;
+        if (pos < 2) pos = 9;
+    }
+
+    result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+    return result === parseInt(digits[1]);
+}
+
+export function isValidCPFOrCNPJ(value: string) {
+    const n = value.replace(/\D/g, "");
+    return n.length <= 11 ? isValidCPF(value) : isValidCNPJ(value);
+}
+
+export function isValidEmail(email: string) {
+    if (!email) return true;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+

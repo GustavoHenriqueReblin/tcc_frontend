@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
-import { maskCEP, maskCPFOrCNPJ, maskPhone } from "@/lib/utils";
+import { maskCEP, maskCPFOrCNPJ, maskPhone, maskRG } from "@/lib/utils";
 import { maritalStatusLabels, personTypeLabels, statusLabels } from "@/types/global";
 import { useEffect } from "react";
 import { ComboboxQuery } from "@/components/ComboboxQuery";
@@ -62,7 +62,7 @@ export function CustomerForm({
                         description="Informações gerais e documentos da pessoa vinculada ao cliente."
                     >
                         <FieldsGrid cols={2}>
-                            <TextField control={control} name="person.name" label="Nome" />
+                            <TextField control={control} name="person.name" label="Nome" autoFocus />
                             <TextField
                                 control={control}
                                 name="person.legalName"
@@ -77,7 +77,7 @@ export function CustomerForm({
                                 label="CPF/CNPJ"
                                 mask={maskCPFOrCNPJ}
                             />
-                            <TextField control={control} name="person.nationalId" label="RG" />
+                            <TextField control={control} name="person.nationalId" label="RG" mask={maskRG} />
                             <TextField
                                 control={control}
                                 name="person.dateOfBirth"
@@ -99,7 +99,6 @@ export function CustomerForm({
                                 control={control}
                                 name="person.email"
                                 label="E-mail"
-                                type="email"
                             />
                             <TextField
                                 control={control}
@@ -221,7 +220,6 @@ export function CustomerForm({
                                 control={control}
                                 name="contactEmail"
                                 label="E-mail do contato"
-                                type="email"
                             />
                         </FieldsGrid>
                     </Section>

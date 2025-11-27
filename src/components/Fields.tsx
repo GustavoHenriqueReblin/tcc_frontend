@@ -27,6 +27,7 @@ interface BaseFieldProps<T extends FieldValues> {
     control: Control<T>;
     name: FieldPath<T>;
     label: string;
+    autoFocus?: boolean;
 }
 
 interface EnumSelectProps<T extends FieldValues> {
@@ -145,6 +146,7 @@ export function TextField<T extends FieldValues>({
     label,
     type = "text",
     mask,
+    autoFocus,
 }: BaseFieldProps<T> & { type?: string; mask?: (v: string) => string }) {
     return (
         <FormField
@@ -160,6 +162,7 @@ export function TextField<T extends FieldValues>({
                         <FormLabel>{label}</FormLabel>
                         <FormControl>
                             <Input
+                                autoFocus={autoFocus}
                                 {...field}
                                 type={type}
                                 value={field.value ?? ""}
