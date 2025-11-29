@@ -3,12 +3,12 @@ import { Home } from "../pages/Home";
 import { Login } from "../pages/Login";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
-import { Products } from "@/pages/Products";
 import { Warehouses } from "@/pages/Warehouses";
 import { ProductDefinitions } from "@/pages/ProductDefinitions";
 import { Unities } from "@/pages/Unities";
 import { CustomerRoutes } from "./CustomerRoutes";
 import { SupplierRoutes } from "./SupplierRoutes";
+import { ProductRoutes } from "./ProductRoutes";
 
 export function AppRoutes() {
     return (
@@ -23,7 +23,7 @@ export function AppRoutes() {
 
                     {CustomerRoutes()}
                     {SupplierRoutes()}
-                    <Route path="/products" element={<Products />} />
+                    {ProductRoutes()}
                     <Route path="/unities" element={<Unities />} />
                     <Route path="/warehouses" element={<Warehouses />} />
                     <Route path="/product-definitions" element={<ProductDefinitions />} />

@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState } from "react";
+import { ChangeEvent, ReactNode, useRef, useState } from "react";
 import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -157,6 +157,25 @@ export function TextField<T extends FieldValues>({
                     return <DateField label={label} field={field} />;
                 }
 
+                const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+                    const value = e.target.value;
+
+                    if (type === "number") {
+                        if (value === "") {
+                            field.onChange(undefined);
+                            return;
+                        }
+
+                        const n = Number(value);
+                        if (!isNaN(n)) {
+                            field.onChange(n);
+                        }
+                        return;
+                    }
+
+                    field.onChange(mask ? mask(value) : value);
+                };
+
                 return (
                     <FormItem className="flex flex-col w-full">
                         <FormLabel>{label}</FormLabel>
@@ -166,9 +185,7 @@ export function TextField<T extends FieldValues>({
                                 {...field}
                                 type={type}
                                 value={field.value ?? ""}
-                                onChange={(e) =>
-                                    field.onChange(mask ? mask(e.target.value) : e.target.value)
-                                }
+                                onChange={handleChange}
                             />
                         </FormControl>
                         <FormMessage />

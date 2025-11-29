@@ -64,7 +64,7 @@ export function Suppliers() {
             <DataTable<Supplier>
                 columns={columns}
                 endpoint="/suppliers"
-                createButtonDescription="Novo fornecedor"
+                createButtonDescription="Novo Fornecedor"
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
                 onRowClick={handleRowClick}
                 mobileFields={[

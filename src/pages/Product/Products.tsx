@@ -2,9 +2,11 @@ import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Product } from "@/types/product";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useNavigate } from "react-router-dom";
 
 export function Products() {
     usePageTitle("Produtos - ERP Industrial");
+    const navigate = useNavigate();
 
     const columns: ColumnDef<Product>[] = [
         {
@@ -16,7 +18,7 @@ export function Products() {
         {
             accessorKey: "barcode",
             id: "barcode",
-            header: "Código de Barras",
+            header: "Codigo de Barras",
             meta: { sortable: true },
         },
         {
@@ -26,10 +28,8 @@ export function Products() {
             meta: { sortable: true },
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
-                const unity = row.original.unity.simbol;
-                return inv
-                    ? String(Number(inv.quantity).toLocaleString("pt-BR") + " " + unity)
-                    : "";
+                const unity = row.original.unity?.simbol ?? "";
+                return inv ? `${Number(inv.quantity).toLocaleString("pt-BR")} ${unity}`.trim() : "";
             },
         },
         {
@@ -40,12 +40,9 @@ export function Products() {
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
                 return inv
-                    ? String(
-                          "R$ " +
-                              Number(inv.costValue).toLocaleString("pt-BR", {
-                                  minimumFractionDigits: 2,
-                              })
-                      )
+                    ? `R$ ${Number(inv.costValue).toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                      })}`
                     : "";
             },
         },
@@ -57,12 +54,9 @@ export function Products() {
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
                 return inv
-                    ? String(
-                          "R$ " +
-                              Number(inv.saleValue).toLocaleString("pt-BR", {
-                                  minimumFractionDigits: 2,
-                              })
-                      )
+                    ? `R$ ${Number(inv.saleValue).toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                      })}`
                     : "";
             },
         },
@@ -75,14 +69,22 @@ export function Products() {
         },
     ];
 
+    const handleRowClick = (row: Product) => {
+        navigate(`/products/edit/${row.id}`);
+    };
+
     return (
         <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Produtos</h2>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+                <h2 className="text-xl font-semibold">Produtos</h2>
+            </div>
 
             <DataTable<Product>
                 columns={columns}
                 endpoint="/products"
+                createButtonDescription="Novo Produto"
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
+                onRowClick={handleRowClick}
                 mobileFields={[
                     { label: "Nome", value: "name" },
                     { label: "Unidade", value: "unity.simbol" },
