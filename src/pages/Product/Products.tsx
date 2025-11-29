@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Product } from "@/types/product";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useNavigate } from "react-router-dom";
+import { ProductDefinitionType, productDefinitionTypeLabels } from "@/types/global";
 
 export function Products() {
     usePageTitle("Produtos - ERP Industrial");
@@ -58,6 +59,18 @@ export function Products() {
                           minimumFractionDigits: 2,
                       })}`
                     : "";
+            },
+        },
+        {
+            accessorKey: "productDefinition",
+            id: "type",
+            header: "Tipo",
+            meta: { sortable: true },
+            cell: ({ row }) => {
+                const type = row.original.productDefinition?.type as
+                    | ProductDefinitionType
+                    | undefined;
+                return type ? productDefinitionTypeLabels[type] : "";
             },
         },
         {

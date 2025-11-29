@@ -48,7 +48,7 @@ export const statusLabels: Record<keyof typeof StatusEnum, string> = {
     INACTIVE: "Inativo",
 };
 
-export const maritalStatusLabels: Record<keyof typeof MaritalStatusEnum, string> = {
+export const maritalStatusLabels: Record<MaritalStatus, string> = {
     SINGLE: "Solteiro(a)",
     MARRIED: "Casado(a)",
     DIVORCED: "Divorciado(a)",
@@ -57,7 +57,7 @@ export const maritalStatusLabels: Record<keyof typeof MaritalStatusEnum, string>
     OTHER: "Outro",
 };
 
-export const productDefinitionTypeLabels: Record<keyof typeof ProductDefinitionTypeEnum, string> = {
+export const productDefinitionTypeLabels: Record<ProductDefinitionType, string> = {
     RAW_MATERIAL: "Matéria prima",
     FINISHED_PRODUCT: "Produto acabado",
     RESALE_PRODUCT: "Produto para revenda",
