@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { useMutation } from "@tanstack/react-query";
-import type { LoginFormValues } from "../schemas/auth/login.schema";
+import type { LoginFormValues } from "../schemas/login.schema";
 import type { LoginResponse, LogoutResponse, User } from "../types/auth";
 import { api } from "../api/client";
 import { AxiosError } from "axios";

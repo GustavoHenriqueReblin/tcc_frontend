@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, FormEvent } from "react";
-import { loginSchema, type LoginFormValues } from "../schemas/auth/login.schema";
+import { loginSchema, type LoginFormValues } from "../schemas/login.schema";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";

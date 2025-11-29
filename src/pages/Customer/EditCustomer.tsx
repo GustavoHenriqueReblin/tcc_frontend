@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { CustomerForm, defaultCustomerFormValues } from "./CustomerForm";
-import type { CustomerFormValues } from "@/schemas/customer/customer.schema";
+import type { CustomerFormValues } from "@/schemas/customer.schema";
 
 import { api } from "@/api/client";
 import type { Customer } from "@/types/customer";

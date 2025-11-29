@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Section, FieldsGrid, TextField, TextAreaField, EnumSelect } from "@/components/Fields";
 
-import { customerFormSchema, CustomerFormValues } from "@/schemas/customer/customer.schema";
+import { customerFormSchema, CustomerFormValues } from "@/schemas/customer.schema";
 
 import { StatusEnum, PersonTypeEnum, MaritalStatusEnum } from "@/types/enums";
 import { Button } from "@/components/ui/button";
