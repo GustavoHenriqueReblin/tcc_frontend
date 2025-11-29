@@ -1,9 +1,10 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Section, FieldsGrid, TextField, TextAreaField, EnumSelect } from "@/components/Fields";
 
-import { customerFormSchema, CustomerFormValues } from "@/schemas/customer.schema";
+import { supplierFormSchema, type SupplierFormValues } from "@/schemas/supplier.schema";
 
 import { StatusEnum, PersonTypeEnum, MaritalStatusEnum } from "@/types/enums";
 import { Button } from "@/components/ui/button";
@@ -12,26 +13,25 @@ import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
 import { maskCEP, maskCPFOrCNPJ, maskPhone, maskRG } from "@/lib/utils";
 import { maritalStatusLabels, personTypeLabels, statusLabels } from "@/types/global";
-import { useEffect } from "react";
 import { ComboboxQuery } from "@/components/ComboboxQuery";
 
 interface Props {
-    defaultValues: CustomerFormValues;
-    onSubmit: (values: CustomerFormValues) => Promise<void> | void;
+    defaultValues: SupplierFormValues;
+    onSubmit: (values: SupplierFormValues) => Promise<void> | void;
     submitLabel?: string;
     isLoading?: boolean;
     onCancel?: () => void;
 }
 
-export function CustomerForm({
+export function SupplierForm({
     defaultValues,
     onSubmit,
     submitLabel = "Salvar",
     isLoading = false,
     onCancel,
 }: Props) {
-    const form = useForm<CustomerFormValues>({
-        resolver: zodResolver(customerFormSchema),
+    const form = useForm<SupplierFormValues>({
+        resolver: zodResolver(supplierFormSchema),
         defaultValues,
     });
 
@@ -59,7 +59,7 @@ export function CustomerForm({
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Section
                         title="Dados da pessoa"
-                        description="Informações gerais e documentos da pessoa vinculada ao cliente."
+                        description="Informações gerais da pessoa vinculada ao fornecedor."
                     >
                         <FieldsGrid cols={2}>
                             <TextField
@@ -75,18 +75,12 @@ export function CustomerForm({
                             />
                         </FieldsGrid>
 
-                        <FieldsGrid cols={4}>
+                        <FieldsGrid cols={3}>
                             <TextField
                                 control={control}
                                 name="person.taxId"
                                 label="CPF/CNPJ"
                                 mask={maskCPFOrCNPJ}
-                            />
-                            <TextField
-                                control={control}
-                                name="person.nationalId"
-                                label="RG"
-                                mask={maskRG}
                             />
                             <TextField
                                 control={control}
@@ -123,10 +117,7 @@ export function CustomerForm({
 
                     <div className="mt-8"></div>
 
-                    <Section
-                        title="Endereço"
-                        description="Endereço principal da pessoa vinculada ao cliente."
-                    >
+                    <Section title="Endereço" description="Endereço principal da pessoa.">
                         <FieldsGrid cols={2}>
                             <TextField control={control} name="person.street" label="Rua" />
                             <TextField control={control} name="person.number" label="Número" />
@@ -184,14 +175,14 @@ export function CustomerForm({
                             />
                         </FieldsGrid>
 
-                        <TextAreaField control={control} name="person.notes" label="Observações" />
+                        <TextAreaField control={control} name="person.notes" label="Observacões" />
                     </Section>
 
                     <div className="mt-8"></div>
 
                     <Section
                         title="Dados gerais"
-                        description="Configurações do cliente e contato principal."
+                        description="Configurações e contato principal do fornecedor."
                     >
                         <FieldsGrid cols={3}>
                             <EnumSelect
@@ -215,7 +206,7 @@ export function CustomerForm({
                             />
                         </FieldsGrid>
 
-                        <FieldsGrid cols={2}>
+                        <FieldsGrid cols={3}>
                             <TextField
                                 control={control}
                                 name="contactPhone"
@@ -227,7 +218,31 @@ export function CustomerForm({
                                 name="contactEmail"
                                 label="E-mail do contato"
                             />
+                            <TextField control={control} name="website" label="Website" />
                         </FieldsGrid>
+                    </Section>
+
+                    <div className="mt-8"></div>
+
+                    <Section
+                        title="Informações comerciais"
+                        description="Prazos, categorias e observações gerais do fornecedor."
+                    >
+                        <FieldsGrid cols={3}>
+                            <TextField
+                                control={control}
+                                name="paymentTerms"
+                                label="Condicoes de pagamento"
+                            />
+                            <TextField
+                                control={control}
+                                name="deliveryTime"
+                                label="Prazo de entrega"
+                            />
+                            <TextField control={control} name="category" label="Categoria" />
+                        </FieldsGrid>
+
+                        <TextAreaField control={control} name="notes" label="Observacões gerais" />
                     </Section>
 
                     <div id="form-actions" className="flex justify-end gap-3 pt-4">
@@ -257,12 +272,17 @@ export function CustomerForm({
     );
 }
 
-export const defaultCustomerFormValues: CustomerFormValues = {
+export const defaultSupplierFormValues: SupplierFormValues = {
     type: PersonTypeEnum.INDIVIDUAL,
     status: StatusEnum.ACTIVE,
     contactName: null,
     contactPhone: null,
     contactEmail: null,
+    website: null,
+    paymentTerms: null,
+    deliveryTime: null,
+    category: null,
+    notes: "",
     person: {
         name: "",
         legalName: null,

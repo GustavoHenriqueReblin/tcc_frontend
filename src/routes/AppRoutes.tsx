@@ -6,9 +6,9 @@ import { PublicRoute } from "./PublicRoute";
 import { Products } from "@/pages/Products";
 import { Warehouses } from "@/pages/Warehouses";
 import { ProductDefinitions } from "@/pages/ProductDefinitions";
-import { Suppliers } from "@/pages/Suppliers";
 import { Unities } from "@/pages/Unities";
 import { CustomerRoutes } from "./CustomerRoutes";
+import { SupplierRoutes } from "./SupplierRoutes";
 
 export function AppRoutes() {
     return (
@@ -22,8 +22,7 @@ export function AppRoutes() {
                     <Route path="/" element={<Home />} />
 
                     {CustomerRoutes()}
-
-                    <Route path="/suppliers" element={<Suppliers />} />
+                    {SupplierRoutes()}
                     <Route path="/products" element={<Products />} />
                     <Route path="/unities" element={<Unities />} />
                     <Route path="/warehouses" element={<Warehouses />} />

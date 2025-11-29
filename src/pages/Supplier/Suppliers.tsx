@@ -2,9 +2,11 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Supplier } from "@/types/supplier";
+import { useNavigate } from "react-router-dom";
 
 export function Suppliers() {
     usePageTitle("Fornecedores - ERP Industrial");
+    const navigate = useNavigate();
 
     const columns: ColumnDef<Supplier>[] = [
         {
@@ -49,19 +51,27 @@ export function Suppliers() {
         },
     ];
 
+    const handleRowClick = (row: Supplier) => {
+        navigate(`/suppliers/edit/${row.id}`);
+    };
+
     return (
         <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Fornecedores</h2>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+                <h2 className="text-xl font-semibold">Fornecedores</h2>
+            </div>
 
             <DataTable<Supplier>
                 columns={columns}
                 endpoint="/suppliers"
+                createButtonDescription="Novo fornecedor"
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
+                onRowClick={handleRowClick}
                 mobileFields={[
                     { label: "Nome", value: "person.name" },
                     { label: "Telefone", value: "person.phone" },
-                    { label: "CPF/CNPJ", value: "person.taxId" },
                     { label: "Cidade", value: "person.city.name" },
+                    { label: "UF", value: "person.state.uf" },
                 ]}
             />
         </div>
