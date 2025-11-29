@@ -62,7 +62,7 @@ export function CreateProduct() {
             <div className="space-y-1">
                 <h2 className="text-xl font-semibold">Cadastrar produto</h2>
                 <p className="text-sm text-muted-foreground">
-                    Utilize o formulario abaixo para cadastrar um novo produto.
+                    Utilize o formulário abaixo para cadastrar um novo produto.
                 </p>
             </div>
 

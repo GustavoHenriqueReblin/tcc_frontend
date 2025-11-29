@@ -247,7 +247,12 @@ export function SupplierForm({
 
                     <div id="form-actions" className="flex justify-end gap-3 pt-4">
                         {onCancel && (
-                            <Button type="button" variant="outline" onClick={onCancel}>
+                            <Button
+                                tabIndex={-1}
+                                type="button"
+                                variant="outline"
+                                onClick={onCancel}
+                            >
                                 Cancelar
                             </Button>
                         )}
@@ -258,7 +263,12 @@ export function SupplierForm({
 
                     <FormFooterFloating targetId="form-actions" rightOffset={20}>
                         {onCancel && (
-                            <Button type="button" variant="outline" onClick={onCancel}>
+                            <Button
+                                tabIndex={-1}
+                                type="button"
+                                variant="outline"
+                                onClick={onCancel}
+                            >
                                 Cancelar
                             </Button>
                         )}

@@ -57,6 +57,18 @@ export const maritalStatusLabels: Record<keyof typeof MaritalStatusEnum, string>
     OTHER: "Outro",
 };
 
+export const productDefinitionTypeLabels: Record<keyof typeof ProductDefinitionTypeEnum, string> = {
+    RAW_MATERIAL: "Matéria prima",
+    FINISHED_PRODUCT: "Produto acabado",
+    RESALE_PRODUCT: "Produto para revenda",
+    IN_PROCESS_PRODUCT: "Produto em processo",
+    COMPONENT: "Componente",
+    CONSUMABLE_MATERIAL: "Material de consumo",
+    PACKAGING_MATERIAL: "Material de embalagem",
+    BY_PRODUCT: "Subproduto",
+    RETURNED_PRODUCT: "Produto devolvido",
+};
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData, TValue> {

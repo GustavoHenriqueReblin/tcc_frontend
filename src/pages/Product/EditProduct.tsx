@@ -20,7 +20,7 @@ export function EditProduct() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    usePageTitle("Edicao de produto - ERP Industrial");
+    usePageTitle("Edição de produto - ERP Industrial");
 
     useEffect(() => {
         if (!id) navigate("/products");
@@ -55,7 +55,7 @@ export function EditProduct() {
                 if (!id) throw new Error("Identificador invalido");
 
                 if (isEqual(formDefaults, values)) {
-                    toast.info("Nenhuma alteracao encontrada.", { id: toastId });
+                    toast.info("Nenhuma alteração encontrada.", { id: toastId });
                     return;
                 }
 

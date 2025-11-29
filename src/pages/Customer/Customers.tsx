@@ -55,7 +55,7 @@ export function Customers() {
             <DataTable<Customer>
                 columns={columns}
                 endpoint="/customers"
-                createButtonDescription="Novo Cliente"
+                createButtonDescription="Novo cliente"
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
                 onRowClick={handleRowClick}
                 mobileFields={[

@@ -3,12 +3,12 @@ import { Home } from "../pages/Home";
 import { Login } from "../pages/Login";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
-import { Warehouses } from "@/pages/Warehouses";
-import { ProductDefinitions } from "@/pages/ProductDefinitions";
-import { Unities } from "@/pages/Unities";
 import { CustomerRoutes } from "./CustomerRoutes";
 import { SupplierRoutes } from "./SupplierRoutes";
 import { ProductRoutes } from "./ProductRoutes";
+import { ProductDefinitionRoutes } from "./ProductDefinitionRoutes";
+import { UnityRoutes } from "./UnityRoutes";
+import { WarehouseRoutes } from "./WarehouseRoutes";
 
 export function AppRoutes() {
     return (
@@ -24,9 +24,9 @@ export function AppRoutes() {
                     {CustomerRoutes()}
                     {SupplierRoutes()}
                     {ProductRoutes()}
-                    <Route path="/unities" element={<Unities />} />
-                    <Route path="/warehouses" element={<Warehouses />} />
-                    <Route path="/product-definitions" element={<ProductDefinitions />} />
+                    {ProductDefinitionRoutes()}
+                    {UnityRoutes()}
+                    {WarehouseRoutes()}
                 </Route>
             </Routes>
         </BrowserRouter>

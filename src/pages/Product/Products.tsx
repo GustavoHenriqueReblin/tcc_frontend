@@ -82,7 +82,7 @@ export function Products() {
             <DataTable<Product>
                 columns={columns}
                 endpoint="/products"
-                createButtonDescription="Novo Produto"
+                createButtonDescription="Novo produto"
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
                 onRowClick={handleRowClick}
                 mobileFields={[

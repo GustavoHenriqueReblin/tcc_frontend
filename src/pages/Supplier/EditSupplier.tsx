@@ -20,7 +20,7 @@ export function EditSupplier() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    usePageTitle("Edicao de fornecedor - ERP Industrial");
+    usePageTitle("Edição de fornecedor - ERP Industrial");
 
     useEffect(() => {
         if (!id) navigate("/suppliers");
