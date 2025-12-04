@@ -106,19 +106,19 @@ export function EditUnity() {
                 <p className="text-sm text-muted-foreground">Atualize os dados da unidade.</p>
             </div>
 
-            {(error || updateMutation.error) && (
+            {error || updateMutation.error ? (
                 <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                     {error?.message ?? updateMutation.error?.message}
                 </div>
+            ) : (
+                <UnityForm
+                    defaultValues={formDefaults}
+                    submitLabel="Atualizar unidade"
+                    onSubmit={(values) => updateMutation.mutate(values)}
+                    onCancel={() => navigate("/unities")}
+                    isLoading={updateMutation.isPending}
+                />
             )}
-
-            <UnityForm
-                defaultValues={formDefaults}
-                submitLabel="Atualizar unidade"
-                onSubmit={(values) => updateMutation.mutate(values)}
-                onCancel={() => navigate("/unities")}
-                isLoading={updateMutation.isPending}
-            />
         </div>
     );
 }

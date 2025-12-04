@@ -9,6 +9,7 @@ import { ProductRoutes } from "./ProductRoutes";
 import { ProductDefinitionRoutes } from "./ProductDefinitionRoutes";
 import { UnityRoutes } from "./UnityRoutes";
 import { WarehouseRoutes } from "./WarehouseRoutes";
+import { InventoryRoutes } from "./InventoryRoutes";
 
 export function AppRoutes() {
     return (
@@ -27,6 +28,7 @@ export function AppRoutes() {
                     {ProductDefinitionRoutes()}
                     {UnityRoutes()}
                     {WarehouseRoutes()}
+                    {InventoryRoutes()}
                 </Route>
             </Routes>
         </BrowserRouter>

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
+import { AdjustStockModal } from "@/components/AdjustStockModal";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
     defaultValues: ProductFormValues;
@@ -18,6 +20,7 @@ interface Props {
     submitLabel?: string;
     isLoading?: boolean;
     onCancel?: () => void;
+    Id?: number;
 }
 
 export function ProductForm({
@@ -26,11 +29,14 @@ export function ProductForm({
     submitLabel = "Salvar",
     isLoading = false,
     onCancel,
+    Id,
 }: Props) {
+    const [adjustModalOpen, setAdjustModalOpen] = useState(false);
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
         defaultValues,
     });
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         form.reset(defaultValues);
@@ -75,7 +81,7 @@ export function ProductForm({
                                 label="Unidade *"
                                 endpoint="/unities"
                                 valueField="id"
-                                labelField="description"
+                                labelField="simbol"
                             />
                         </FieldsGrid>
                     </Section>
@@ -86,6 +92,18 @@ export function ProductForm({
                         title="Estoque e precificação"
                         description="Valores de entrada, venda e saldo inicial."
                     >
+                        <div className="flex justify-end items-center mb-2">
+                            {Id && (
+                                <Button
+                                    variant="outline"
+                                    type="button"
+                                    onClick={() => setAdjustModalOpen(true)}
+                                >
+                                    Ajustar estoque
+                                </Button>
+                            )}
+                        </div>
+
                         <FieldsGrid cols={3}>
                             <TextField
                                 control={control}
@@ -104,6 +122,7 @@ export function ProductForm({
                                 name="quantity"
                                 label="Quantidade"
                                 type="number"
+                                disabled={!!Id}
                             />
                         </FieldsGrid>
                     </Section>
@@ -141,6 +160,25 @@ export function ProductForm({
                     </FormFooterFloating>
                 </form>
             </Form>
+
+            {Id && (
+                <AdjustStockModal
+                    open={adjustModalOpen}
+                    onClose={() => setAdjustModalOpen(false)}
+                    productData={{
+                        id: Id,
+                        quantity: form.getValues("quantity"),
+                    }}
+                    onSuccess={(newQuantity) => {
+                        form.setValue("quantity", newQuantity);
+
+                        queryClient.invalidateQueries({
+                            queryKey: ["datatable", "/products"],
+                            exact: false,
+                        });
+                    }}
+                />
+            )}
         </div>
     );
 }

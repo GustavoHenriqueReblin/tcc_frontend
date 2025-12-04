@@ -133,11 +133,25 @@ export function isValidEmail(email: string) {
 
 export function nextFocus(e: KeyboardEvent<HTMLElement>) {
     e.preventDefault();
+    e.stopPropagation();
 
-    const target = e.currentTarget as HTMLInputElement;
-    const form = target.form;
-    const index = Array.prototype.indexOf.call(form, e.currentTarget);
-    const next = form.elements[index + 1] as HTMLElement | undefined;
+    const target = e.currentTarget as HTMLElement;
 
-    next?.focus();
+    const focusableSelectors = [
+        "button:not([disabled])",
+        "input:not([disabled])",
+        "textarea:not([disabled])",
+        "select:not([disabled])",
+        "[tabindex]:not([tabindex='-1']):not([disabled])",
+    ].join(",");
+
+    const focusables = Array.from(
+        document.querySelectorAll<HTMLElement>(focusableSelectors)
+    ).filter((el) => el.offsetParent !== null);
+
+    const idx = focusables.indexOf(target);
+
+    if (idx >= 0 && idx < focusables.length - 1) {
+        focusables[idx + 1].focus();
+    }
 }

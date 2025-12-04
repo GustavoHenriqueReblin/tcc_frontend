@@ -111,19 +111,26 @@ export function EditWarehouse() {
                 <p className="text-sm text-muted-foreground">Atualize os dados do depósito.</p>
             </div>
 
-            {(error || updateMutation.error) && (
+            {error ? (
                 <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                    {error?.message ?? updateMutation.error?.message}
+                    {error?.message}
                 </div>
+            ) : (
+                <>
+                    {updateMutation.error && (
+                        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                            {updateMutation.error?.message}
+                        </div>
+                    )}
+                    <WarehouseForm
+                        defaultValues={formDefaults}
+                        submitLabel="Atualizar depósito"
+                        onSubmit={(values) => updateMutation.mutate(values)}
+                        onCancel={() => navigate("/warehouses")}
+                        isLoading={updateMutation.isPending}
+                    />
+                </>
             )}
-
-            <WarehouseForm
-                defaultValues={formDefaults}
-                submitLabel="Atualizar depósito"
-                onSubmit={(values) => updateMutation.mutate(values)}
-                onCancel={() => navigate("/warehouses")}
-                isLoading={updateMutation.isPending}
-            />
         </div>
     );
 }

@@ -120,19 +120,27 @@ export function EditProduct() {
                 <p className="text-sm text-muted-foreground">Atualize os dados do produto.</p>
             </div>
 
-            {(error || updateMutation.error) && (
+            {error ? (
                 <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                    {error?.message ?? updateMutation.error?.message}
+                    {error?.message}
                 </div>
+            ) : (
+                <>
+                    {updateMutation.error && (
+                        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                            {updateMutation.error?.message}
+                        </div>
+                    )}
+                    <ProductForm
+                        defaultValues={formDefaults}
+                        submitLabel="Atualizar produto"
+                        onSubmit={(values) => updateMutation.mutate(values)}
+                        onCancel={() => navigate("/products")}
+                        isLoading={updateMutation.isPending}
+                        Id={Number(id)}
+                    />
+                </>
             )}
-
-            <ProductForm
-                defaultValues={formDefaults}
-                submitLabel="Atualizar produto"
-                onSubmit={(values) => updateMutation.mutate(values)}
-                onCancel={() => navigate("/products")}
-                isLoading={updateMutation.isPending}
-            />
         </div>
     );
 }

@@ -155,19 +155,26 @@ export function EditSupplier() {
                 <p className="text-sm text-muted-foreground">Atualize os dados do fornecedor.</p>
             </div>
 
-            {(error || updateMutation.error) && (
+            {error ? (
                 <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                    {error?.message ?? updateMutation.error?.message}
+                    {error?.message}
                 </div>
+            ) : (
+                <>
+                    {updateMutation.error && (
+                        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                            {updateMutation.error?.message}
+                        </div>
+                    )}
+                    <SupplierForm
+                        defaultValues={formDefaults}
+                        submitLabel="Atualizar fornecedor"
+                        onSubmit={(values) => updateMutation.mutate(values)}
+                        onCancel={() => navigate("/suppliers")}
+                        isLoading={updateMutation.isPending}
+                    />
+                </>
             )}
-
-            <SupplierForm
-                defaultValues={formDefaults}
-                submitLabel="Atualizar fornecedor"
-                onSubmit={(values) => updateMutation.mutate(values)}
-                onCancel={() => navigate("/suppliers")}
-                isLoading={updateMutation.isPending}
-            />
         </div>
     );
 }

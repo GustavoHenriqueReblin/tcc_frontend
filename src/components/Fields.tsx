@@ -19,6 +19,7 @@ import {
 import { Button } from "./ui/button";
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { Calendar } from "./ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 const selectBaseClass =
     "h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
@@ -42,6 +43,30 @@ interface EnumSelectProps<T extends FieldValues> {
 interface SelectFieldProps<T extends FieldValues> extends BaseFieldProps<T> {
     options: string[];
     allowEmpty?: boolean;
+}
+
+interface SimpleSelectProps {
+    value: string;
+    onChange: (value: string) => void;
+    options: { value: string; label: string }[];
+    placeholder?: string;
+}
+
+interface TextFieldStandaloneProps {
+    label: string;
+    type?: "text" | "number";
+    value: string | number;
+    onChange: (value: string | number) => void;
+    autoFocus?: boolean;
+    disabled?: boolean;
+}
+
+interface TextAreaStandaloneProps {
+    label?: string;
+    value: string;
+    onChange: (value: string) => void;
+    rows?: number;
+    disabled?: boolean;
 }
 
 function DateField({
@@ -147,7 +172,12 @@ export function TextField<T extends FieldValues>({
     type = "text",
     mask,
     autoFocus,
-}: BaseFieldProps<T> & { type?: string; mask?: (v: string) => string }) {
+    disabled = false,
+}: BaseFieldProps<T> & {
+    type?: string;
+    mask?: (v: string) => string;
+    disabled?: boolean;
+}) {
     return (
         <FormField
             control={control}
@@ -158,6 +188,8 @@ export function TextField<T extends FieldValues>({
                 }
 
                 const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+                    if (disabled) return;
+
                     const value = e.target.value;
 
                     if (type === "number") {
@@ -183,6 +215,7 @@ export function TextField<T extends FieldValues>({
                             <Input
                                 autoFocus={autoFocus}
                                 {...field}
+                                disabled={disabled}
                                 type={type}
                                 value={field.value ?? ""}
                                 onChange={handleChange}
@@ -193,6 +226,40 @@ export function TextField<T extends FieldValues>({
                 );
             }}
         />
+    );
+}
+
+export function TextFieldStandalone({
+    label,
+    type = "text",
+    value,
+    onChange,
+    autoFocus,
+    disabled = false,
+}: TextFieldStandaloneProps) {
+    return (
+        <FormItem className="flex flex-col w-full">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                {label}
+            </label>
+
+            <Input
+                type={type}
+                value={value ?? ""}
+                autoFocus={autoFocus}
+                disabled={disabled}
+                onChange={(e) => {
+                    if (type === "number") {
+                        const raw = e.target.value;
+                        onChange(raw === "" ? "" : Number(raw));
+                    } else {
+                        onChange(e.target.value);
+                    }
+                }}
+            />
+
+            <p className="text-xs text-destructive h-4"></p>
+        </FormItem>
     );
 }
 
@@ -236,6 +303,33 @@ export function TextAreaField<T extends FieldValues>({ control, name, label }: B
     );
 }
 
+export function TextAreaStandalone({
+    label,
+    value,
+    onChange,
+    rows = 3,
+    disabled = false,
+}: TextAreaStandaloneProps) {
+    return (
+        <FormItem className="flex flex-col w-full">
+            {label && (
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    {label}
+                </label>
+            )}
+
+            <Textarea
+                disabled={disabled}
+                rows={rows}
+                value={value ?? ""}
+                onChange={(e) => onChange(e.target.value)}
+            />
+
+            <p className="text-xs text-destructive h-4"></p>
+        </FormItem>
+    );
+}
+
 export function SelectField<T extends FieldValues>({
     control,
     name,
@@ -270,6 +364,24 @@ export function SelectField<T extends FieldValues>({
                 </FormItem>
             )}
         />
+    );
+}
+
+export function SimpleSelect({ value, onChange, options, placeholder }: SimpleSelectProps) {
+    return (
+        <Select value={value} onValueChange={onChange}>
+            <SelectTrigger className="w-full justify-between cursor-pointer">
+                <SelectValue placeholder={placeholder ?? "Selecione"} />
+            </SelectTrigger>
+
+            <SelectContent align="start">
+                {options.map((opt) => (
+                    <SelectItem className="cursor-pointer" key={opt.value} value={opt.value}>
+                        {opt.label}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
     );
 }
 

@@ -69,6 +69,13 @@ export const productDefinitionTypeLabels: Record<ProductDefinitionType, string> 
     RETURNED_PRODUCT: "Produto devolvido",
 };
 
+export const movementSourceLabels: Record<MovementSource, string> = {
+    PURCHASE: "Compra",
+    HARVEST: "Colheita",
+    SALE: "Venda",
+    ADJUSTMENT: "Ajuste / Saldo inicial",
+};
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData, TValue> {

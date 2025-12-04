@@ -147,19 +147,26 @@ export function EditCustomer() {
                 </p>
             </div>
 
-            {(error || updateMutation.error) && (
+            {error ? (
                 <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                    {error?.message ?? updateMutation.error?.message}
+                    {error?.message}
                 </div>
+            ) : (
+                <>
+                    {updateMutation.error && (
+                        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                            {updateMutation.error?.message}
+                        </div>
+                    )}
+                    <CustomerForm
+                        defaultValues={formDefaults}
+                        submitLabel="Atualizar cliente"
+                        onSubmit={(values) => updateMutation.mutate(values)}
+                        onCancel={() => navigate("/customers")}
+                        isLoading={updateMutation.isPending}
+                    />
+                </>
             )}
-
-            <CustomerForm
-                defaultValues={formDefaults}
-                submitLabel="Atualizar cliente"
-                onSubmit={(values) => updateMutation.mutate(values)}
-                onCancel={() => navigate("/customers")}
-                isLoading={updateMutation.isPending}
-            />
         </div>
     );
 }

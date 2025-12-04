@@ -32,6 +32,7 @@ interface ComboboxQueryProps<
     endpoint: string;
     valueField: keyof TItem;
     labelField: keyof TItem;
+    formatLabel?: (item: TItem) => string;
 
     disabled?: boolean;
     extraParams?: Record<string, unknown>;
@@ -47,6 +48,7 @@ export function ComboboxQuery<
     endpoint,
     valueField,
     labelField,
+    formatLabel,
     disabled = false,
     extraParams = {},
 }: ComboboxQueryProps<TFieldValues, TItem>) {
@@ -66,6 +68,13 @@ export function ComboboxQuery<
     });
 
     const items = query.data ?? [];
+    const getItemLabel = (item: TItem | undefined) => {
+        if (!item) return "";
+        if (formatLabel) return formatLabel(item);
+
+        const raw = item?.[labelField];
+        return raw == null ? "" : String(raw);
+    };
 
     return (
         <FormField
@@ -104,11 +113,11 @@ export function ComboboxQuery<
                                     className="justify-between"
                                 >
                                     {field.value
-                                        ? String(
+                                        ? getItemLabel(
                                               items.find(
                                                   (i) =>
                                                       String(i[valueField]) === String(field.value)
-                                              )?.[labelField] ?? ""
+                                              )
                                           )
                                         : query.isLoading
                                           ? "Carregando..."
@@ -127,7 +136,7 @@ export function ComboboxQuery<
 
                                     {items.map((item) => {
                                         const value = String(item[valueField]);
-                                        const labelText = String(item[labelField]);
+                                        const labelText = getItemLabel(item);
 
                                         return (
                                             <CommandItem

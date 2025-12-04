@@ -1,6 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import {
+    ArrowDownToLine,
     BoxIcon,
     ChevronDown,
     Gauge,
@@ -40,6 +41,11 @@ export const menuConfig = [
         label: "Estoque",
         items: [
             { label: "Produtos", to: "/products", icon: Package },
+            {
+                label: "Entrada de mercadoria",
+                to: "/inventory/inbound",
+                icon: ArrowDownToLine,
+            },
             { label: "Unidades de medida", to: "/unities", icon: Weight },
             { label: "Depósitos", to: "/warehouses", icon: Warehouse },
         ],
