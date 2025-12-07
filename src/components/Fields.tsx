@@ -1,4 +1,4 @@
-import { ChangeEvent, ReactNode, useRef, useState } from "react";
+import { ChangeEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -171,13 +171,62 @@ export function TextField<T extends FieldValues>({
     label,
     type = "text",
     mask,
-    autoFocus,
+    autoFocus = false,
     disabled = false,
+    prefix,
+    suffix,
+    decimals,
 }: BaseFieldProps<T> & {
     type?: string;
-    mask?: (v: string) => string;
+    mask?: (value: string) => string;
     disabled?: boolean;
+    prefix?: string;
+    suffix?: string;
+    decimals?: number;
 }) {
+    const [displayValue, setDisplayValue] = useState<string>("");
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    const fieldValueRef = useRef<unknown>("");
+
+    const formatNumber = useCallback(
+        (n: number): string =>
+            n.toLocaleString("pt-BR", {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
+            }),
+        [decimals]
+    );
+
+    const applyFormat = useCallback(
+        (value: unknown): string => {
+            if (value === null || value === undefined || value === "") return "";
+
+            if (type === "number") {
+                const n =
+                    typeof value === "number"
+                        ? value
+                        : Number(String(value).replace(/\./g, "").replace(",", "."));
+
+                if (isNaN(n)) return "";
+
+                let formatted = formatNumber(n);
+                if (prefix) formatted = prefix + formatted;
+                if (suffix) formatted = `${formatted} ${suffix}`;
+
+                return formatted.trim();
+            }
+
+            return String(value);
+        },
+        [type, prefix, suffix, formatNumber]
+    );
+
+    useEffect(() => {
+        const v = fieldValueRef.current;
+        setDisplayValue(applyFormat(v));
+    }, [applyFormat]);
+
     return (
         <FormField
             control={control}
@@ -187,25 +236,78 @@ export function TextField<T extends FieldValues>({
                     return <DateField label={label} field={field} />;
                 }
 
+                fieldValueRef.current = field.value;
+
+                const handleFocus = () => {
+                    const raw = fieldValueRef.current;
+
+                    if (raw === null || raw === undefined || raw === "") {
+                        setDisplayValue("");
+                    } else if (type === "number") {
+                        const n =
+                            typeof raw === "number" ? raw : Number(String(raw).replace(",", "."));
+
+                        setDisplayValue(isNaN(n) ? "" : String(n).replace(".", ","));
+                    } else {
+                        setDisplayValue(String(raw));
+                    }
+
+                    requestAnimationFrame(() => {
+                        inputRef.current?.select();
+                    });
+                };
+
+                const handleBlur = () => {
+                    const raw = fieldValueRef.current;
+
+                    if (raw === null || raw === undefined || raw === "") {
+                        setDisplayValue("");
+                        return;
+                    }
+
+                    if (type !== "number") {
+                        setDisplayValue(String(raw));
+                        return;
+                    }
+
+                    let n: number;
+
+                    if (typeof raw === "number") {
+                        n = raw;
+                    } else {
+                        n = Number(String(raw).replace(/\./g, "").replace(",", "."));
+                    }
+
+                    setDisplayValue(isNaN(n) ? "" : applyFormat(n));
+                };
+
                 const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
                     if (disabled) return;
 
-                    const value = e.target.value;
+                    let value = e.target.value;
+
+                    if (prefix) value = value.replace(prefix, "");
+                    if (suffix) value = value.replace(suffix, "");
 
                     if (type === "number") {
-                        if (value === "") {
+                        const normalized = value.replace(/\./g, "").replace(",", ".");
+                        if (normalized === "") {
                             field.onChange(undefined);
+                            setDisplayValue("");
                             return;
                         }
 
-                        const n = Number(value);
-                        if (!isNaN(n)) {
-                            field.onChange(n);
+                        const num = Number(normalized);
+                        if (!isNaN(num)) {
+                            field.onChange(num);
+                            setDisplayValue(value);
                         }
                         return;
                     }
 
-                    field.onChange(mask ? mask(value) : value);
+                    const masked = mask ? mask(value) : value;
+                    field.onChange(masked);
+                    setDisplayValue(masked);
                 };
 
                 return (
@@ -213,12 +315,14 @@ export function TextField<T extends FieldValues>({
                         <FormLabel>{label}</FormLabel>
                         <FormControl>
                             <Input
+                                ref={inputRef}
                                 autoFocus={autoFocus}
-                                {...field}
                                 disabled={disabled}
-                                type={type}
-                                value={field.value ?? ""}
+                                value={displayValue}
                                 onChange={handleChange}
+                                onFocus={handleFocus}
+                                onBlur={handleBlur}
+                                inputMode={type === "number" ? "decimal" : undefined}
                             />
                         </FormControl>
                         <FormMessage />
@@ -260,28 +364,6 @@ export function TextFieldStandalone({
 
             <p className="text-xs text-destructive h-4"></p>
         </FormItem>
-    );
-}
-
-export function NumberField<T extends FieldValues>({ control, name, label }: BaseFieldProps<T>) {
-    return (
-        <FormField
-            control={control}
-            name={name}
-            render={({ field }) => (
-                <FormItem>
-                    <FormLabel>{label}</FormLabel>
-                    <FormControl>
-                        <Input
-                            type="number"
-                            value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                        />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-            )}
-        />
     );
 }
 

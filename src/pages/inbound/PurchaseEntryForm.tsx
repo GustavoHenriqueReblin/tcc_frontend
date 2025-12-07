@@ -191,6 +191,7 @@ export function PurchaseEntryForm() {
                                             name={`items.${index}.quantity` as const}
                                             label="Quantidade"
                                             type="number"
+                                            decimals={3}
                                         />
 
                                         <TextField
@@ -198,6 +199,8 @@ export function PurchaseEntryForm() {
                                             name={`items.${index}.unitCost` as const}
                                             label="Custo unitário"
                                             type="number"
+                                            decimals={3}
+                                            prefix="R$ "
                                         />
                                     </FieldsGrid>
                                 </div>

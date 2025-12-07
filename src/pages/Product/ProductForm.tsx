@@ -110,12 +110,16 @@ export function ProductForm({
                                 name="costValue"
                                 label="Valor de custo"
                                 type="number"
+                                decimals={3}
+                                prefix="R$ "
                             />
                             <TextField
                                 control={control}
                                 name="saleValue"
                                 label="Valor de venda"
                                 type="number"
+                                decimals={3}
+                                prefix="R$ "
                             />
                             <TextField
                                 control={control}
@@ -123,6 +127,7 @@ export function ProductForm({
                                 label="Quantidade"
                                 type="number"
                                 disabled={!!Id}
+                                decimals={3}
                             />
                         </FieldsGrid>
                     </Section>
