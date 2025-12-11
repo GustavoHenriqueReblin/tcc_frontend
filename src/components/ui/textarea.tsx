@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn, nextFocus } from "@/lib/utils";
+import { cn, nextFocus } from "@/utils/global";
 
 type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 

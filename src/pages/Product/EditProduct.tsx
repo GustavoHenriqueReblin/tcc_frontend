@@ -11,9 +11,10 @@ import type { ApiResponse } from "@/types/global";
 
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Loading } from "@/components/Loading";
-import { buildApiError } from "@/lib/utils";
+import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 import { isEqual } from "lodash-es";
+import { buildNestedPayload } from "@/utils/buildNestedItems";
 
 export function EditProduct() {
     const { id } = useParams<{ id: string }>();
@@ -51,13 +52,58 @@ export function EditProduct() {
     const updateMutation = useMutation<Product, Error, ProductFormValues>({
         mutationFn: async (values) => {
             const toastId = toast.loading("Atualizando...");
+
             try {
-                if (!id) throw new Error("Identificador invalido");
+                if (!id) throw new Error("Identificador inválido");
 
                 if (isEqual(formDefaults, values)) {
                     toast.info("Nenhuma alteração encontrada.", { id: toastId });
                     return;
                 }
+
+                const recipesPayload = buildNestedPayload({
+                    original: formDefaults.recipes,
+                    edited: values.recipes,
+                    getId: (r) => r.id,
+                    isEqual: (orig, edit) =>
+                        orig.description === edit.description &&
+                        orig.notes === edit.notes &&
+                        JSON.stringify(orig.items) === JSON.stringify(edit.items),
+                });
+
+                const recipesWithItems = {
+                    create: recipesPayload.create.map((r) => {
+                        return {
+                            ...r,
+                            items: buildNestedPayload({
+                                original: [],
+                                edited: r.items,
+                                getId: (i) => i.id,
+                                isEqual: (o, e) =>
+                                    o.productId === e.productId &&
+                                    Number(o.quantity) === Number(e.quantity),
+                            }),
+                        };
+                    }),
+
+                    update: recipesPayload.update.map((r) => {
+                        const orig = formDefaults.recipes.find((o) => o.id === r.id);
+
+                        return {
+                            ...r,
+                            items: buildNestedPayload({
+                                original: orig?.items ?? [],
+                                edited: r.items,
+                                getId: (i) => i.id,
+                                isEqual: (o, e) =>
+                                    o.productId === e.productId &&
+                                    Number(o.quantity) === Number(e.quantity),
+                            }),
+                        };
+                    }),
+
+                    delete: recipesPayload.delete,
+                };
 
                 const payload = {
                     name: values.name,
@@ -69,6 +115,7 @@ export function EditProduct() {
                         saleValue: values.saleValue,
                         quantity: values.quantity,
                     },
+                    recipes: recipesWithItems,
                 };
 
                 const response = await api.put<ApiResponse<Product>>(`/products/${id}`, payload);
@@ -95,9 +142,7 @@ export function EditProduct() {
         },
     });
 
-    if (isLoading) {
-        return <Loading />;
-    }
+    if (isLoading) return <Loading />;
 
     const inventory = product?.productInventory?.[0];
 
@@ -110,6 +155,22 @@ export function EditProduct() {
               costValue: inventory ? Number(inventory.costValue) : 0,
               saleValue: inventory ? Number(inventory.saleValue) : 0,
               quantity: inventory ? Number(inventory.quantity) : 0,
+
+              recipes:
+                  product.recipe?.map((recipe) => ({
+                      id: recipe.id,
+                      description: recipe.description,
+                      notes: recipe.notes,
+
+                      items:
+                          recipe.items?.map((item) => ({
+                              id: item.id,
+                              productId: item.productId,
+                              quantity: Number(item.quantity),
+                              productName: item.product?.name ?? null,
+                              unitySimbol: item.product?.unity?.simbol ?? null,
+                          })) ?? [],
+                  })) ?? [],
           }
         : defaultProductFormValues;
 

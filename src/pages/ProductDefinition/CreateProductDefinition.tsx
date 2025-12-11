@@ -7,7 +7,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 
 import type { ProductDefinition } from "@/types/productDefinition";
 import type { ApiResponse } from "@/types/global";
-import { buildApiError } from "@/lib/utils";
+import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 
 export function CreateProductDefinition() {

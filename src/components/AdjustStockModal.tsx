@@ -1,13 +1,20 @@
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog";
+
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { FieldsGrid, TextAreaStandalone, TextFieldStandalone } from "@/components/Fields";
 
 import { api } from "@/api/client";
-import { buildApiError } from "@/lib/utils";
+import { buildApiError } from "@/utils/global";
 import { ComboboxStandalone } from "./ComboboxStandalone";
 import { ApiResponse } from "@/types/global";
 import { InventoryMovement } from "@/types/inventoryMovement";
@@ -52,67 +59,70 @@ export function AdjustStockModal({ productData, open, onClose, onSuccess }: Adju
     });
 
     return (
-        <Modal open={open} onClose={onClose}>
-            <h2 className="text-lg font-semibold">Ajustar estoque</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-                Informe os dados do ajuste de estoque.
-            </p>
+        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+            <DialogContent className="max-w-lg">
+                <DialogHeader className="mb-2">
+                    <DialogTitle>Ajustar estoque</DialogTitle>
+                </DialogHeader>
 
-            <FieldsGrid cols={2}>
-                <TextFieldStandalone
-                    autoFocus
-                    label="Quantidade *"
-                    type="number"
-                    value={quantity}
-                    onChange={(val) => {
-                        const newValue = val as number;
-                        setQuantity(newValue);
-                        setDiference(newValue - productData.quantity);
-                    }}
-                />
+                <div>
+                    <FieldsGrid cols={2}>
+                        <TextFieldStandalone
+                            autoFocus
+                            label="Quantidade *"
+                            type="number"
+                            value={quantity}
+                            onChange={(val) => {
+                                const newValue = val as number;
+                                setQuantity(newValue);
+                                setDiference(newValue - productData.quantity);
+                            }}
+                        />
 
-                <div className="flex flex-col gap-2">
-                    <ComboboxStandalone
-                        label="Depósito"
-                        endpoint="/warehouses"
-                        valueField="id"
-                        labelField="name"
-                        value={warehouseId}
-                        onChange={(val) => setWarehouseId(val)}
+                        <div className="flex flex-col gap-2">
+                            <ComboboxStandalone
+                                label="Depósito"
+                                endpoint="/warehouses"
+                                valueField="id"
+                                labelField="name"
+                                value={warehouseId}
+                                onChange={(val) => setWarehouseId(val)}
+                            />
+                        </div>
+                    </FieldsGrid>
+
+                    <TextAreaStandalone
+                        label="Observações"
+                        value={notes}
+                        onChange={(val) => setNotes(val)}
                     />
+
+                    <div className="flex flex-col gap-1 text-sm">
+                        <span>Quantidade atual: {productData.quantity}</span>
+                        <span>Diferença: {quantity !== null ? diference : ""}</span>
+                    </div>
                 </div>
-            </FieldsGrid>
 
-            <TextAreaStandalone
-                label="Observações"
-                value={notes}
-                onChange={(val) => setNotes(val)}
-            />
+                <DialogFooter className="mt-6">
+                    <Button type="button" variant="outline" onClick={onClose}>
+                        Cancelar
+                    </Button>
 
-            <div className="flex flex-col gap-2">
-                <span>Quantidade em estoque: {productData.quantity}</span>
-                <span>Diferença: {quantity !== null ? diference : ""}</span>
-            </div>
+                    <Button
+                        disabled={mutation.isPending}
+                        onClick={() => {
+                            if (quantity === null) {
+                                toast.error("Informe a quantidade.");
+                                return;
+                            }
 
-            <div className="flex justify-end mt-6 gap-3">
-                <Button variant="outline" onClick={onClose}>
-                    Cancelar
-                </Button>
-
-                <Button
-                    disabled={mutation.isPending}
-                    onClick={() => {
-                        if (!quantity) {
-                            toast.error("Informe a quantidade.");
-                            return;
-                        }
-
-                        mutation.mutate();
-                    }}
-                >
-                    {mutation.isPending ? "Salvando..." : "Ajustar estoque"}
-                </Button>
-            </div>
-        </Modal>
+                            mutation.mutate();
+                        }}
+                    >
+                        {mutation.isPending ? "Salvando..." : "Ajustar estoque"}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

@@ -57,8 +57,8 @@ export function ProductDefinitionForm({
             <Form {...form}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Section
-                        title="Dados da definicao"
-                        description="Informe os dados principais desta definicao de produto."
+                        title="Dados da definição"
+                        description="Informe os dados principais desta definição de produto."
                     >
                         <FieldsGrid cols={2}>
                             <TextField control={control} name="name" label="Nome" autoFocus />

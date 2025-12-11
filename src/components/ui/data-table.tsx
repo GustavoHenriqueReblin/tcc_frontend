@@ -10,7 +10,7 @@ import {
 import { useState, ReactNode, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/global";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "lucide-react";
 import { Loading } from "../Loading";

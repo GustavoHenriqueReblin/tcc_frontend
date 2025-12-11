@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/global";
 import {
     ArrowDownToLine,
     BoxIcon,

@@ -5,14 +5,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Section, FieldsGrid, TextField } from "@/components/Fields";
 import { ComboboxQuery } from "@/components/ComboboxQuery";
 
-import { productFormSchema, type ProductFormValues } from "@/schemas/product.schema";
+import {
+    productFormSchema,
+    type ProductFormValues,
+    type RecipeFormValue,
+} from "@/schemas/product.schema";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
 import { AdjustStockModal } from "@/components/AdjustStockModal";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ProductRecipes } from "./Recipe/ProductRecipes";
+import { ProductDefinition } from "@/types/product";
+import { api } from "@/api/client";
+import { ApiResponse, ServerList } from "@/types/global";
+import { buildApiError } from "@/utils/global";
+import { ProductDefinitionTypeEnum } from "@/types/enums";
+import { SlidersHorizontal } from "lucide-react";
 
 interface Props {
     defaultValues: ProductFormValues;
@@ -38,9 +49,38 @@ export function ProductForm({
     });
     const queryClient = useQueryClient();
 
+    const { data: productDefinitionsResponse } = useQuery<ProductDefinition[], Error>({
+        queryKey: ["/product-definitions", {}],
+        queryFn: async () => {
+            try {
+                const response =
+                    await api.get<ApiResponse<ServerList<ProductDefinition>>>(
+                        "/product-definitions"
+                    );
+
+                if (!response.data.success) {
+                    throw new Error(
+                        response.data.message || "Erro ao carregar definições do produto"
+                    );
+                }
+
+                return response.data.data.items;
+            } catch (error) {
+                throw buildApiError(error, "Erro ao carregar definições do produto");
+            }
+        },
+    });
+
     useEffect(() => {
         form.reset(defaultValues);
     }, [form, defaultValues]);
+
+    const recipes = form.watch("recipes") ?? [];
+    const idDefinition = form.watch("productDefinitionId");
+
+    const handleRecipesChange = (nextRecipes: RecipeFormValue[]) => {
+        form.setValue("recipes", nextRecipes, { shouldDirty: true });
+    };
 
     if (isLoading) {
         return (
@@ -55,7 +95,7 @@ export function ProductForm({
     return (
         <div className="rounded-md border bg-card text-card-foreground p-6">
             <Form {...form}>
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form id="form-product" onSubmit={handleSubmit(onSubmit)}>
                     <Section
                         title="Dados do produto"
                         description="Informações gerais do produto e vinculações."
@@ -92,18 +132,6 @@ export function ProductForm({
                         title="Estoque e precificação"
                         description="Valores de entrada, venda e saldo inicial."
                     >
-                        <div className="flex justify-end items-center mb-2">
-                            {Id && (
-                                <Button
-                                    variant="outline"
-                                    type="button"
-                                    onClick={() => setAdjustModalOpen(true)}
-                                >
-                                    Ajustar estoque
-                                </Button>
-                            )}
-                        </div>
-
                         <FieldsGrid cols={3}>
                             <TextField
                                 control={control}
@@ -121,16 +149,37 @@ export function ProductForm({
                                 decimals={3}
                                 prefix="R$ "
                             />
-                            <TextField
-                                control={control}
-                                name="quantity"
-                                label="Quantidade"
-                                type="number"
-                                disabled={!!Id}
-                                decimals={3}
-                            />
+                            <div className="flex items-end gap-4">
+                                <TextField
+                                    control={control}
+                                    name="quantity"
+                                    label="Quantidade"
+                                    type="number"
+                                    disabled={!!Id}
+                                    decimals={3}
+                                />
+                                {Id && (
+                                    <Button
+                                        variant="outline"
+                                        type="button"
+                                        className="inline-flex items-center gap-2 w-fit"
+                                        onClick={() => setAdjustModalOpen(true)}
+                                    >
+                                        <SlidersHorizontal className="size-4" />
+                                        Ajustar estoque
+                                    </Button>
+                                )}
+                            </div>
                         </FieldsGrid>
                     </Section>
+
+                    <div className="mt-8" />
+
+                    {productDefinitionsResponse?.find(
+                        (pd) => pd.type === ProductDefinitionTypeEnum.FINISHED_PRODUCT
+                    ).id === idDefinition && (
+                        <ProductRecipes recipes={recipes} onChange={handleRecipesChange} />
+                    )}
 
                     <div id="form-actions" className="flex justify-end gap-3 pt-4">
                         {onCancel && (
@@ -151,6 +200,7 @@ export function ProductForm({
                     <FormFooterFloating targetId="form-actions" rightOffset={20}>
                         {onCancel && (
                             <Button
+                                form="form-product"
                                 tabIndex={-1}
                                 type="button"
                                 variant="outline"
@@ -159,7 +209,7 @@ export function ProductForm({
                                 Cancelar
                             </Button>
                         )}
-                        <Button type="submit" disabled={formState.isSubmitting}>
+                        <Button form="form-product" type="submit" disabled={formState.isSubmitting}>
                             {formState.isSubmitting ? "Salvando..." : submitLabel}
                         </Button>
                     </FormFooterFloating>
@@ -197,4 +247,5 @@ export const defaultProductFormValues: ProductFormValues = {
     costValue: 0,
     saleValue: 0,
     quantity: 0,
+    recipes: [],
 };

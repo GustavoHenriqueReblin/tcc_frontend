@@ -17,8 +17,8 @@ export interface InventoryMovement {
     reference: string | null;
     notes: string | null;
     supplierId: number | null;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | string;
+    updatedAt: Date | string;
 
     product?: Product;
     warehouse?: Warehouse;

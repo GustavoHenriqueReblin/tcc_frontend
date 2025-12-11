@@ -8,7 +8,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 
 import type { Product } from "@/types/product";
 import type { ApiResponse } from "@/types/global";
-import { buildApiError } from "@/lib/utils";
+import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 
 export function CreateProduct() {
@@ -20,7 +20,27 @@ export function CreateProduct() {
     const mutation = useMutation<Product, Error, ProductFormValues>({
         mutationFn: async (values) => {
             const toastId = toast.loading("Cadastrando...");
+
             try {
+                const recipesPayload = {
+                    create: values.recipes.map((recipe) => ({
+                        id: recipe.id,
+                        description: recipe.description,
+                        notes: recipe.notes,
+                        items: {
+                            create: recipe.items.map((item) => ({
+                                id: item.id,
+                                productId: item.productId,
+                                quantity: item.quantity,
+                            })),
+                            update: [],
+                            delete: [],
+                        },
+                    })),
+                    update: [],
+                    delete: [],
+                };
+
                 const payload = {
                     name: values.name,
                     barcode: values.barcode || null,
@@ -31,6 +51,7 @@ export function CreateProduct() {
                         saleValue: values.saleValue,
                         quantity: values.quantity,
                     },
+                    recipes: recipesPayload,
                 };
 
                 const response = await api.post<ApiResponse<Product>>("/products", payload);
@@ -42,7 +63,7 @@ export function CreateProduct() {
                 toast.success("Produto cadastrado com sucesso.", { id: toastId });
                 return response.data.data;
             } catch (error) {
-                toast.error("Falha ao cadastrar o produto.", { id: toastId });
+                toast.error("Falha ao cadastrar produto.", { id: toastId });
                 throw buildApiError(error, "Erro ao cadastrar produto");
             }
         },

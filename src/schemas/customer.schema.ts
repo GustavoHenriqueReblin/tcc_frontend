@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { MaritalStatusEnum, PersonTypeEnum, StatusEnum } from "@/types/enums";
-import { isValidCPFOrCNPJ, isValidEmail } from "@/lib/utils";
+import { isValidCPFOrCNPJ, isValidEmail } from "@/utils/global";
 
 export const customerFormSchema = z.object({
     contactName: z.string().optional().nullable(),

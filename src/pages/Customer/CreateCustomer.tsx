@@ -8,7 +8,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 
 import type { Customer } from "@/types/customer";
 import type { ApiResponse } from "@/types/global";
-import { buildApiError } from "@/lib/utils";
+import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 
 export function CreateCustomer() {

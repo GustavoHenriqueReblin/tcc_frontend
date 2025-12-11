@@ -12,7 +12,7 @@ import { Section, FieldsGrid, TextField, TextAreaField } from "@/components/Fiel
 import { ComboboxQuery } from "@/components/ComboboxQuery";
 
 import { api } from "@/api/client";
-import { buildApiError } from "@/lib/utils";
+import { buildApiError } from "@/utils/global";
 
 import {
     purchaseEntrySchema,

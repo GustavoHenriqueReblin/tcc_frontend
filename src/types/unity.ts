@@ -6,8 +6,8 @@ export interface Unity {
 
     simbol: string;
     description: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | string;
+    updatedAt: Date | string;
 }
 
 export interface UnitiesResponse {

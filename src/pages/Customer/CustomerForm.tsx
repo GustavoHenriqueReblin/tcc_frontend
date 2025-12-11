@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
-import { maskCEP, maskCPFOrCNPJ, maskPhone, maskRG } from "@/lib/utils";
+import { maskCEP, maskCPFOrCNPJ, maskPhone, maskRG } from "@/utils/global";
 import { maritalStatusLabels, personTypeLabels, statusLabels } from "@/types/global";
 import { useEffect } from "react";
 import { ComboboxQuery } from "@/components/ComboboxQuery";

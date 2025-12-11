@@ -1,4 +1,5 @@
 import { Pagination, ProductDefinitionType } from "./global";
+import { Recipe } from "./recipe";
 
 export interface ProductDefinition {
     id: number;
@@ -8,8 +9,8 @@ export interface ProductDefinition {
     description: string | null;
     type: ProductDefinitionType;
 
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | string;
+    updatedAt: Date | string;
 }
 
 export interface Unity {
@@ -19,8 +20,8 @@ export interface Unity {
     simbol: string;
     description: string;
 
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | string;
+    updatedAt: Date | string;
 }
 
 export interface ProductInventory {
@@ -32,8 +33,8 @@ export interface ProductInventory {
     saleValue: number;
     quantity: number;
 
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | string;
+    updatedAt: Date | string;
 }
 
 export interface Product {
@@ -45,12 +46,13 @@ export interface Product {
     name: string;
     barcode: string | null;
 
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | string;
+    updatedAt: Date | string;
 
     productDefinition: ProductDefinition;
     unity: Unity;
     productInventory: ProductInventory[];
+    recipe?: Recipe[];
 }
 
 export interface ProductsResponse {

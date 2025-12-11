@@ -2,7 +2,7 @@ import { ChangeEvent, ReactNode, useCallback, useEffect, useRef, useState } from
 import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { cn, nextFocus } from "@/lib/utils";
+import { cn, nextFocus } from "@/utils/global";
 import { ptBR } from "date-fns/locale";
 
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";

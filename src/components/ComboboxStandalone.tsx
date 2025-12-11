@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { cn, nextFocus } from "@/lib/utils";
+import { cn, nextFocus } from "@/utils/global";
 import { Label } from "./ui/label";
 import { FormItem } from "./ui/form";
 

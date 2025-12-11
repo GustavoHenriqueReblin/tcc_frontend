@@ -10,7 +10,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { cn, nextFocus } from "@/lib/utils";
+import { cn, nextFocus } from "@/utils/global";
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/client";
@@ -36,6 +36,7 @@ interface ComboboxQueryProps<
 
     disabled?: boolean;
     extraParams?: Record<string, unknown>;
+    onSelectItem?: (item: TItem) => void;
 }
 
 export function ComboboxQuery<
@@ -51,6 +52,7 @@ export function ComboboxQuery<
     formatLabel,
     disabled = false,
     extraParams = {},
+    onSelectItem,
 }: ComboboxQueryProps<TFieldValues, TItem>) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLButtonElement>(null);
@@ -145,6 +147,7 @@ export function ComboboxQuery<
                                                 value={labelText}
                                                 onSelect={() => {
                                                     field.onChange(Number(value));
+                                                    onSelectItem?.(item);
                                                     setOpen(false);
                                                 }}
                                             >

@@ -8,8 +8,8 @@ export interface ProductDefinition {
     description: string | null;
     type: ProductDefinitionType;
 
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | string;
+    updatedAt: Date | string;
 }
 
 export interface ProductDefinitionsResponse {

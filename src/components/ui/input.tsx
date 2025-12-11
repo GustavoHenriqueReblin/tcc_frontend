@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { cn, nextFocus } from "@/lib/utils";
+import { cn, nextFocus } from "@/utils/global";
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
     return (

@@ -19,8 +19,8 @@ export interface Supplier {
     category: string | null;
     notes: string | null;
 
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | string;
+    updatedAt: Date | string;
 
     person: Person;
 }

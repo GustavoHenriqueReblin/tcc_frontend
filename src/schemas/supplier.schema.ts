@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { MaritalStatusEnum, PersonTypeEnum, StatusEnum } from "@/types/enums";
-import { isValidCPFOrCNPJ, isValidEmail } from "@/lib/utils";
+import { isValidCPFOrCNPJ, isValidEmail } from "@/utils/global";
 
 export const supplierFormSchema = z.object({
     contactName: z.string().optional().nullable(),
@@ -21,7 +21,7 @@ export const supplierFormSchema = z.object({
     status: z.enum(StatusEnum),
 
     person: z.object({
-        name: z.string().min(3, "Nome obrigatorio"),
+        name: z.string().min(3, "Nome obrigatório"),
 
         legalName: z.string().nullable().optional(),
 

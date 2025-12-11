@@ -11,7 +11,7 @@ import type { ApiResponse } from "@/types/global";
 
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Loading } from "@/components/Loading";
-import { buildApiError } from "@/lib/utils";
+import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 import { isEqual } from "lodash-es";
 
