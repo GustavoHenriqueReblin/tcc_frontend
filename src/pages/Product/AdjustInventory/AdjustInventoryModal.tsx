@@ -15,18 +15,18 @@ import { FieldsGrid, TextAreaStandalone, TextFieldStandalone } from "@/component
 
 import { api } from "@/api/client";
 import { buildApiError } from "@/utils/global";
-import { ComboboxStandalone } from "./ComboboxStandalone";
+import { ComboboxStandalone } from "../../../components/ComboboxStandalone";
 import { ApiResponse } from "@/types/global";
 import { InventoryMovement } from "@/types/inventoryMovement";
 
-interface AdjustStockModalProps {
+interface AdjustInventoryModalProps {
     productData: { id: number; quantity: number };
     open: boolean;
     onClose: () => void;
     onSuccess?: (newQuantity: number) => void;
 }
 
-export function AdjustStockModal({ productData, open, onClose, onSuccess }: AdjustStockModalProps) {
+export function AdjustInventoryModal({ productData, open, onClose, onSuccess }: AdjustInventoryModalProps) {
     const [diference, setDiference] = useState<number | null>(null);
     const [quantity, setQuantity] = useState<number | null>(null);
     const [warehouseId, setWarehouseId] = useState<number | null>(null);

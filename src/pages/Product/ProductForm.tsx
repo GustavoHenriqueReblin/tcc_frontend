@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
-import { AdjustStockModal } from "@/components/AdjustStockModal";
+import { AdjustInventoryModal } from "@/pages/Product/AdjustInventory/AdjustInventoryModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProductRecipes } from "./Recipe/ProductRecipes";
 import { ProductDefinition } from "@/types/product";
@@ -217,7 +217,7 @@ export function ProductForm({
             </Form>
 
             {Id && (
-                <AdjustStockModal
+                <AdjustInventoryModal
                     open={adjustModalOpen}
                     onClose={() => setAdjustModalOpen(false)}
                     productData={{
