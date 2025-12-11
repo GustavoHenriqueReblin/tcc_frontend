@@ -4,6 +4,17 @@ import { RecipeFormValue } from "@/schemas/product.schema";
 import { ProductRecipeModal } from "./ProductRecipeModal";
 import { useState } from "react";
 import { PlusCircle } from "lucide-react";
+import {
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogFooter,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogCancel,
+    AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 interface Props {
     recipes: RecipeFormValue[];
@@ -87,18 +98,52 @@ export function ProductRecipes({ recipes, onChange }: Props) {
                             >
                                 Editar
                             </Button>
-                            <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    handleDelete(i);
-                                }}
-                            >
-                                Excluir
-                            </Button>
+
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                        }}
+                                    >
+                                        Excluir
+                                    </Button>
+                                </AlertDialogTrigger>
+
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Excluir receita?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Esta ação não pode ser desfeita. Deseja realmente
+                                            excluir esta receita?
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel
+                                            className="cursor-pointer"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                            }}
+                                        >
+                                            Cancelar
+                                        </AlertDialogCancel>
+
+                                        <AlertDialogAction
+                                            className="bg-destructive cursor-pointer"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(i);
+                                            }}
+                                        >
+                                            Confirmar exclusão
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </div>
                     </div>
                 ))}

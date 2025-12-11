@@ -5,6 +5,17 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogFooter,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogCancel,
+    AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
 import { TextField, FieldsGrid, Section } from "@/components/Fields";
@@ -157,14 +168,42 @@ export function ProductRecipeModal({ open, onClose, initialData, onSave }: Props
                                                 Editar
                                             </Button>
 
-                                            <Button
-                                                size="sm"
-                                                variant="destructive"
-                                                type="button"
-                                                onClick={() => removeItem(index)}
-                                            >
-                                                Excluir
-                                            </Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="destructive"
+                                                        type="button"
+                                                    >
+                                                        Excluir
+                                                    </Button>
+                                                </AlertDialogTrigger>
+
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>
+                                                            Excluir item?
+                                                        </AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Esta ação não pode ser desfeita. Deseja
+                                                            realmente excluir este item da receita?
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel className="cursor-pointer">
+                                                            Cancelar
+                                                        </AlertDialogCancel>
+
+                                                        <AlertDialogAction
+                                                            className="bg-destructive cursor-pointer"
+                                                            onClick={() => removeItem(index)}
+                                                        >
+                                                            Confirmar exclusão
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </div>
                                     </div>
                                 ))}
