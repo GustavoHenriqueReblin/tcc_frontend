@@ -12,30 +12,28 @@ import { ComboboxQuery } from "@/components/ComboboxQuery";
 import { api } from "@/api/client";
 import { buildApiError } from "@/utils/global";
 
-import {
-    adjustmentEntrySchema,
-    type AdjustmentEntryFormValues,
-} from "@/schemas/inbound/adjustment.schema";
+import { harvestSchema, type HarvestFormValues } from "@/schemas/inbound/harvest.schema";
 import { ApiResponse } from "@/types/global";
 import { InventoryMovement } from "@/types/inventoryMovement";
+import { Product } from "@/types/product";
 import { useState } from "react";
 
-export function AdjustmentEntryForm() {
+export function HarvestForm() {
     const [unitySimbol, setUnitySimbol] = useState<string | null>(null);
     const queryClient = useQueryClient();
 
-    const form = useForm<AdjustmentEntryFormValues>({
-        resolver: zodResolver(adjustmentEntrySchema),
-        defaultValues: defaultAdjustmentEntryValues,
+    const form = useForm<HarvestFormValues>({
+        resolver: zodResolver(harvestSchema),
+        defaultValues: defaultHarvestValues,
     });
 
     const mutation = useMutation({
-        mutationFn: async (values: AdjustmentEntryFormValues) => {
-            const toastId = toast.loading("Registrando ajuste...");
+        mutationFn: async (values: HarvestFormValues) => {
+            const toastId = toast.loading("Registrando colheita...");
 
             try {
                 const { productId, quantity, warehouseId, notes } = values;
-                await api.post<ApiResponse<InventoryMovement>>("/inventory-movement/adjustments", {
+                await api.post<ApiResponse<InventoryMovement>>("/inventory-movement/harvest", {
                     productId,
                     quantity,
                     warehouseId,
@@ -43,10 +41,10 @@ export function AdjustmentEntryForm() {
                 });
 
                 setUnitySimbol(null);
-                toast.success("Ajuste registrado com sucesso.", { id: toastId });
+                toast.success("Colheita registrado com sucesso.", { id: toastId });
             } catch (error) {
-                toast.error("Falha ao registrar o ajuste.", { id: toastId });
-                throw buildApiError(error, "Erro ao registrar ajuste de estoque.");
+                toast.error("Falha ao registrar a colheita.", { id: toastId });
+                throw buildApiError(error, "Erro ao registrar a colheita.");
             }
         },
         onSuccess: () => {
@@ -60,13 +58,13 @@ export function AdjustmentEntryForm() {
                 exact: false,
             });
 
-            form.reset(defaultAdjustmentEntryValues);
+            form.reset(defaultHarvestValues);
         },
     });
 
     const { handleSubmit, control, formState } = form;
     const submitLabel =
-        mutation.isPending || formState.isSubmitting ? "Salvando..." : "Registrar ajuste";
+        mutation.isPending || formState.isSubmitting ? "Salvando..." : "Registrar colheita";
 
     return (
         <div className="rounded-md border bg-card text-card-foreground p-6 space-y-6">
@@ -79,12 +77,12 @@ export function AdjustmentEntryForm() {
             <Form {...form}>
                 <form onSubmit={handleSubmit((values) => mutation.mutate(values))}>
                     <Section
-                        title="Dados do ajuste"
-                        description="Informe produto, depósito e quantidade para corrigir o saldo."
+                        title="Dados da colheita"
+                        description="Informe produto, depósito e quantidade para dar entrada no estoque."
                     >
                         <FieldsGrid cols={3}>
                             <ComboboxQuery<
-                                AdjustmentEntryFormValues,
+                                HarvestFormValues,
                                 {
                                     id: number;
                                     name: string;
@@ -105,7 +103,7 @@ export function AdjustmentEntryForm() {
                             />
 
                             <ComboboxQuery<
-                                AdjustmentEntryFormValues,
+                                HarvestFormValues,
                                 {
                                     id: number;
                                     name: string;
@@ -132,7 +130,7 @@ export function AdjustmentEntryForm() {
                         <TextAreaField control={control} name="notes" label="Observações" />
                     </Section>
 
-                    <div id="adjustment-form-actions" className="flex justify-end gap-3 pt-6">
+                    <div id="harvest-form-actions" className="flex justify-end gap-3 pt-6">
                         <Button
                             type="submit"
                             disabled={formState.isSubmitting || mutation.isPending}
@@ -141,7 +139,7 @@ export function AdjustmentEntryForm() {
                         </Button>
                     </div>
 
-                    <FormFooterFloating targetId="adjustment-form-actions" rightOffset={20}>
+                    <FormFooterFloating targetId="harvest-form-actions" rightOffset={20}>
                         <Button
                             type="submit"
                             disabled={formState.isSubmitting || mutation.isPending}
@@ -155,7 +153,7 @@ export function AdjustmentEntryForm() {
     );
 }
 
-export const defaultAdjustmentEntryValues: AdjustmentEntryFormValues = {
+export const defaultHarvestValues: HarvestFormValues = {
     productId: null,
     warehouseId: null,
     quantity: 0,

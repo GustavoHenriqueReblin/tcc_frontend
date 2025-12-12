@@ -26,7 +26,12 @@ interface AdjustInventoryModalProps {
     onSuccess?: (newQuantity: number) => void;
 }
 
-export function AdjustInventoryModal({ productData, open, onClose, onSuccess }: AdjustInventoryModalProps) {
+export function AdjustInventoryModal({
+    productData,
+    open,
+    onClose,
+    onSuccess,
+}: AdjustInventoryModalProps) {
     const [diference, setDiference] = useState<number | null>(null);
     const [quantity, setQuantity] = useState<number | null>(null);
     const [warehouseId, setWarehouseId] = useState<number | null>(null);

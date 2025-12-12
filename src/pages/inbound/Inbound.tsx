@@ -8,6 +8,7 @@ import { MovementSource, movementSourceLabels } from "@/types/global";
 
 import { PurchaseEntryForm } from "./PurchaseEntryForm";
 import { AdjustmentEntryForm } from "./AdjustmentEntryForm";
+import { HarvestForm } from "./HarvestForm";
 
 export function InboundEntry() {
     usePageTitle("Entrada de Mercadoria - ERP Industrial");
@@ -36,12 +37,17 @@ export function InboundEntry() {
                             value: MovementSourceEnum.ADJUSTMENT,
                             label: movementSourceLabels.ADJUSTMENT,
                         },
+                        {
+                            value: MovementSourceEnum.HARVEST,
+                            label: movementSourceLabels.HARVEST,
+                        },
                     ]}
                 />
             </div>
 
             {type === MovementSourceEnum.PURCHASE && <PurchaseEntryForm />}
             {type === MovementSourceEnum.ADJUSTMENT && <AdjustmentEntryForm />}
+            {type === MovementSourceEnum.HARVEST && <HarvestForm />}
         </div>
     );
 }
