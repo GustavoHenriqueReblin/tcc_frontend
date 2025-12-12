@@ -15,7 +15,6 @@ import { buildApiError } from "@/utils/global";
 import { harvestSchema, type HarvestFormValues } from "@/schemas/inbound/harvest.schema";
 import { ApiResponse } from "@/types/global";
 import { InventoryMovement } from "@/types/inventoryMovement";
-import { Product } from "@/types/product";
 import { useState } from "react";
 
 export function HarvestForm() {
