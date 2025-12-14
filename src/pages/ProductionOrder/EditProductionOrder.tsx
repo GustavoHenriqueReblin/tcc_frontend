@@ -93,7 +93,7 @@ export function EditProductionOrder() {
                 if (!id) throw new Error("Identificador invalido");
 
                 if (isEqual(formDefaults, values)) {
-                    toast.info("Nenhuma alteracao encontrada.", { id: toastId });
+                    toast.info("Nenhuma alteração encontrada.", { id: toastId });
                     return;
                 }
 
