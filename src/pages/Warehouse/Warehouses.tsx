@@ -12,7 +12,7 @@ export function Warehouses() {
         {
             accessorKey: "code",
             id: "code",
-            header: "Codigo",
+            header: "Código",
             meta: { sortable: true },
         },
         {
@@ -56,7 +56,7 @@ export function Warehouses() {
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
                 onRowClick={handleRowClick}
                 mobileFields={[
-                    { label: "Codigo", value: "code" },
+                    { label: "Código", value: "code" },
                     { label: "Nome", value: "name" },
                     { label: "Descrição", value: "description" },
                 ]}

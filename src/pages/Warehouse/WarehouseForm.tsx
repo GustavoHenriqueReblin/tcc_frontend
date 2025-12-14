@@ -56,7 +56,7 @@ export function WarehouseForm({
                         description="Informe codigo, nome e descricao do depósito."
                     >
                         <FieldsGrid cols={2}>
-                            <TextField control={control} name="code" label="Codigo" autoFocus />
+                            <TextField control={control} name="code" label="Código" autoFocus />
                             <TextField control={control} name="name" label="Nome" />
                         </FieldsGrid>
 

@@ -72,9 +72,11 @@ interface TextAreaStandaloneProps {
 function DateField({
     label,
     field,
+    allowFutureDates = false,
 }: {
     label: string;
     field: { value: string | null; onChange: (v: string | null) => void };
+    allowFutureDates?: boolean;
 }) {
     const [open, setOpen] = useState(false);
     const [text, setText] = useState("");
@@ -89,8 +91,9 @@ function DateField({
 
         let formatted = digits;
         if (digits.length > 2) formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
-        if (digits.length > 4)
+        if (digits.length > 4) {
             formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+        }
 
         setText(formatted);
 
@@ -122,9 +125,7 @@ function DateField({
                         maxLength={10}
                         inputMode="numeric"
                         onFocus={() => {
-                            setTimeout(() => {
-                                setOpen(true);
-                            }, 50);
+                            setTimeout(() => setOpen(true), 50);
                         }}
                         onClick={() => {
                             setTimeout(() => {
@@ -154,7 +155,7 @@ function DateField({
                                 }
                                 setOpen(false);
                             }}
-                            disabled={(d) => d > new Date()}
+                            disabled={allowFutureDates ? false : (d) => d > new Date()}
                         />
                     </PopoverContent>
                 </Popover>
@@ -176,6 +177,7 @@ export function TextField<T extends FieldValues>({
     prefix,
     suffix,
     decimals,
+    allowFutureDates = false,
 }: BaseFieldProps<T> & {
     type?: string;
     mask?: (value: string) => string;
@@ -183,6 +185,7 @@ export function TextField<T extends FieldValues>({
     prefix?: string;
     suffix?: string;
     decimals?: number;
+    allowFutureDates?: boolean;
 }) {
     const [displayValue, setDisplayValue] = useState<string>("");
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -233,7 +236,13 @@ export function TextField<T extends FieldValues>({
             name={name}
             render={({ field }) => {
                 if (type === "date") {
-                    return <DateField label={label} field={field} />;
+                    return (
+                        <DateField
+                            label={label}
+                            field={field}
+                            allowFutureDates={allowFutureDates}
+                        />
+                    );
                 }
 
                 fieldValueRef.current = field.value;

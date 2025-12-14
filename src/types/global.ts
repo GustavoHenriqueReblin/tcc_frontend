@@ -76,6 +76,13 @@ export const movementSourceLabels: Record<MovementSource, string> = {
     ADJUSTMENT: "Ajuste / Saldo inicial",
 };
 
+export const productionOrderStatusLabels: Record<ProductionOrderStatus, string> = {
+    PLANNED: "Planejada",
+    RUNNING: "Em produção",
+    FINISHED: "Finalizada",
+    CANCELED: "Cancelada",
+};
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData, TValue> {

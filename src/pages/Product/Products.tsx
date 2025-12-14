@@ -19,7 +19,7 @@ export function Products() {
         {
             accessorKey: "barcode",
             id: "barcode",
-            header: "Codigo de Barras",
+            header: "Código de Barras",
             meta: { sortable: true },
         },
         {
