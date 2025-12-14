@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -38,6 +38,9 @@ type WareHouseOption = {
 type ProductOption = {
     id: number;
     name: string;
+    unity: {
+        simbol: string;
+    };
 };
 
 const supplierLabel = (supplier: SupplierOption) => {
@@ -55,6 +58,7 @@ const buildDefaultValues = (): PurchaseEntryFormValues => ({
 });
 
 export function PurchaseEntryForm() {
+    const [unitySimbol, setUnitySimbol] = useState<string | null>(null);
     const queryClient = useQueryClient();
     const form = useForm<PurchaseEntryFormValues>({
         resolver: zodResolver(purchaseEntrySchema),
@@ -182,12 +186,12 @@ export function PurchaseEntryForm() {
 
                                         <Button
                                             type="button"
-                                            variant="ghost"
+                                            variant="destructive"
                                             size="sm"
                                             onClick={() => handleRemoveItem(index)}
                                             disabled={itemsArray.fields.length === 1}
                                         >
-                                            <Trash2 className="h-4 w-4 mr-2" />
+                                            <Trash2 className="h-4 w-4" />
                                             Remover
                                         </Button>
                                     </div>
@@ -200,6 +204,9 @@ export function PurchaseEntryForm() {
                                             endpoint="/products"
                                             valueField="id"
                                             labelField="name"
+                                            onSelectItem={(e) => {
+                                                setUnitySimbol(e.unity.simbol);
+                                            }}
                                         />
 
                                         <TextField
@@ -208,6 +215,7 @@ export function PurchaseEntryForm() {
                                             label="Quantidade"
                                             type="number"
                                             decimals={3}
+                                            suffix={unitySimbol && " " + unitySimbol}
                                         />
 
                                         <TextField
