@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, Warehouse } from "lucide-react";
 import { toast } from "sonner";
 
 import { Form } from "@/components/ui/form";
@@ -28,6 +28,11 @@ type SupplierOption = {
         name?: string | null;
         legalName?: string | null;
     };
+};
+
+type WareHouseOption = {
+    id: number;
+    name: string;
 };
 
 type ProductOption = {
@@ -68,6 +73,7 @@ export function PurchaseEntryForm() {
             try {
                 await api.post<ApiResponse<PurchaseOrder>>("/purchase-orders", {
                     supplierId: values.supplierId,
+                    warehouseId: values.warehouseId,
                     code: values.code.trim(),
                     status: OrderStatusEnum.PENDING,
                     notes: toNullable(values.notes),
@@ -135,7 +141,7 @@ export function PurchaseEntryForm() {
                         title="Dados da compra"
                         description="Fornecedor, documento e observações da entrada."
                     >
-                        <FieldsGrid cols={2}>
+                        <FieldsGrid cols={3}>
                             <ComboboxQuery<PurchaseEntryFormValues, SupplierOption>
                                 control={control}
                                 name="supplierId"
@@ -144,6 +150,16 @@ export function PurchaseEntryForm() {
                                 valueField="id"
                                 labelField="id"
                                 formatLabel={supplierLabel}
+                            />
+
+                            <ComboboxQuery<PurchaseEntryFormValues, WareHouseOption>
+                                control={control}
+                                name="warehouseId"
+                                label="Depósito"
+                                endpoint="/warehouses"
+                                valueField="id"
+                                labelField="id"
+                                formatLabel={(item) => item.name}
                             />
 
                             <TextField control={control} name="code" label="Código / documento" />
@@ -243,6 +259,7 @@ export function PurchaseEntryForm() {
 
 export const defaultPurchaseEntryValues: PurchaseEntryFormValues = {
     supplierId: null,
+    warehouseId: null,
     code: "",
     notes: "",
     items: [

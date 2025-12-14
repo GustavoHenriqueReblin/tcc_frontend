@@ -1,9 +1,12 @@
 import { z } from "zod";
 
 export const purchaseEntryItemSchema = z.object({
-    productId: z.number().refine((value) => value > 0, {
-        message: "Selecione o produto.",
-    }),
+    productId: z
+        .number()
+        .nullable()
+        .refine((value) => value !== null && value > 0, {
+            message: "Selecione um produto.",
+        }),
     quantity: z.number().refine((value) => value > 0, {
         message: "Quantidade deve ser maior que zero.",
     }),
@@ -13,9 +16,19 @@ export const purchaseEntryItemSchema = z.object({
 });
 
 export const purchaseEntrySchema = z.object({
-    supplierId: z.number().refine((value) => value > 0, {
-        message: "Selecione um fornecedor.",
-    }),
+    supplierId: z
+        .number()
+        .nullable()
+        .refine((value) => value !== null && value > 0, {
+            message: "Selecione um fornecedor.",
+        }),
+
+    warehouseId: z
+        .number()
+        .nullable()
+        .refine((value) => value !== null && value > 0, {
+            message: "Selecione um depósito.",
+        }),
     code: z.string().refine((value) => value.trim().length > 0, {
         message: "Informe o código da compra.",
     }),
