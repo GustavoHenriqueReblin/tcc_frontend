@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -15,8 +15,10 @@ import { Loading } from "@/components/Loading";
 import { buildApiError } from "@/utils/global";
 import { ProductionOrderStatusEnum } from "@/types/enums";
 import { isEqual } from "lodash-es";
+import { Recipe } from "@/types/recipe";
 
 export function EditProductionOrder() {
+    const [recipeDefaultValues, setRecipeDefaultValues] = useState<Recipe | null>(null);
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -44,6 +46,16 @@ export function EditProductionOrder() {
                     throw new Error(response.data.message || "Erro ao carregar ordem");
                 }
 
+                const recipeResponse = await api.get<ApiResponse<Recipe>>(
+                    `/recipes/${response.data.data.recipeId}`
+                );
+
+                if (!recipeResponse.data.success) {
+                    throw new Error(response.data.message || "Erro ao carregar ordem");
+                }
+
+                setRecipeDefaultValues(recipeResponse.data.data);
+
                 return response.data.data;
             } catch (error) {
                 throw buildApiError(error, "Erro ao carregar ordem de produção");
@@ -54,7 +66,7 @@ export function EditProductionOrder() {
     const formDefaults: ProductionOrderFormValues = order
         ? {
               code: order.code ?? "",
-              productId: order.productId,
+              recipeId: order.recipeId,
               lotId: order.lotId ?? null,
               status: order.status ?? ProductionOrderStatusEnum.PLANNED,
               plannedQty: Number(order.plannedQty ?? 0),
@@ -87,7 +99,7 @@ export function EditProductionOrder() {
 
                 const payload = {
                     code: values.code,
-                    productId: values.productId,
+                    recipeId: values.recipeId,
                     lotId: values.lotId ?? null,
                     status: values.status ?? ProductionOrderStatusEnum.PLANNED,
                     plannedQty: values.plannedQty,
@@ -150,6 +162,7 @@ export function EditProductionOrder() {
 
                     <ProductionOrderForm
                         defaultValues={formDefaults}
+                        recipeDefaultValues={recipeDefaultValues}
                         submitLabel="Atualizar ordem"
                         onSubmit={(values) => updateMutation.mutate(values)}
                         onCancel={() => navigate("/production-orders")}

@@ -6,13 +6,9 @@ const statusValues = Object.values(ProductionOrderStatusEnum) as [string, ...str
 const recipeItemSchema = z.object({
     id: z.number().optional(),
 
-    productId: z
-        .number()
-        .refine((v) => v > 0, "Selecione a matéria-prima"),
+    productId: z.number().refine((v) => v > 0, "Selecione a matéria-prima"),
 
-    quantity: z
-        .number()
-        .refine((v) => !isNaN(v) && v > 0, "Quantidade deve ser maior que zero"),
+    quantity: z.number().refine((v) => !isNaN(v) && v > 0, "Quantidade deve ser maior que zero"),
 });
 
 export const productionOrderFormSchema = z.object({
@@ -21,10 +17,10 @@ export const productionOrderFormSchema = z.object({
         .min(1, "Informe o código")
         .transform((v) => v.trim()),
 
-    productId: z
+    recipeId: z
         .number()
         .nullable()
-        .refine((v) => v !== null && v > 0, "Selecione o produto"),
+        .refine((v) => v !== null && v > 0, "Selecione uma receita"),
 
     lotId: z.number().nullable().optional(),
 

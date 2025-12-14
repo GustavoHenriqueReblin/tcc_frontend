@@ -29,7 +29,7 @@ export function ProductionOrders() {
             id: "product.name",
             header: "Produto",
             meta: { sortable: true },
-            cell: ({ row }) => row.original.product?.name ?? "",
+            cell: ({ row }) => row.original.recipe.product?.name ?? "",
         },
         {
             accessorKey: "status",
@@ -60,7 +60,7 @@ export function ProductionOrders() {
             cell: ({ row }) =>
                 Number(row.original.plannedQty ?? 0).toLocaleString("pt-BR") +
                 " " +
-                row.original.product.unity.simbol,
+                row.original.recipe.product.unity.simbol,
         },
         {
             accessorKey: "producedQty",
@@ -71,7 +71,7 @@ export function ProductionOrders() {
                 row.original.producedQty != null
                     ? Number(row.original.producedQty).toLocaleString("pt-BR") +
                       " " +
-                      row.original.product.unity.simbol
+                      row.original.recipe.product.unity.simbol
                     : "",
         },
         {

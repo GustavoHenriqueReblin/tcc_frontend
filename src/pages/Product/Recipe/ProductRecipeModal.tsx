@@ -43,7 +43,7 @@ export function ProductRecipeModal({ open, onClose, initialData, onSave }: Props
         defaultValues: initialData,
     });
 
-    const { control, trigger, getValues } = form;
+    const { control, trigger, getValues, setValue } = form;
 
     const [items, setItems] = useState<RecipeItemFormValue[]>(initialData.items ?? []);
     const [itemModalOpen, setItemModalOpen] = useState(false);
@@ -82,6 +82,7 @@ export function ProductRecipeModal({ open, onClose, initialData, onSave }: Props
     };
 
     const validateAndSubmit = async () => {
+        setValue("items", items);
         const isValid = await trigger(undefined, { shouldFocus: true });
 
         if (!isValid) {
@@ -92,12 +93,7 @@ export function ProductRecipeModal({ open, onClose, initialData, onSave }: Props
             return;
         }
 
-        const recipe = {
-            ...getValues(),
-            items,
-        };
-
-        onSave(recipe);
+        onSave(getValues());
         onClose();
     };
 

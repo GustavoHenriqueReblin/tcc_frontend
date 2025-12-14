@@ -5,17 +5,7 @@ export interface ProductionOrderInput {
     enterpriseId: number;
     productionOrderId: number;
 
-    productId: number;
-    product?: {
-        id: number;
-        name: string;
-        unity?: {
-            id: number;
-            name: string;
-            symbol: string;
-        };
-    };
-
+    recipeId: number;
     quantity: number;
     unitCost: string | null;
 
@@ -28,14 +18,17 @@ export interface ProductionOrder {
     enterpriseId: number;
     code: string;
 
-    productId: number;
-    product?: {
+    recipeId: number;
+    recipe: {
         id: number;
-        name: string;
-        unity: {
+        product?: {
             id: number;
             name: string;
-            simbol: string;
+            unity: {
+                id: number;
+                name: string;
+                simbol: string;
+            };
         };
     };
 
