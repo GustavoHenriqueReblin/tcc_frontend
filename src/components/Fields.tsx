@@ -38,6 +38,7 @@ interface EnumSelectProps<T extends FieldValues> {
     enumObject: Record<string, string>;
     labels?: Record<string, string>;
     allowEmpty?: boolean;
+    allowedValues?: readonly string[];
 }
 
 interface SelectFieldProps<T extends FieldValues> extends BaseFieldProps<T> {
@@ -483,10 +484,13 @@ export function EnumSelect<T extends FieldValues>({
     enumObject,
     labels,
     allowEmpty = false,
+    allowedValues,
 }: EnumSelectProps<T>) {
     const ref = useRef<HTMLButtonElement>(null);
     const [open, setOpen] = useState(false);
-    const entries = Object.entries(enumObject) as [string, string][];
+    const entries = (Object.entries(enumObject) as [string, string][]).filter(
+        ([, value]) => !allowedValues || allowedValues.includes(value)
+    );
 
     return (
         <FormField

@@ -5,8 +5,18 @@ export interface ProductionOrderInput {
     enterpriseId: number;
     productionOrderId: number;
 
-    recipeId: number;
-    quantity: number;
+    productId: number;
+    product?: {
+        id: number;
+        name: string;
+        unity: {
+            id: number;
+            name: string;
+            simbol: string;
+        };
+    };
+
+    quantity: string;
     unitCost: string | null;
 
     createdAt: string;

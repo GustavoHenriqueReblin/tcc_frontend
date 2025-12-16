@@ -36,8 +36,6 @@ export function ProductionOrderForm({
     isLoading = false,
     onCancel,
 }: Props) {
-    console.log(recipeDefaultValues);
-
     const [unitySimbol, setUnitySimbol] = useState<string | null>(null);
     const [recipe, setRecipe] = useState<Recipe | null>(recipeDefaultValues);
     const form = useForm<ProductionOrderFormValues>({
@@ -62,7 +60,16 @@ export function ProductionOrderForm({
     return (
         <div className="rounded-md border bg-card text-card-foreground p-6">
             <Form {...form}>
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form
+                    onSubmit={handleSubmit(
+                        (values) => {
+                            onSubmit(values);
+                        },
+                        (errors) => {
+                            console.error("FORM ERRORS", errors);
+                        }
+                    )}
+                >
                     <Section
                         title="Dados da ordem"
                         description="Código, produto e situação da ordem de produção."
@@ -75,6 +82,10 @@ export function ProductionOrderForm({
                                 name="status"
                                 label="Status"
                                 enumObject={ProductionOrderStatusEnum}
+                                allowedValues={[
+                                    ProductionOrderStatusEnum.PLANNED,
+                                    ProductionOrderStatusEnum.RUNNING,
+                                ]}
                                 labels={productionOrderStatusLabels}
                             />
 
@@ -116,8 +127,19 @@ export function ProductionOrderForm({
                                     return `${e.product.name} - ${e.description}`;
                                 }}
                                 onSelectItem={(e) => {
-                                    setRecipe(e as Recipe);
-                                    setUnitySimbol(e.product.unity.simbol);
+                                    const selectedRecipe = e as Recipe;
+
+                                    setRecipe(selectedRecipe);
+                                    setUnitySimbol(selectedRecipe.product.unity.simbol);
+
+                                    form.setValue(
+                                        "inputs",
+                                        selectedRecipe.items.map((item) => ({
+                                            productId: item.productId,
+                                            quantity: Number(item.quantity),
+                                            unitCost: null,
+                                        }))
+                                    );
                                 }}
                             />
 
@@ -173,20 +195,27 @@ export function ProductionOrderForm({
                                 )}
 
                                 <div className="flex flex-col gap-2">
-                                    {recipe.items.map((item, index) => (
+                                    {form.watch("inputs")?.map((item, index) => (
                                         <div
                                             key={index}
                                             className="border rounded-md p-3 flex justify-between items-center"
                                         >
                                             <div>
-                                                <p className="font-medium">{item.product.name}</p>
+                                                <p className="font-medium">
+                                                    {
+                                                        recipe?.items.find(
+                                                            (i) => i.productId === item.productId
+                                                        )?.product.name
+                                                    }
+                                                </p>
                                                 <p className="text-xs text-muted-foreground">
                                                     Quantidade:{" "}
-                                                    {item.quantity.toLocaleString("pt-BR", {
-                                                        minimumFractionDigits: 2,
-                                                        maximumFractionDigits: 4,
-                                                    })}{" "}
-                                                    {item.product.unity.simbol}
+                                                    {item.quantity.toLocaleString("pt-BR")}{" "}
+                                                    {
+                                                        recipe?.items.find(
+                                                            (i) => i.productId === item.productId
+                                                        )?.product.unity.simbol
+                                                    }
                                                 </p>
                                             </div>
 
@@ -295,10 +324,11 @@ export const defaultProductionOrderFormValues: ProductionOrderFormValues = {
     status: ProductionOrderStatusEnum.PLANNED,
 
     plannedQty: 0,
-    // producedQty: null,
+    producedQty: null,
     wasteQty: null,
 
     startDate: null,
     endDate: null,
     notes: "",
+    inputs: [],
 };

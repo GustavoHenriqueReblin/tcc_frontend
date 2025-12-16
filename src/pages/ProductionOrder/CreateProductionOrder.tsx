@@ -12,6 +12,7 @@ import { buildApiError } from "@/utils/global";
 import type { ProductionOrder } from "@/types/productionOrder";
 import type { ApiResponse } from "@/types/global";
 import { ProductionOrderStatusEnum } from "@/types/enums";
+import { buildNestedPayload } from "@/utils/buildNestedItems";
 
 export function CreateProductionOrder() {
     usePageTitle("Cadastro de ordem de produção - ERP Industrial");
@@ -22,17 +23,28 @@ export function CreateProductionOrder() {
         mutationFn: async (values) => {
             const toastId = toast.loading("Cadastrando...");
             try {
+                const inputsPayload = buildNestedPayload({
+                    original: defaultProductionOrderFormValues.inputs ?? [],
+                    edited: values.inputs ?? [],
+                    getId: (i) => i.id,
+                    isEqual: (o, e) =>
+                        o.productId === e.productId &&
+                        Number(o.quantity) === Number(e.quantity) &&
+                        Number(o.unitCost ?? 0) === Number(e.unitCost ?? 0),
+                });
+
                 const payload = {
                     code: values.code,
                     recipeId: values.recipeId,
                     lotId: values.lotId ?? null,
                     status: values.status ?? ProductionOrderStatusEnum.PLANNED,
                     plannedQty: values.plannedQty,
-                    // producedQty: values.producedQty ?? null,
+                    producedQty: values.producedQty ?? null,
                     wasteQty: values.wasteQty ?? null,
                     startDate: values.startDate || null,
                     endDate: values.endDate || null,
                     notes: values.notes?.trim() || null,
+                    inputs: inputsPayload,
                 };
 
                 const response = await api.post<ApiResponse<ProductionOrder>>(
