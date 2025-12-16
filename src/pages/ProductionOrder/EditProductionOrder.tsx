@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { ProductionOrderForm, defaultProductionOrderFormValues } from "./ProductionOrderForm";
-import type { ProductionOrderFormValues } from "@/schemas/productionOrder.schema";
+import type { ProductionOrderFormValues } from "@/schemas/production-order.schema";
 
 import { api } from "@/api/client";
 import type { ProductionOrder } from "@/types/productionOrder";

@@ -8,7 +8,7 @@ import { ComboboxQuery } from "@/components/ComboboxQuery";
 import {
     productionOrderFormSchema,
     type ProductionOrderFormValues,
-} from "@/schemas/productionOrder.schema";
+} from "@/schemas/production-order.schema";
 
 import { ProductionOrderStatusEnum } from "@/types/enums";
 import { productionOrderStatusLabels } from "@/types/global";
@@ -55,7 +55,8 @@ export function ProductionOrderForm({
         );
     }
 
-    const { handleSubmit, control, formState } = form;
+    const { handleSubmit, control, formState, watch } = form;
+    const status = watch("status");
 
     return (
         <div className="rounded-md border bg-card text-card-foreground p-6">
@@ -92,13 +93,22 @@ export function ProductionOrderForm({
                             <TextField
                                 control={control}
                                 name="startDate"
-                                label="Início"
+                                label={
+                                    status !== ProductionOrderStatusEnum.PLANNED
+                                        ? "Início"
+                                        : "Previsão de início"
+                                }
                                 type="date"
+                                disabled={status !== ProductionOrderStatusEnum.PLANNED}
                             />
                             <TextField
                                 control={control}
                                 name="endDate"
-                                label="Fim"
+                                label={
+                                    status !== ProductionOrderStatusEnum.FINISHED
+                                        ? "Previsão de fim"
+                                        : "Fim"
+                                }
                                 type="date"
                                 allowFutureDates
                             />

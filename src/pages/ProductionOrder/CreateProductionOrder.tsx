@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { ProductionOrderForm, defaultProductionOrderFormValues } from "./ProductionOrderForm";
-import { type ProductionOrderFormValues } from "@/schemas/productionOrder.schema";
+import { type ProductionOrderFormValues } from "@/schemas/production-order.schema";
 
 import { api } from "@/api/client";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -41,7 +41,10 @@ export function CreateProductionOrder() {
                     plannedQty: values.plannedQty,
                     producedQty: values.producedQty ?? null,
                     wasteQty: values.wasteQty ?? null,
-                    startDate: values.startDate || null,
+                    startDate:
+                        values.status !== ProductionOrderStatusEnum.PLANNED
+                            ? new Date()
+                            : values.startDate || null,
                     endDate: values.endDate || null,
                     notes: values.notes?.trim() || null,
                     inputs: inputsPayload,

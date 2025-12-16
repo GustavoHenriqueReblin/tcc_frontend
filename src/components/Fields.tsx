@@ -74,10 +74,12 @@ function DateField({
     label,
     field,
     allowFutureDates = false,
+    disabled = false,
 }: {
     label: string;
     field: { value: string | null; onChange: (v: string | null) => void };
     allowFutureDates?: boolean;
+    disabled?: boolean;
 }) {
     const [open, setOpen] = useState(false);
     const [text, setText] = useState("");
@@ -134,12 +136,13 @@ function DateField({
                             }, 50);
                         }}
                         onChange={(e) => handleInputChange(e.target.value)}
+                        disabled={disabled}
                     />
                 </FormControl>
 
                 <Popover open={open} onOpenChange={setOpen} modal={false}>
                     <PopoverTrigger asChild>
-                        <Button variant="outline" type="button">
+                        <Button variant="outline" type="button" disabled={disabled}>
                             <CalendarIcon className="h-4 w-4" />
                         </Button>
                     </PopoverTrigger>
@@ -193,6 +196,17 @@ export function TextField<T extends FieldValues>({
 
     const fieldValueRef = useRef<unknown>("");
 
+    const parseNumber = useCallback((value: unknown): number | null => {
+        if (value === null || value === undefined || value === "") return null;
+
+        const n =
+            typeof value === "number"
+                ? value
+                : Number(String(value).replace(/\./g, "").replace(",", "."));
+
+        return isNaN(n) ? null : n;
+    }, []);
+
     const formatNumber = useCallback(
         (n: number): string =>
             n.toLocaleString("pt-BR", {
@@ -207,12 +221,8 @@ export function TextField<T extends FieldValues>({
             if (value === null || value === undefined || value === "") return "";
 
             if (type === "number") {
-                const n =
-                    typeof value === "number"
-                        ? value
-                        : Number(String(value).replace(/\./g, "").replace(",", "."));
-
-                if (isNaN(n)) return "";
+                const n = parseNumber(value);
+                if (n === null) return "";
 
                 let formatted = formatNumber(n);
                 if (prefix) formatted = prefix + formatted;
@@ -223,12 +233,11 @@ export function TextField<T extends FieldValues>({
 
             return String(value);
         },
-        [type, prefix, suffix, formatNumber]
+        [type, prefix, suffix, formatNumber, parseNumber]
     );
 
     useEffect(() => {
-        const v = fieldValueRef.current;
-        setDisplayValue(applyFormat(v));
+        setDisplayValue(applyFormat(fieldValueRef.current));
     }, [applyFormat]);
 
     return (
@@ -242,6 +251,7 @@ export function TextField<T extends FieldValues>({
                             label={label}
                             field={field}
                             allowFutureDates={allowFutureDates}
+                            disabled={disabled}
                         />
                     );
                 }
@@ -249,17 +259,13 @@ export function TextField<T extends FieldValues>({
                 fieldValueRef.current = field.value;
 
                 const handleFocus = () => {
-                    const raw = fieldValueRef.current;
+                    const n = type === "number" ? parseNumber(field.value) : field.value;
 
-                    if (raw === null || raw === undefined || raw === "") {
-                        setDisplayValue("");
-                    } else if (type === "number") {
-                        const n =
-                            typeof raw === "number" ? raw : Number(String(raw).replace(",", "."));
-
-                        setDisplayValue(isNaN(n) ? "" : String(n).replace(".", ","));
+                    if (type === "number") {
+                        field.onChange(n);
+                        setDisplayValue(n === null ? "" : String(n).replace(".", ","));
                     } else {
-                        setDisplayValue(String(raw));
+                        setDisplayValue(n ? String(n) : "");
                     }
 
                     requestAnimationFrame(() => {
@@ -268,27 +274,14 @@ export function TextField<T extends FieldValues>({
                 };
 
                 const handleBlur = () => {
-                    const raw = fieldValueRef.current;
-
-                    if (raw === null || raw === undefined || raw === "") {
-                        setDisplayValue("");
+                    if (type === "number") {
+                        const n = parseNumber(field.value);
+                        field.onChange(n);
+                        setDisplayValue(n === null ? "" : applyFormat(n));
                         return;
                     }
 
-                    if (type !== "number") {
-                        setDisplayValue(String(raw));
-                        return;
-                    }
-
-                    let n: number;
-
-                    if (typeof raw === "number") {
-                        n = raw;
-                    } else {
-                        n = Number(String(raw).replace(/\./g, "").replace(",", "."));
-                    }
-
-                    setDisplayValue(isNaN(n) ? "" : applyFormat(n));
+                    setDisplayValue(field.value ? String(field.value) : "");
                 };
 
                 const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -297,21 +290,14 @@ export function TextField<T extends FieldValues>({
                     let value = e.target.value;
 
                     if (prefix) value = value.replace(prefix, "");
-                    if (suffix) value = value.replace(suffix, "");
+                    if (suffix) value = value.replace(` ${suffix}`, "").replace(suffix, "");
 
                     if (type === "number") {
                         const normalized = value.replace(/\./g, "").replace(",", ".");
-                        if (normalized === "") {
-                            field.onChange(undefined);
-                            setDisplayValue("");
-                            return;
-                        }
+                        const num = normalized === "" ? null : Number(normalized);
 
-                        const num = Number(normalized);
-                        if (!isNaN(num)) {
-                            field.onChange(num);
-                            setDisplayValue(value);
-                        }
+                        field.onChange(isNaN(Number(num)) ? null : num);
+                        setDisplayValue(value);
                         return;
                     }
 

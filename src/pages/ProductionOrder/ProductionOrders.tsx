@@ -11,6 +11,10 @@ import { toast } from "sonner";
 import { api } from "@/api/client";
 import { buildApiError } from "@/utils/global";
 import { StatusActionButton } from "@/components/StatusActionButton";
+import { useState } from "react";
+import { FinishProductionOrderValues } from "@/schemas/production-order.schema";
+import { FinishProductionOrderModal } from "./FinishProductionOrderModal";
+import { Button } from "@/components/ui/button";
 
 const productionOrderStatusColors: Record<ProductionOrderStatus, string> = {
     PLANNED: "bg-gray-200 text-gray-800",
@@ -25,9 +29,53 @@ type UpdateStatusPayload = {
 };
 
 export function ProductionOrders() {
+    const [finishOrder, setFinishOrder] = useState<ProductionOrder | null>(null);
     usePageTitle("Ordens de produção - ERP Industrial");
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+
+    const finishOrderMutation = useMutation<
+        ProductionOrder,
+        Error,
+        { values: FinishProductionOrderValues; order: ProductionOrder }
+    >({
+        mutationFn: async ({ values, order }) => {
+            const toastId = toast.loading("Finalizando produção...");
+
+            try {
+                const payload = {
+                    ...order,
+                    status: ProductionOrderStatusEnum.FINISHED,
+                    producedQty: values.producedQty,
+                    wasteQty: values.wasteQty ?? null,
+                    endDate: values.endDate ?? null,
+                    notes: values.notes?.trim() || null,
+                };
+
+                const response = await api.put<ApiResponse<ProductionOrder>>(
+                    `/production-orders/${order.id}`,
+                    payload
+                );
+
+                if (!response.data.success) {
+                    throw new Error(response.data.message);
+                }
+
+                toast.success("Ordem de produção finalizada.", { id: toastId });
+                return response.data.data;
+            } catch (error) {
+                toast.error("Falha ao finalizar produção.", { id: toastId });
+                throw buildApiError(error, "Erro ao finalizar produção");
+            }
+        },
+        onSuccess: () => {
+            setFinishOrder(null);
+            queryClient.invalidateQueries({
+                queryKey: ["datatable", "/production-orders"],
+                exact: false,
+            });
+        },
+    });
 
     const updateStatusMutation = useMutation<ProductionOrder, Error, UpdateStatusPayload>({
         mutationFn: async ({ order, status }) => {
@@ -190,20 +238,19 @@ export function ProductionOrders() {
 
                         {order.status === ProductionOrderStatusEnum.RUNNING && (
                             <>
-                                <StatusActionButton
-                                    label="Finalizar"
-                                    intent="success"
-                                    confirmVariant="success"
-                                    confirmTitle="Finalizar produção?"
-                                    confirmDescription="Deseja finalizar esta ordem de produção?"
-                                    confirmLabel="Finalizar ordem"
-                                    onConfirm={() =>
-                                        updateStatusMutation.mutate({
-                                            order,
-                                            status: ProductionOrderStatusEnum.FINISHED,
-                                        })
-                                    }
-                                />
+                                <Button
+                                    size="sm"
+                                    variant="success"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setFinishOrder({
+                                            ...order,
+                                            plannedQty: Number(order.plannedQty),
+                                        });
+                                    }}
+                                >
+                                    Finalizar
+                                </Button>
 
                                 <StatusActionButton
                                     label="Cancelar"
@@ -270,6 +317,21 @@ export function ProductionOrders() {
                     },
                 ]}
             />
+
+            {finishOrder && (
+                <FinishProductionOrderModal
+                    open
+                    order={finishOrder}
+                    isLoading={finishOrderMutation.isPending}
+                    onOpenChange={() => setFinishOrder(null)}
+                    onConfirm={(values) => {
+                        finishOrderMutation.mutate({
+                            values,
+                            order: finishOrder,
+                        });
+                    }}
+                />
+            )}
         </div>
     );
 }

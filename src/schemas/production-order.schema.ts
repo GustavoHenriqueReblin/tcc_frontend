@@ -52,4 +52,20 @@ export const productionOrderFormSchema = z.object({
     inputs: z.array(productionOrderInputSchema).optional(),
 });
 
+export const finishProductionOrderSchema = z.object({
+    producedQty: z.number().refine((v) => !isNaN(v) && v >= 0, "Quantidade produzida inválida"),
+
+    wasteQty: z
+        .number()
+        .nullable()
+        .optional()
+        .refine((v) => v === null || v >= 0, "Perda não pode ser negativa"),
+
+    endDate: z.string().nullable().optional(),
+
+    notes: z.string().nullable().optional(),
+});
+
+export type FinishProductionOrderValues = z.infer<typeof finishProductionOrderSchema>;
+
 export type ProductionOrderFormValues = z.infer<typeof productionOrderFormSchema>;
