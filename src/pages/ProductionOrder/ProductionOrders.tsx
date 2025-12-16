@@ -85,7 +85,8 @@ export function ProductionOrders() {
                 const payload = {
                     ...order,
                     status,
-                };
+                    startDate: status === ProductionOrderStatusEnum.RUNNING ? new Date() : order.startDate,
+                } as ProductionOrder;
 
                 const response = await api.put<ApiResponse<ProductionOrder>>(
                     `/production-orders/${order.id}`,
