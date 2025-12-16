@@ -29,6 +29,7 @@ export interface ProductionOrder {
     code: string;
 
     recipeId: number;
+    warehouseId: number;
     recipe: {
         id: number;
         product?: {

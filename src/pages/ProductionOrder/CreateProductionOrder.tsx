@@ -36,6 +36,7 @@ export function CreateProductionOrder() {
                 const payload = {
                     code: values.code,
                     recipeId: values.recipeId,
+                    warehouseId: values.warehouseId,
                     lotId: values.lotId ?? null,
                     status: values.status ?? ProductionOrderStatusEnum.PLANNED,
                     plannedQty: values.plannedQty,

@@ -88,6 +88,7 @@ export function EditProductionOrder() {
                 const payload = {
                     code: values.code,
                     recipeId: values.recipeId,
+                    warehouseId: values.warehouseId,
                     lotId: values.lotId ?? null,
                     status: values.status ?? ProductionOrderStatusEnum.PLANNED,
                     plannedQty: values.plannedQty,
@@ -134,6 +135,7 @@ export function EditProductionOrder() {
         ? {
               code: order.code ?? "",
               recipeId: order.recipeId,
+              warehouseId: order.warehouseId,
               lotId: order.lotId ?? null,
               status: order.status ?? ProductionOrderStatusEnum.PLANNED,
               plannedQty: Number(order.plannedQty ?? 0),

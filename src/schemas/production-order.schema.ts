@@ -24,6 +24,11 @@ export const productionOrderFormSchema = z.object({
         .nullable()
         .refine((v) => v !== null && v > 0, "Selecione uma receita"),
 
+    warehouseId: z
+        .number()
+        .nullable()
+        .refine((v) => v !== null && v > 0, "Selecione um depósito"),
+
     lotId: z.number().nullable().optional(),
 
     status: z.enum(statusValues),

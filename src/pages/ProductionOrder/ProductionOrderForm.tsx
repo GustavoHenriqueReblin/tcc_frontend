@@ -1,22 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Section, FieldsGrid, TextField, TextAreaField, EnumSelect } from "@/components/Fields";
 import { ComboboxQuery } from "@/components/ComboboxQuery";
-
-import {
-    productionOrderFormSchema,
-    type ProductionOrderFormValues,
-} from "@/schemas/production-order.schema";
-
-import { ProductionOrderStatusEnum } from "@/types/enums";
-import { productionOrderStatusLabels } from "@/types/global";
-
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
+
+import {
+    productionOrderFormSchema,
+    ProductionOrderFormValues,
+} from "@/schemas/production-order.schema";
+
+import { ProductionOrderStatusEnum } from "@/types/enums";
+import { productionOrderStatusLabels } from "@/types/global";
 import { Recipe } from "@/types/recipe";
 
 interface Props {
@@ -36,8 +35,9 @@ export function ProductionOrderForm({
     isLoading = false,
     onCancel,
 }: Props) {
-    const [unitySimbol, setUnitySimbol] = useState<string | null>(null);
     const [recipe, setRecipe] = useState<Recipe | null>(recipeDefaultValues);
+    const [unitySimbol, setUnitySimbol] = useState<string | null>(null);
+
     const form = useForm<ProductionOrderFormValues>({
         resolver: zodResolver(productionOrderFormSchema),
         defaultValues,
@@ -47,36 +47,32 @@ export function ProductionOrderForm({
         form.reset(defaultValues);
     }, [defaultValues, form]);
 
+    const { control, handleSubmit, formState, watch } = form;
+    const status = watch("status");
+
+    const recipeItemsMap = useMemo(() => {
+        if (!recipe) return {};
+        return Object.fromEntries(recipe.items.map((i) => [i.productId, i]));
+    }, [recipe]);
+
     if (isLoading) {
         return (
-            <div className="rounded-md border bg-card text-card-foreground p-6">
+            <div className="rounded-md border bg-card p-6">
                 <Loading />
             </div>
         );
     }
 
-    const { handleSubmit, control, formState, watch } = form;
-    const status = watch("status");
-
     return (
-        <div className="rounded-md border bg-card text-card-foreground p-6">
+        <div className="rounded-md border bg-card p-6">
             <Form {...form}>
-                <form
-                    onSubmit={handleSubmit(
-                        (values) => {
-                            onSubmit(values);
-                        },
-                        (errors) => {
-                            console.error("FORM ERRORS", errors);
-                        }
-                    )}
-                >
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <Section
-                        title="Dados da ordem"
-                        description="Código, produto e situação da ordem de produção."
+                        title="Identificação"
+                        description="Código e situação da ordem de produção."
                     >
                         <FieldsGrid cols={4}>
-                            <TextField control={control} name="code" label="Código" autoFocus />
+                            <TextField control={control} name="code" label="Código *" autoFocus />
 
                             <EnumSelect
                                 control={control}
@@ -94,33 +90,42 @@ export function ProductionOrderForm({
                                 control={control}
                                 name="startDate"
                                 label={
-                                    status !== ProductionOrderStatusEnum.PLANNED
-                                        ? "Início"
-                                        : "Previsão de início"
+                                    status === ProductionOrderStatusEnum.PLANNED
+                                        ? "Previsão de início"
+                                        : "Início"
                                 }
                                 type="date"
                                 disabled={status !== ProductionOrderStatusEnum.PLANNED}
                             />
+
                             <TextField
                                 control={control}
                                 name="endDate"
-                                label={
-                                    status !== ProductionOrderStatusEnum.FINISHED
-                                        ? "Previsão de fim"
-                                        : "Fim"
-                                }
+                                label="Previsão de fim"
                                 type="date"
                                 allowFutureDates
                             />
                         </FieldsGrid>
+                    </Section>
 
+                    <div className="mt-8"></div>
+
+                    <Section title="Planejamento" description="Depósito, receita e lote.">
                         <FieldsGrid cols={4}>
+                            <ComboboxQuery
+                                control={control}
+                                name="warehouseId"
+                                label="Depósito *"
+                                endpoint="/warehouses"
+                                valueField="id"
+                                labelField="name"
+                            />
+
                             <ComboboxQuery<
                                 ProductionOrderFormValues,
                                 {
                                     id: number;
                                     description: string;
-                                    productId: number;
                                     product: {
                                         name: string;
                                         unity: { simbol: string };
@@ -129,22 +134,20 @@ export function ProductionOrderForm({
                             >
                                 control={control}
                                 name="recipeId"
-                                label="Receitas"
+                                label="Receita *"
                                 endpoint="/recipes"
                                 valueField="id"
                                 labelField="description"
-                                formatLabel={(e) => {
-                                    return `${e.product.name} - ${e.description}`;
-                                }}
+                                formatLabel={(e) => `${e.product.name} - ${e.description}`}
                                 onSelectItem={(e) => {
-                                    const selectedRecipe = e as Recipe;
+                                    const selected = e as Recipe;
 
-                                    setRecipe(selectedRecipe);
-                                    setUnitySimbol(selectedRecipe.product.unity.simbol);
+                                    setRecipe(selected);
+                                    setUnitySimbol(selected.product.unity.simbol);
 
                                     form.setValue(
                                         "inputs",
-                                        selectedRecipe.items.map((item) => ({
+                                        selected.items.map((item) => ({
                                             productId: item.productId,
                                             quantity: Number(item.quantity),
                                             unitCost: null,
@@ -161,146 +164,74 @@ export function ProductionOrderForm({
                                 valueField="id"
                                 labelField="code"
                             />
+                        </FieldsGrid>
+                    </Section>
 
+                    <div className="mt-8"></div>
+
+                    <Section title="Quantidades" description="">
+                        <FieldsGrid cols={4}>
                             <TextField
                                 control={control}
                                 name="plannedQty"
-                                label="Qtd. planejada"
+                                label="Quantidade planejada *"
                                 type="number"
                                 decimals={3}
-                                suffix={unitySimbol ? " " + unitySimbol : undefined}
+                                suffix={unitySimbol ?? undefined}
                             />
 
                             <TextField
                                 control={control}
                                 name="wasteQty"
-                                label="Perda"
+                                label="Perda prevista"
                                 type="number"
                                 decimals={3}
-                                suffix={unitySimbol ? " " + unitySimbol : undefined}
+                                suffix={unitySimbol ?? undefined}
                             />
                         </FieldsGrid>
                     </Section>
 
                     {recipe && (
                         <>
-                            <div className="mt-6" />
-                            <Section title="Itens" description="Materiais utilizados na receita">
-                                {/* <div className="flex mb-4">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="inline-flex items-center gap-2 w-fit"
-                                        onClick={openNewItem}
-                                    >
-                                        <PlusCircle className="size-4" />
-                                        Adicionar item
-                                    </Button>
-                                </div> */}
-
-                                {recipe.items.length === 0 && (
-                                    <p className="text-sm text-muted-foreground">
-                                        Nenhum item adicionado.
-                                    </p>
-                                )}
-
+                            <div className="mt-8"></div>
+                            <Section
+                                title="Insumos"
+                                description="Materiais consumidos na produção."
+                            >
                                 <div className="flex flex-col gap-2">
-                                    {form.watch("inputs")?.map((item, index) => (
-                                        <div
-                                            key={index}
-                                            className="border rounded-md p-3 flex justify-between items-center"
-                                        >
-                                            <div>
+                                    {form.watch("inputs")?.map((item, index) => {
+                                        const recipeItem = recipeItemsMap[item.productId];
+
+                                        return (
+                                            <div key={index} className="border rounded-md p-3">
                                                 <p className="font-medium">
-                                                    {
-                                                        recipe?.items.find(
-                                                            (i) => i.productId === item.productId
-                                                        )?.product.name
-                                                    }
+                                                    {recipeItem?.product.name}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
                                                     Quantidade:{" "}
                                                     {item.quantity.toLocaleString("pt-BR")}{" "}
-                                                    {
-                                                        recipe?.items.find(
-                                                            (i) => i.productId === item.productId
-                                                        )?.product.unity.simbol
-                                                    }
+                                                    {recipeItem?.product.unity.simbol}
                                                 </p>
                                             </div>
-
-                                            {/* <div className="flex gap-2">
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    type="button"
-                                                    onClick={() => openEditItem(index)}
-                                                >
-                                                    Editar
-                                                </Button>
-
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="destructive"
-                                                            type="button"
-                                                        >
-                                                            Excluir
-                                                        </Button>
-                                                    </AlertDialogTrigger>
-
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>
-                                                                Excluir item?
-                                                            </AlertDialogTitle>
-                                                            <AlertDialogDescription>
-                                                                Esta ação não pode ser desfeita.
-                                                                Deseja realmente excluir este item
-                                                                da receita?
-                                                            </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel className="cursor-pointer">
-                                                                Cancelar
-                                                            </AlertDialogCancel>
-
-                                                            <AlertDialogAction
-                                                                className="bg-destructive cursor-pointer"
-                                                                // onClick={() => removeItem(index)}
-                                                            >
-                                                                Confirmar exclusão
-                                                            </AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
-                                            </div> */}
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </Section>
                         </>
                     )}
 
-                    <div className="mt-6" />
-
-                    <Section title="Observações" description="Anotações gerais sobre a ordem.">
+                    <div className="mt-8"></div>
+                    <Section title="Observações" description="">
                         <TextAreaField control={control} name="notes" label="Notas" />
                     </Section>
 
                     <div id="form-actions" className="flex justify-end gap-3 pt-4">
                         {onCancel && (
-                            <Button
-                                tabIndex={-1}
-                                type="button"
-                                variant="outline"
-                                onClick={onCancel}
-                            >
+                            <Button type="button" variant="outline" onClick={onCancel}>
                                 Cancelar
                             </Button>
                         )}
+
                         <Button type="submit" disabled={formState.isSubmitting}>
                             {formState.isSubmitting ? "Salvando..." : submitLabel}
                         </Button>
@@ -308,15 +239,11 @@ export function ProductionOrderForm({
 
                     <FormFooterFloating targetId="form-actions" rightOffset={20}>
                         {onCancel && (
-                            <Button
-                                tabIndex={-1}
-                                type="button"
-                                variant="outline"
-                                onClick={onCancel}
-                            >
+                            <Button type="button" variant="outline" onClick={onCancel}>
                                 Cancelar
                             </Button>
                         )}
+
                         <Button type="submit" disabled={formState.isSubmitting}>
                             {formState.isSubmitting ? "Salvando..." : submitLabel}
                         </Button>
@@ -330,13 +257,12 @@ export function ProductionOrderForm({
 export const defaultProductionOrderFormValues: ProductionOrderFormValues = {
     code: "",
     recipeId: null,
+    warehouseId: null,
     lotId: null,
     status: ProductionOrderStatusEnum.PLANNED,
-
     plannedQty: 0,
     producedQty: null,
     wasteQty: null,
-
     startDate: null,
     endDate: null,
     notes: "",
