@@ -23,9 +23,15 @@ export function CreateProductionOrder() {
         mutationFn: async (values) => {
             const toastId = toast.loading("Cadastrando...");
             try {
+                const inputs = values.inputs.map(({ productId, quantity, unitCost }) => ({
+                    productId,
+                    quantity,
+                    unitCost,
+                }));
+
                 const inputsPayload = buildNestedPayload({
                     original: defaultProductionOrderFormValues.inputs ?? [],
-                    edited: values.inputs ?? [],
+                    edited: inputs ?? [],
                     getId: (i) => i.id,
                     isEqual: (o, e) =>
                         o.productId === e.productId &&

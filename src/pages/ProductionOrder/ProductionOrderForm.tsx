@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -8,19 +8,32 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
+import {
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogFooter,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogCancel,
+    AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 import {
     productionOrderFormSchema,
     ProductionOrderFormValues,
+    ProductionOrderInputValues,
 } from "@/schemas/production-order.schema";
+import { ProductionOrderItemModal } from "./ProductionOrderItemModal";
 
 import { ProductionOrderStatusEnum } from "@/types/enums";
 import { productionOrderStatusLabels } from "@/types/global";
 import { Recipe } from "@/types/recipe";
+import { PlusCircle } from "lucide-react";
 
 interface Props {
     defaultValues: ProductionOrderFormValues;
-    recipeDefaultValues?: Recipe | null;
     onSubmit: (values: ProductionOrderFormValues) => Promise<void> | void;
     submitLabel?: string;
     isLoading?: boolean;
@@ -29,14 +42,14 @@ interface Props {
 
 export function ProductionOrderForm({
     defaultValues,
-    recipeDefaultValues,
     onSubmit,
     submitLabel = "Salvar",
     isLoading = false,
     onCancel,
 }: Props) {
-    const [recipe, setRecipe] = useState<Recipe | null>(recipeDefaultValues);
     const [unitySimbol, setUnitySimbol] = useState<string | null>(null);
+    const [itemModalOpen, setItemModalOpen] = useState(false);
+    const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
 
     const form = useForm<ProductionOrderFormValues>({
         resolver: zodResolver(productionOrderFormSchema),
@@ -49,11 +62,40 @@ export function ProductionOrderForm({
 
     const { control, handleSubmit, formState, watch } = form;
     const status = watch("status");
+    const inputs = watch("inputs") ?? [];
 
-    const recipeItemsMap = useMemo(() => {
-        if (!recipe) return {};
-        return Object.fromEntries(recipe.items.map((i) => [i.productId, i]));
-    }, [recipe]);
+    const handleAddItem = () => {
+        setEditingItemIndex(null);
+        setItemModalOpen(true);
+    };
+
+    const handleEditItem = (index: number) => {
+        setEditingItemIndex(index);
+        setItemModalOpen(true);
+    };
+
+    const handleDeleteItem = (index: number) => {
+        const next = [...inputs];
+        next.splice(index, 1);
+        form.setValue("inputs", next);
+    };
+
+    const handleSaveItem = (data: ProductionOrderInputValues) => {
+        const next = [...inputs];
+
+        if (editingItemIndex !== null) {
+            next[editingItemIndex] = {
+                ...next[editingItemIndex],
+                quantity: data.quantity,
+                unitCost: data.unitCost ?? null,
+            };
+        } else {
+            next.push(data);
+        }
+
+        form.setValue("inputs", next);
+        setEditingItemIndex(null);
+    };
 
     if (isLoading) {
         return (
@@ -142,7 +184,6 @@ export function ProductionOrderForm({
                                 onSelectItem={(e) => {
                                     const selected = e as Recipe;
 
-                                    setRecipe(selected);
                                     setUnitySimbol(selected.product.unity.simbol);
 
                                     form.setValue(
@@ -151,6 +192,9 @@ export function ProductionOrderForm({
                                             productId: item.productId,
                                             quantity: Number(item.quantity),
                                             unitCost: null,
+
+                                            productName: item.product.name,
+                                            unitySimbol: item.product.unity.simbol,
                                         }))
                                     );
                                 }}
@@ -191,30 +235,100 @@ export function ProductionOrderForm({
                         </FieldsGrid>
                     </Section>
 
-                    {recipe && (
+                    {inputs.length > 0 && (
                         <>
                             <div className="mt-8"></div>
                             <Section
                                 title="Insumos"
                                 description="Materiais consumidos na produção."
                             >
-                                <div className="flex flex-col gap-2">
-                                    {form.watch("inputs")?.map((item, index) => {
-                                        const recipeItem = recipeItemsMap[item.productId];
+                                <div className="flex mb-3">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleAddItem}
+                                    >
+                                        <PlusCircle className="size-4" />
+                                        Adicionar insumo
+                                    </Button>
+                                </div>
 
-                                        return (
-                                            <div key={index} className="border rounded-md p-3">
-                                                <p className="font-medium">
-                                                    {recipeItem?.product.name}
-                                                </p>
+                                <div className="flex flex-col gap-2">
+                                    {inputs.map((item, index) => (
+                                        <div
+                                            key={`${item.productId}-${index}`}
+                                            className="border rounded-md p-3 flex justify-between items-center"
+                                        >
+                                            <div>
+                                                <p className="font-medium">{item.productName}</p>
+
                                                 <p className="text-xs text-muted-foreground">
                                                     Quantidade:{" "}
                                                     {item.quantity.toLocaleString("pt-BR")}{" "}
-                                                    {recipeItem?.product.unity.simbol}
+                                                    {item.unitySimbol}
                                                 </p>
                                             </div>
-                                        );
-                                    })}
+
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handleEditItem(index)}
+                                                >
+                                                    Editar
+                                                </Button>
+
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button
+                                                            type="button"
+                                                            variant="destructive"
+                                                            size="sm"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            Excluir
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+
+                                                    <AlertDialogContent
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>
+                                                                Excluir insumo?
+                                                            </AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                Esta ação não pode ser desfeita.
+                                                                Deseja realmente excluir este insumo
+                                                                da ordem de produção?
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel
+                                                                className="cursor-pointer"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            >
+                                                                Cancelar
+                                                            </AlertDialogCancel>
+
+                                                            <AlertDialogAction
+                                                                className="bg-destructive cursor-pointer"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDeleteItem(index);
+                                                                }}
+                                                            >
+                                                                Confirmar exclusão
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </Section>
                         </>
@@ -250,6 +364,18 @@ export function ProductionOrderForm({
                     </FormFooterFloating>
                 </form>
             </Form>
+
+            {itemModalOpen && (
+                <ProductionOrderItemModal
+                    open={itemModalOpen}
+                    onClose={() => {
+                        setItemModalOpen(false);
+                        setEditingItemIndex(null);
+                    }}
+                    initialData={inputs[editingItemIndex]}
+                    onSave={handleSaveItem}
+                />
+            )}
         </div>
     );
 }

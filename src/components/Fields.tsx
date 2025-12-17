@@ -60,6 +60,7 @@ interface TextFieldStandaloneProps {
     onChange: (value: string | number) => void;
     autoFocus?: boolean;
     disabled?: boolean;
+    showError?: boolean;
 }
 
 interface TextAreaStandaloneProps {
@@ -336,6 +337,7 @@ export function TextFieldStandalone({
     onChange,
     autoFocus,
     disabled = false,
+    showError = true,
 }: TextFieldStandaloneProps) {
     return (
         <FormItem className="flex flex-col w-full">
@@ -358,7 +360,7 @@ export function TextFieldStandalone({
                 }}
             />
 
-            <p className="text-xs text-destructive h-4"></p>
+            {showError && <p className="text-xs text-destructive h-4"></p>}
         </FormItem>
     );
 }

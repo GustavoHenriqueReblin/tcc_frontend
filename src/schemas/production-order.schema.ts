@@ -5,12 +5,13 @@ const statusValues = Object.values(ProductionOrderStatusEnum) as [string, ...str
 
 export const productionOrderInputSchema = z.object({
     id: z.number().optional(),
-
     productId: z.number().refine((v) => v > 0, "Selecione a matéria-prima"),
-
     quantity: z.number().refine((v) => !isNaN(v) && v > 0, "Quantidade deve ser maior que zero"),
-
     unitCost: z.number().nullable().optional(),
+
+    // UI
+    productName: z.string().optional(),
+    unitySimbol: z.string().optional(),
 });
 
 export const productionOrderFormSchema = z.object({
@@ -30,7 +31,6 @@ export const productionOrderFormSchema = z.object({
         .refine((v) => v !== null && v > 0, "Selecione um depósito"),
 
     lotId: z.number().nullable().optional(),
-
     status: z.enum(statusValues),
 
     plannedQty: z
@@ -51,9 +51,7 @@ export const productionOrderFormSchema = z.object({
 
     startDate: z.string().nullable().optional(),
     endDate: z.string().nullable().optional(),
-
     notes: z.string().nullable().optional(),
-
     inputs: z.array(productionOrderInputSchema).optional(),
 });
 
@@ -67,10 +65,11 @@ export const finishProductionOrderSchema = z.object({
         .refine((v) => v === null || v >= 0, "Perda não pode ser negativa"),
 
     endDate: z.string().nullable().optional(),
-
     notes: z.string().nullable().optional(),
 });
 
 export type FinishProductionOrderValues = z.infer<typeof finishProductionOrderSchema>;
+
+export type ProductionOrderInputValues = z.infer<typeof productionOrderInputSchema>;
 
 export type ProductionOrderFormValues = z.infer<typeof productionOrderFormSchema>;

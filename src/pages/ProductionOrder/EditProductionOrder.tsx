@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -15,11 +15,9 @@ import { Loading } from "@/components/Loading";
 import { buildApiError } from "@/utils/global";
 import { ProductionOrderStatusEnum } from "@/types/enums";
 import { isEqual } from "lodash-es";
-import { Recipe } from "@/types/recipe";
 import { buildNestedPayload } from "@/utils/buildNestedItems";
 
 export function EditProductionOrder() {
-    const [recipeDefaultValues, setRecipeDefaultValues] = useState<Recipe | null>(null);
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -47,16 +45,6 @@ export function EditProductionOrder() {
                     throw new Error(response.data.message || "Erro ao carregar ordem");
                 }
 
-                const recipeResponse = await api.get<ApiResponse<Recipe>>(
-                    `/recipes/${response.data.data.recipeId}`
-                );
-
-                if (!recipeResponse.data.success) {
-                    throw new Error(response.data.message || "Erro ao carregar ordem");
-                }
-
-                setRecipeDefaultValues(recipeResponse.data.data);
-
                 return response.data.data;
             } catch (error) {
                 throw buildApiError(error, "Erro ao carregar ordem de produção");
@@ -75,9 +63,15 @@ export function EditProductionOrder() {
                     return;
                 }
 
+                const inputs = values.inputs.map(({ productId, quantity, unitCost }) => ({
+                    productId,
+                    quantity,
+                    unitCost,
+                }));
+
                 const inputsPayload = buildNestedPayload({
                     original: formDefaults.inputs ?? [],
-                    edited: values.inputs ?? [],
+                    edited: inputs ?? [],
                     getId: (i) => i.id,
                     isEqual: (o, e) =>
                         o.productId === e.productId &&
@@ -162,6 +156,10 @@ export function EditProductionOrder() {
                           input.unitCost !== null && input.unitCost !== undefined
                               ? Number(input.unitCost)
                               : null,
+
+                        // UI
+                        productName: input.product?.name,
+                        unitySimbol: input.product?.unity.simbol,
                   })) ?? [],
           }
         : defaultProductionOrderFormValues;
@@ -187,7 +185,6 @@ export function EditProductionOrder() {
 
                     <ProductionOrderForm
                         defaultValues={formDefaults}
-                        recipeDefaultValues={recipeDefaultValues}
                         submitLabel="Atualizar ordem"
                         onSubmit={(values) => updateMutation.mutate(values)}
                         onCancel={() => navigate("/production-orders")}
