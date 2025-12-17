@@ -155,3 +155,7 @@ export function nextFocus(e: KeyboardEvent<HTMLElement>) {
         focusables[idx + 1].focus();
     }
 }
+
+export function toISODate(d?: Date): string | undefined {
+    return d ? d.toISOString().split("T")[0] : undefined;
+}

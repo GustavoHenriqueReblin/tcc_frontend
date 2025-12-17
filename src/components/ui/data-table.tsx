@@ -7,17 +7,18 @@ import {
     type SortingState,
 } from "@tanstack/react-table";
 
-import { useState, ReactNode, useEffect } from "react";
+import { useState, ReactNode, useEffect, ReactElement } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/global";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowUpDown, Plus, Filter } from "lucide-react";
 import { Loading } from "../Loading";
 import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import type { ApiResponse, ServerList } from "@/types/global";
 import { useNavigate } from "react-router-dom";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 export interface DataTableMobileField<TData> {
     label: string;
@@ -25,23 +26,72 @@ export interface DataTableMobileField<TData> {
     render?: (value: string, row: TData) => ReactNode;
 }
 
-export interface DataTableProps<TData extends object> {
+export interface DataTableProps<
+    TData extends object,
+    TFilters extends Record<string, unknown> = Record<string, unknown>,
+> {
     columns: ColumnDef<TData, unknown>[];
     endpoint: string;
     createButtonDescription: string;
+
+    filters?: TFilters;
+    filterComponents?: ReactNode;
     mobileFields?: DataTableMobileField<TData>[];
     defaultSort?: { sortBy: string; sortOrder: "asc" | "desc" };
     defaultPageSize?: number;
     showSearch?: boolean;
     className?: string;
+
     onRowClick?: (row: TData) => void;
     onDataResult?: (data: TData[]) => void;
+}
+
+function wrapFilterComponents(node: ReactNode, onAnyChange: () => void): ReactNode {
+    if (!node) return node;
+
+    if (Array.isArray(node)) {
+        return node.map((child) => wrapFilterComponents(child, onAnyChange));
+    }
+
+    if (typeof node === "object" && "props" in node) {
+        const element = node as ReactElement<{
+            onChange?: (...args: unknown[]) => void;
+            children?: ReactNode;
+        }>;
+
+        if (typeof element.props.onChange === "function") {
+            return {
+                ...element,
+                props: {
+                    ...element.props,
+                    onChange: (...args: unknown[]) => {
+                        element.props.onChange?.(...args);
+                        onAnyChange();
+                    },
+                },
+            };
+        }
+
+        if (element.props.children) {
+            return {
+                ...element,
+                props: {
+                    ...element.props,
+                    children: wrapFilterComponents(element.props.children, onAnyChange),
+                },
+            };
+        }
+    }
+
+    return node;
 }
 
 export function DataTable<TData extends object>({
     columns,
     endpoint,
     createButtonDescription,
+    filters,
+    filterComponents,
     mobileFields = [],
     defaultSort = { sortBy: "id", sortOrder: "asc" },
     defaultPageSize = 8,
@@ -53,16 +103,12 @@ export function DataTable<TData extends object>({
     const isMobile = useIsMobile();
     const navigate = useNavigate();
 
-    const [sorting, setSorting] = useState<SortingState>(
-        defaultSort
-            ? [
-                  {
-                      id: defaultSort.sortBy,
-                      desc: defaultSort.sortOrder === "desc",
-                  },
-              ]
-            : []
-    );
+    const [sorting, setSorting] = useState<SortingState>([
+        {
+            id: defaultSort.sortBy,
+            desc: defaultSort.sortOrder === "desc",
+        },
+    ]);
 
     const [pagination, setPagination] = useState({
         pageIndex: 0,
@@ -71,6 +117,7 @@ export function DataTable<TData extends object>({
 
     const [searchInput, setSearchInput] = useState("");
     const [search, setSearch] = useState("");
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
     const extractSortKey = (key: string): string => key.split(".").pop()!;
 
@@ -101,6 +148,7 @@ export function DataTable<TData extends object>({
             search,
             sortBy,
             sortOrder,
+            filters,
         ],
         staleTime: 0,
         queryFn: async () => {
@@ -111,9 +159,11 @@ export function DataTable<TData extends object>({
                     search,
                     sortBy,
                     sortOrder,
+                    ...filters,
                 },
             });
-            if (onDataResult) onDataResult(response.data.data.items);
+
+            onDataResult?.(response.data.data.items);
             return response.data;
         },
     });
@@ -124,10 +174,7 @@ export function DataTable<TData extends object>({
     const table = useReactTable({
         data: rowsData,
         columns,
-        state: {
-            sorting,
-            pagination,
-        },
+        state: { sorting, pagination },
         onSortingChange: setSorting,
         onPaginationChange: setPagination,
         manualSorting: true,
@@ -161,7 +208,7 @@ export function DataTable<TData extends object>({
         return (
             <div className={cn("space-y-4", className)}>
                 {showSearch && (
-                    <>
+                    <div className="space-y-2">
                         {createButtonDescription && (
                             <Button
                                 onClick={() => navigate(`${endpoint}/create`)}
@@ -171,12 +218,34 @@ export function DataTable<TData extends object>({
                                 <span style={{ fontSize: 13 }}>{createButtonDescription}</span>
                             </Button>
                         )}
-                        <Input
-                            autoFocus
-                            placeholder="Pesquisar..."
-                            onChange={(e) => setSearchInput(e.target.value)}
-                        />
-                    </>
+
+                        <div className="flex gap-2">
+                            <Input
+                                autoFocus
+                                placeholder="Pesquisar..."
+                                className="flex-1"
+                                onChange={(e) => setSearchInput(e.target.value)}
+                            />
+
+                            {filterComponents && (
+                                <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="outline" size="icon">
+                                            <Filter className="size-4" />
+                                        </Button>
+                                    </PopoverTrigger>
+
+                                    <PopoverContent className="w-80 max-w-[90vw]">
+                                        <div className="flex flex-col gap-4">
+                                            {wrapFilterComponents(filterComponents, () =>
+                                                setFiltersOpen(false)
+                                            )}
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
+                            )}
+                        </div>
+                    </div>
                 )}
 
                 {isLoading ? (
@@ -190,11 +259,6 @@ export function DataTable<TData extends object>({
                                 const value = getDeepValue(row.original, field.value);
                                 return field.render ? field.render(value, row.original) : value;
                             };
-
-                            const v0 = resolve(0);
-                            const v1 = resolve(1);
-                            const v2 = resolve(2);
-                            const v3 = resolve(3);
 
                             const clickableCardProps = onRowClick
                                 ? {
@@ -214,11 +278,15 @@ export function DataTable<TData extends object>({
                                     )}
                                     {...clickableCardProps}
                                 >
-                                    <div className="font-medium text-lg truncate mb-1">{v0}</div>
-                                    <div className="text-sm text-muted-foreground">{v1}</div>
+                                    <div className="font-medium text-lg truncate mb-1">
+                                        {resolve(0)}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">
+                                        {resolve(1)}
+                                    </div>
                                     <div className="flex items-center gap-2 text-sm">
-                                        <span className="text-muted-foreground">{v2}</span>
-                                        <span className="text-muted-foreground">{v3}</span>
+                                        <span className="text-muted-foreground">{resolve(2)}</span>
+                                        <span className="text-muted-foreground">{resolve(3)}</span>
                                     </div>
                                 </div>
                             );
@@ -258,7 +326,7 @@ export function DataTable<TData extends object>({
     return (
         <div className={cn("space-y-4", className)}>
             {showSearch && (
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-2 items-end flex-wrap">
                     {createButtonDescription && (
                         <Button
                             onClick={() => navigate(`${endpoint}/create`)}
@@ -268,12 +336,15 @@ export function DataTable<TData extends object>({
                             <span style={{ fontSize: 13 }}>{createButtonDescription}</span>
                         </Button>
                     )}
+
                     <Input
                         autoFocus
                         placeholder="Pesquisar..."
-                        className="w-full md:w-72"
+                        className="w-full md:w-56"
                         onChange={(e) => setSearchInput(e.target.value)}
                     />
+
+                    <div className="flex items-end gap-2 grow">{filterComponents}</div>
                 </div>
             )}
 
@@ -292,45 +363,35 @@ export function DataTable<TData extends object>({
                                                 key={header.id}
                                                 className="text-left px-4 py-1 font-medium"
                                             >
-                                                {header.isPlaceholder ? null : (
-                                                    <>
-                                                        {sortable ? (
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={header.column.getToggleSortingHandler()}
-                                                                className="px-1 flex items-center gap-1 select-none"
-                                                            >
-                                                                {flexRender(
-                                                                    header.column.columnDef.header,
-                                                                    header.getContext()
-                                                                )}
-
-                                                                {header.column.getIsSorted() ===
-                                                                    "asc" && (
-                                                                    <ArrowUp className="size-3 opacity-100" />
-                                                                )}
-                                                                {header.column.getIsSorted() ===
-                                                                    "desc" && (
-                                                                    <ArrowDown className="size-3 opacity-100" />
-                                                                )}
-                                                                {!header.column.getIsSorted() && (
-                                                                    <ArrowUpDown className="size-3 opacity-30" />
-                                                                )}
-                                                            </Button>
-                                                        ) : (
-                                                            <div className="px-2 flex items-center gap-1 select-none h-8">
-                                                                {flexRender(
-                                                                    header.column.columnDef.header,
-                                                                    header.getContext()
-                                                                )}
-
-                                                                <span className="inline-block size-3 opacity-0">
-                                                                    <ArrowUpDown className="size-3" />
-                                                                </span>
-                                                            </div>
+                                                {header.isPlaceholder ? null : sortable ? (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={header.column.getToggleSortingHandler()}
+                                                        className="px-1 flex items-center gap-1 select-none"
+                                                    >
+                                                        {flexRender(
+                                                            header.column.columnDef.header,
+                                                            header.getContext()
                                                         )}
-                                                    </>
+
+                                                        {header.column.getIsSorted() === "asc" && (
+                                                            <ArrowUp className="size-3 opacity-100" />
+                                                        )}
+                                                        {header.column.getIsSorted() === "desc" && (
+                                                            <ArrowDown className="size-3 opacity-100" />
+                                                        )}
+                                                        {!header.column.getIsSorted() && (
+                                                            <ArrowUpDown className="size-3 opacity-30" />
+                                                        )}
+                                                    </Button>
+                                                ) : (
+                                                    <div className="px-2 flex items-center gap-1 select-none h-8">
+                                                        {flexRender(
+                                                            header.column.columnDef.header,
+                                                            header.getContext()
+                                                        )}
+                                                    </div>
                                                 )}
                                             </th>
                                         );

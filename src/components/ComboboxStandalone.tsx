@@ -11,14 +11,14 @@ import {
     CommandItem,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn, nextFocus } from "@/utils/global";
 import { Label } from "./ui/label";
 import { FormItem } from "./ui/form";
 
 interface ComboboxStandaloneProps<TItem> {
     value: number | null;
-    onChange: (val: number) => void;
+    onChange: (value: number | null) => void;
 
     label?: string;
     endpoint: string;
@@ -28,6 +28,7 @@ interface ComboboxStandaloneProps<TItem> {
 
     disabled?: boolean;
     extraParams?: Record<string, unknown>;
+    showError?: boolean;
 }
 
 export function ComboboxStandalone<TItem extends Record<string, unknown>>({
@@ -40,6 +41,7 @@ export function ComboboxStandalone<TItem extends Record<string, unknown>>({
     formatLabel,
     disabled = false,
     extraParams = {},
+    showError = true,
 }: ComboboxStandaloneProps<TItem>) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLButtonElement>(null);
@@ -80,15 +82,30 @@ export function ComboboxStandalone<TItem extends Record<string, unknown>>({
                         disabled={disabled}
                         variant="outline"
                         role="combobox"
-                        className="justify-between"
+                        className="justify-between gap-2"
                     >
-                        {value
-                            ? getItemLabel(selectedItem)
-                            : query.isLoading
-                              ? "Carregando..."
-                              : "Selecione..."}
+                        <span className="truncate">
+                            {value
+                                ? getItemLabel(selectedItem)
+                                : query.isLoading
+                                  ? "Carregando..."
+                                  : "Selecione..."}
+                        </span>
 
-                        <ChevronsUpDown className="h-4 w-4 opacity-50" />
+                        <span className="flex items-center gap-1">
+                            {value && (
+                                <div
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        onChange(null);
+                                    }}
+                                >
+                                    <X className="h-4 w-4 opacity-60 hover:opacity-100 cursor-pointer" />
+                                </div>
+                            )}
+                            <ChevronsUpDown className="h-4 w-4 opacity-50" />
+                        </span>
                     </Button>
                 </PopoverTrigger>
 
@@ -128,7 +145,7 @@ export function ComboboxStandalone<TItem extends Record<string, unknown>>({
                 </PopoverContent>
             </Popover>
 
-            <p className="text-xs text-destructive h-4"></p>
+            {showError && <p className="text-xs text-destructive h-4"></p>}
         </FormItem>
     );
 }

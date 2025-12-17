@@ -17,9 +17,10 @@ import {
     CommandInput,
 } from "@/components/ui/command";
 import { Button } from "./ui/button";
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown, X } from "lucide-react";
 import { Calendar } from "./ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Label } from "./ui/label";
 
 const selectBaseClass =
     "h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
@@ -588,6 +589,134 @@ export function EnumSelect<T extends FieldValues>({
                 );
             }}
         />
+    );
+}
+
+interface EnumStandaloneProps<T extends Record<string, string>> {
+    value: T[keyof T] | null;
+    onChange: (value: T[keyof T] | null) => void;
+
+    label?: string;
+    enumObject: T;
+    labels?: Partial<Record<keyof T, string>>;
+    allowEmpty?: boolean;
+    allowedValues?: Array<T[keyof T]>;
+    disabled?: boolean;
+}
+
+export function EnumStandalone<T extends Record<string, string>>({
+    value,
+    onChange,
+    label,
+    enumObject,
+    labels,
+    allowEmpty = true,
+    allowedValues,
+    disabled = false,
+}: EnumStandaloneProps<T>) {
+    const ref = useRef<HTMLButtonElement>(null);
+    const [open, setOpen] = useState(false);
+
+    const entries = (Object.entries(enumObject) as [keyof T, T[keyof T]][]).filter(
+        ([, v]) => !allowedValues || allowedValues.includes(v)
+    );
+
+    const selectedEntry = entries.find(([, v]) => v === value);
+    const selectedKey = selectedEntry?.[0];
+    const selectedLabel = (selectedKey && labels?.[selectedKey]) ?? selectedEntry?.[1] ?? "";
+
+    return (
+        <FormItem className="flex flex-col w-full gap-2">
+            {label && <Label>{label}</Label>}
+
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger
+                    ref={ref}
+                    asChild
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") nextFocus(e);
+                        else if (e.key === "ArrowDown") ref.current?.click();
+                    }}
+                >
+                    <Button
+                        type="button"
+                        variant="outline"
+                        role="combobox"
+                        disabled={disabled}
+                        className="justify-between gap-2"
+                    >
+                        <span className="truncate">{value ? selectedLabel : "Selecione..."}</span>
+
+                        <span className="flex items-center gap-1">
+                            {value && (
+                                <div
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        onChange(null);
+                                    }}
+                                >
+                                    <X className="h-4 w-4 opacity-60 hover:opacity-100 cursor-pointer" />
+                                </div>
+                            )}
+                            <ChevronsUpDown className="h-4 w-4 opacity-50" />
+                        </span>
+                    </Button>
+                </PopoverTrigger>
+
+                <PopoverContent className="p-0 w-(--radix-popover-trigger-width)">
+                    <Command>
+                        <CommandInput placeholder="Buscar..." />
+                        <CommandList>
+                            <CommandEmpty>Nenhum item encontrado.</CommandEmpty>
+
+                            {allowEmpty && (
+                                <CommandItem
+                                    value=""
+                                    className="cursor-pointer"
+                                    onSelect={() => {
+                                        onChange(null);
+                                        setOpen(false);
+                                    }}
+                                >
+                                    <Check
+                                        className={cn(
+                                            "mr-2 h-4 w-4",
+                                            !value ? "opacity-100" : "opacity-0"
+                                        )}
+                                    />
+                                    (Nenhum)
+                                </CommandItem>
+                            )}
+
+                            {entries.map(([key, v]) => {
+                                const labelText = labels?.[key] ?? v;
+
+                                return (
+                                    <CommandItem
+                                        key={String(v)}
+                                        value={labelText}
+                                        className="cursor-pointer"
+                                        onSelect={() => {
+                                            onChange(v);
+                                            setOpen(false);
+                                        }}
+                                    >
+                                        <Check
+                                            className={cn(
+                                                "mr-2 h-4 w-4",
+                                                value === v ? "opacity-100" : "opacity-0"
+                                            )}
+                                        />
+                                        {labelText}
+                                    </CommandItem>
+                                );
+                            })}
+                        </CommandList>
+                    </Command>
+                </PopoverContent>
+            </Popover>
+        </FormItem>
     );
 }
 

@@ -9,12 +9,17 @@ import { ProductionOrderStatusEnum } from "@/types/enums";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/api/client";
-import { buildApiError } from "@/utils/global";
+import { buildApiError, cn, toISODate } from "@/utils/global";
 import { StatusActionButton } from "@/components/StatusActionButton";
 import { useState } from "react";
 import { FinishProductionOrderValues } from "@/schemas/production-order.schema";
 import { FinishProductionOrderModal } from "./FinishProductionOrderModal";
 import { Button } from "@/components/ui/button";
+import { ComboboxStandalone } from "@/components/ComboboxStandalone";
+import { EnumStandalone } from "@/components/Fields";
+import { DateRange } from "react-day-picker";
+import { DateRangePicker } from "@/components/DateRangePicker";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const productionOrderStatusColors: Record<ProductionOrderStatus, string> = {
     PLANNED: "bg-gray-200 text-gray-800",
@@ -28,11 +33,23 @@ type UpdateStatusPayload = {
     status: ProductionOrderStatus;
 };
 
+type ProductionOrderFilters = {
+    status?: ProductionOrderStatus;
+    productId?: number;
+    startDateFrom?: string;
+    startDateTo?: string;
+    endDateFrom?: string;
+    endDateTo?: string;
+};
+
 export function ProductionOrders() {
     usePageTitle("Ordens de produção - ERP Industrial");
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const isMobile = useIsMobile();
 
+    const [range, setRange] = useState<DateRange | undefined>();
+    const [filters, setFilters] = useState<ProductionOrderFilters>({});
     const [finishOrder, setFinishOrder] = useState<ProductionOrder | null>(null);
     const [totalOrders, setTotalOrders] = useState(0);
     const [plannedOrders, setPlannedOrders] = useState(0);
@@ -289,8 +306,69 @@ export function ProductionOrders() {
             <DataTable<ProductionOrder>
                 columns={columns}
                 endpoint="/production-orders"
-                createButtonDescription="Nova ordem de produção"
+                createButtonDescription="Nova OP"
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
+                mobileFields={[
+                    { label: "Código", value: "code" },
+                    { label: "Produto", value: "product.name" },
+                    {
+                        label: "Status",
+                        value: "status",
+                        render: (v, row) =>
+                            productionOrderStatusLabels[(row as ProductionOrder).status] ?? v,
+                    },
+                ]}
+                filters={filters}
+                filterComponents={
+                    <>
+                        <div className={cn(isMobile ? "w-full" : "w-56")}>
+                            <DateRangePicker
+                                value={range}
+                                onChange={(range) => {
+                                    if (!range?.from || !range?.to) return;
+
+                                    setRange(range);
+                                    setFilters((prev) => ({
+                                        ...prev,
+                                        startDateFrom: toISODate(range.from),
+                                        startDateTo: toISODate(range.to),
+                                        endDateFrom: toISODate(range.from),
+                                        endDateTo: toISODate(range.to),
+                                    }));
+                                }}
+                            />
+                        </div>
+
+                        <div className={cn(isMobile ? "w-full" : "w-56")}>
+                            <ComboboxStandalone
+                                label="Produto"
+                                endpoint="/products"
+                                valueField="id"
+                                labelField="name"
+                                value={filters.productId || null}
+                                showError={false}
+                                onChange={(val) =>
+                                    setFilters((prev) => ({ ...prev, productId: val }))
+                                }
+                            />
+                        </div>
+
+                        <div className={cn(isMobile ? "w-full" : "w-56")}>
+                            <EnumStandalone
+                                label="Status"
+                                enumObject={ProductionOrderStatusEnum}
+                                labels={productionOrderStatusLabels}
+                                value={filters.status ?? null}
+                                onChange={(val) =>
+                                    setFilters((prev) => ({
+                                        ...prev,
+                                        status: val ?? undefined,
+                                    }))
+                                }
+                            />
+                        </div>
+                    </>
+                }
                 onRowClick={(row) => {
                     if (
                         row.status === ProductionOrderStatusEnum.CANCELED ||
