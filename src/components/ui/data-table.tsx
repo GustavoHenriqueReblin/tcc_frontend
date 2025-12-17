@@ -35,6 +35,7 @@ export interface DataTableProps<TData extends object> {
     showSearch?: boolean;
     className?: string;
     onRowClick?: (row: TData) => void;
+    onDataResult?: (data: TData[]) => void;
 }
 
 export function DataTable<TData extends object>({
@@ -47,6 +48,7 @@ export function DataTable<TData extends object>({
     showSearch = true,
     className,
     onRowClick,
+    onDataResult,
 }: DataTableProps<TData>) {
     const isMobile = useIsMobile();
     const navigate = useNavigate();
@@ -111,6 +113,7 @@ export function DataTable<TData extends object>({
                     sortOrder,
                 },
             });
+            if (onDataResult) onDataResult(response.data.data.items);
             return response.data;
         },
     });

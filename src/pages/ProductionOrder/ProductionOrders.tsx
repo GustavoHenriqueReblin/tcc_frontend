@@ -29,10 +29,18 @@ type UpdateStatusPayload = {
 };
 
 export function ProductionOrders() {
-    const [finishOrder, setFinishOrder] = useState<ProductionOrder | null>(null);
     usePageTitle("Ordens de produção - ERP Industrial");
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+
+    const [finishOrder, setFinishOrder] = useState<ProductionOrder | null>(null);
+    const [totalOrders, setTotalOrders] = useState(0);
+    const [plannedOrders, setPlannedOrders] = useState(0);
+    const [runningOrders, setRunningOrders] = useState(0);
+    const [finishedOrders, setFinishedOrders] = useState(0);
+    const [plannedQty, setPlannedQty] = useState(0);
+    const [producedQty, setProducedQty] = useState(0);
+    const [wasteQty, setWasteQty] = useState(0);
 
     const finishOrderMutation = useMutation<
         ProductionOrder,
@@ -87,7 +95,7 @@ export function ProductionOrders() {
                     status,
                     startDate:
                         status === ProductionOrderStatusEnum.RUNNING ? new Date() : order.startDate,
-                } as ProductionOrder;
+                };
 
                 const response = await api.put<ApiResponse<ProductionOrder>>(
                     `/production-orders/${order.id}`,
@@ -98,10 +106,14 @@ export function ProductionOrders() {
                     throw new Error(response.data.message || "Erro ao atualizar ordem");
                 }
 
-                toast.success("Ordem de produção atualizada com sucesso.", { id: toastId });
+                toast.success("Ordem de produção atualizada com sucesso.", {
+                    id: toastId,
+                });
                 return response.data.data;
             } catch (error) {
-                toast.error("Falha ao atualizar a ordem de produção.", { id: toastId });
+                toast.error("Falha ao atualizar a ordem de produção.", {
+                    id: toastId,
+                });
                 throw buildApiError(error, "Erro ao atualizar ordem de produção");
             }
         },
@@ -116,84 +128,71 @@ export function ProductionOrders() {
     const columns: ColumnDef<ProductionOrder>[] = [
         {
             accessorKey: "code",
-            id: "code",
             header: "Código",
             meta: { sortable: true },
         },
         {
             accessorKey: "product.name",
-            id: "product.name",
             header: "Produto",
             meta: { sortable: true },
             cell: ({ row }) => row.original.recipe.product?.name ?? "",
         },
         {
             accessorKey: "status",
-            id: "status",
             header: "Status",
             meta: { sortable: true },
             cell: ({ row }) => {
                 const status = row.original.status;
-
                 return (
                     <div
                         className={[
-                            "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium w-fit",
-                            productionOrderStatusColors[status] ?? "bg-gray-100 text-gray-800",
+                            "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+                            productionOrderStatusColors[status],
                         ].join(" ")}
                     >
-                        {productionOrderStatusLabels[status] ?? status}
+                        {productionOrderStatusLabels[status]}
                     </div>
                 );
             },
         },
         {
-            accessorKey: "plannedQty",
-            id: "plannedQty",
             header: "Qtd. planejada",
             meta: { sortable: true },
             cell: ({ row }) =>
-                Number(row.original.plannedQty ?? 0).toLocaleString("pt-BR") +
-                " " +
-                row.original.recipe.product.unity.simbol,
+                `${Number(row.original.plannedQty ?? 0).toLocaleString("pt-BR")} ${
+                    row.original.recipe.product.unity.simbol
+                }`,
         },
         {
-            accessorKey: "producedQty",
-            id: "producedQty",
             header: "Qtd. produzida",
             meta: { sortable: true },
             cell: ({ row }) =>
                 row.original.producedQty != null
-                    ? Number(row.original.producedQty).toLocaleString("pt-BR") +
-                      " " +
-                      row.original.recipe.product.unity.simbol
-                    : "",
+                    ? `${Number(row.original.producedQty).toLocaleString("pt-BR")} ${
+                          row.original.recipe.product.unity.simbol
+                      }`
+                    : "-",
         },
         {
-            accessorKey: "startDate",
-            id: "startDate",
             header: "Início",
             meta: { sortable: true },
             cell: ({ row }) =>
                 row.original.startDate
                     ? new Date(row.original.startDate).toLocaleDateString("pt-BR")
-                    : "",
+                    : "-",
         },
         {
-            accessorKey: "endDate",
-            id: "endDate",
             header: "Fim",
             meta: { sortable: true },
             cell: ({ row }) =>
                 row.original.endDate
                     ? new Date(row.original.endDate).toLocaleDateString("pt-BR")
-                    : "",
+                    : "-",
         },
         {
             id: "actions",
             header: "Ações",
             enableSorting: false,
-            meta: { sortable: false },
             cell: ({ row }) => {
                 const order = row.original;
 
@@ -221,7 +220,6 @@ export function ProductionOrders() {
                                         })
                                     }
                                 />
-
                                 <StatusActionButton
                                     label="Cancelar"
                                     intent="danger"
@@ -285,10 +283,8 @@ export function ProductionOrders() {
     };
 
     return (
-        <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-                <h2 className="text-xl font-semibold">Ordens de produção</h2>
-            </div>
+        <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Ordens de produção</h2>
 
             <DataTable<ProductionOrder>
                 columns={columns}
@@ -301,24 +297,78 @@ export function ProductionOrders() {
                         row.status === ProductionOrderStatusEnum.FINISHED
                     ) {
                         toast.info(
-                            `Uma ordem com status ${productionOrderStatusLabels[row.status]} não pode ser editada.`
+                            `Uma ordem com status ${
+                                productionOrderStatusLabels[row.status]
+                            } não pode ser editada.`
                         );
                         return null;
                     }
-
                     handleRowClick(row);
                 }}
-                mobileFields={[
-                    { label: "Código", value: "code" },
-                    { label: "Produto", value: "product.name" },
-                    {
-                        label: "Status",
-                        value: "status",
-                        render: (v, row) =>
-                            productionOrderStatusLabels[(row as ProductionOrder).status] ?? v,
-                    },
-                ]}
+                onDataResult={(data) => {
+                    let planned = 0;
+                    let produced = 0;
+                    let waste = 0;
+                    let plannedC = 0;
+                    let runningC = 0;
+                    let finishedC = 0;
+
+                    data.forEach((o) => {
+                        planned += Number(o.plannedQty ?? 0);
+                        produced += Number(o.producedQty ?? 0);
+                        waste += Number(o.wasteQty ?? 0);
+
+                        if (o.status === ProductionOrderStatusEnum.PLANNED) plannedC++;
+                        if (o.status === ProductionOrderStatusEnum.RUNNING) runningC++;
+                        if (o.status === ProductionOrderStatusEnum.FINISHED) finishedC++;
+                    });
+
+                    setTotalOrders(data.length);
+                    setPlannedOrders(plannedC);
+                    setRunningOrders(runningC);
+                    setFinishedOrders(finishedC);
+                    setPlannedQty(planned);
+                    setProducedQty(produced);
+                    setWasteQty(waste);
+                }}
             />
+
+            <div className="flex flex-wrap justify-end gap-6 border-t pt-4">
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Total de ordens</span>
+                    <span className="font-semibold">{totalOrders}</span>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Planejadas</span>
+                    <span className="font-semibold">{plannedOrders}</span>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Em produção</span>
+                    <span className="font-semibold">{runningOrders}</span>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Finalizadas</span>
+                    <span className="font-semibold">{finishedOrders}</span>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Qtd. planejada</span>
+                    <span className="font-semibold">{plannedQty.toLocaleString("pt-BR")}</span>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Qtd. produzida</span>
+                    <span className="font-semibold">{producedQty.toLocaleString("pt-BR")}</span>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Perdas registradas</span>
+                    <span className="font-semibold">{wasteQty.toLocaleString("pt-BR")}</span>
+                </div>
+            </div>
 
             {finishOrder && (
                 <FinishProductionOrderModal
@@ -326,12 +376,12 @@ export function ProductionOrders() {
                     order={finishOrder}
                     isLoading={finishOrderMutation.isPending}
                     onOpenChange={() => setFinishOrder(null)}
-                    onConfirm={(values) => {
+                    onConfirm={(values) =>
                         finishOrderMutation.mutate({
                             values,
                             order: finishOrder,
-                        });
-                    }}
+                        })
+                    }
                 />
             )}
         </div>

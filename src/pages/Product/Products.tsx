@@ -4,39 +4,43 @@ import { Product } from "@/types/product";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useNavigate } from "react-router-dom";
 import { ProductDefinitionType, productDefinitionTypeLabels } from "@/types/global";
+import { useState } from "react";
 
 export function Products() {
     usePageTitle("Produtos - ERP Industrial");
     const navigate = useNavigate();
 
+    const [totalQuantity, setTotalQuantity] = useState<number>(0);
+    const [totalCost, setTotalCost] = useState<number>(0);
+    const [totalSaleValue, setTotalSaleValue] = useState<number>(0);
+    const [totalProducts, setTotalProducts] = useState<number>(0);
+
     const columns: ColumnDef<Product>[] = [
         {
             accessorKey: "name",
-            id: "name",
             header: "Nome",
             meta: { sortable: true },
         },
         {
             accessorKey: "barcode",
-            id: "barcode",
             header: "Código de Barras",
             meta: { sortable: true },
         },
         {
-            accessorKey: "productInventory",
             id: "quantity",
             header: "Quantidade",
             meta: { sortable: true },
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
                 const unity = row.original.unity?.simbol ?? "";
-                return inv ? `${Number(inv.quantity).toLocaleString("pt-BR")} ${unity}`.trim() : "";
+                return inv
+                    ? `${Number(inv.quantity).toLocaleString("pt-BR")} ${unity}`.trim()
+                    : "-";
             },
         },
         {
-            accessorKey: "productInventory",
             id: "costValue",
-            header: "Custo",
+            header: "Custo Unit.",
             meta: { sortable: true },
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
@@ -44,13 +48,12 @@ export function Products() {
                     ? `R$ ${Number(inv.costValue).toLocaleString("pt-BR", {
                           minimumFractionDigits: 2,
                       })}`
-                    : "";
+                    : "-";
             },
         },
         {
-            accessorKey: "productInventory",
             id: "saleValue",
-            header: "Venda",
+            header: "Venda Unit.",
             meta: { sortable: true },
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
@@ -58,24 +61,22 @@ export function Products() {
                     ? `R$ ${Number(inv.saleValue).toLocaleString("pt-BR", {
                           minimumFractionDigits: 2,
                       })}`
-                    : "";
+                    : "-";
             },
         },
         {
             accessorKey: "productDefinition",
-            id: "type",
             header: "Tipo",
             meta: { sortable: true },
             cell: ({ row }) => {
                 const type = row.original.productDefinition?.type as
                     | ProductDefinitionType
                     | undefined;
-                return type ? productDefinitionTypeLabels[type] : "";
+                return type ? productDefinitionTypeLabels[type] : "-";
             },
         },
         {
             accessorKey: "createdAt",
-            id: "createdAt",
             header: "Criado em",
             meta: { sortable: true },
             cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString("pt-BR"),
@@ -87,8 +88,8 @@ export function Products() {
     };
 
     return (
-        <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
                 <h2 className="text-xl font-semibold">Produtos</h2>
             </div>
 
@@ -104,7 +105,62 @@ export function Products() {
                     { label: "Quantidade", value: "productInventory.0.quantity" },
                     { label: "Venda", value: "productInventory.0.saleValue" },
                 ]}
+                onDataResult={(data) => {
+                    let qty = 0;
+                    let cost = 0;
+                    let sale = 0;
+
+                    data.forEach((product) => {
+                        const inv = product.productInventory?.[0];
+                        if (!inv) return;
+
+                        const q = Number(inv.quantity ?? 0);
+                        const c = Number(inv.costValue ?? 0);
+                        const s = Number(inv.saleValue ?? 0);
+
+                        qty += q;
+                        cost += q * c;
+                        sale += q * s;
+                    });
+
+                    setTotalProducts(data.length);
+                    setTotalQuantity(qty);
+                    setTotalCost(cost);
+                    setTotalSaleValue(sale);
+                }}
             />
+
+            <div className="flex flex-wrap justify-end gap-6 border-t pt-4">
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Produtos</span>
+                    <span className="font-semibold">{totalProducts.toLocaleString("pt-BR")}</span>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Quantidade total</span>
+                    <span className="font-semibold">{totalQuantity.toLocaleString("pt-BR")}</span>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Custo total do estoque</span>
+                    <span className="font-semibold">
+                        R${" "}
+                        {totalCost.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                        })}
+                    </span>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Valor potencial de venda</span>
+                    <span className="font-semibold">
+                        R${" "}
+                        {totalSaleValue.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                        })}
+                    </span>
+                </div>
+            </div>
         </div>
     );
 }
