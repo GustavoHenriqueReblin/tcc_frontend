@@ -232,7 +232,7 @@ export function SupplierForm({
                             <TextField
                                 control={control}
                                 name="paymentTerms"
-                                label="Condicoes de pagamento"
+                                label="Condições de pagamento"
                             />
                             <TextField
                                 control={control}

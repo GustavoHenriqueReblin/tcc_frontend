@@ -47,7 +47,7 @@ export function Unities() {
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
                 onRowClick={handleRowClick}
                 mobileFields={[
-                    { label: "Simbolo", value: "simbol" },
+                    { label: "Símbolo", value: "simbol" },
                     { label: "Descrição", value: "description" },
                 ]}
             />

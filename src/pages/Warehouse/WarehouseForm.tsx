@@ -53,7 +53,7 @@ export function WarehouseForm({
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Section
                         title="Dados do depósito"
-                        description="Informe codigo, nome e descricao do depósito."
+                        description="Informe o código, nome e descrição do depósito."
                     >
                         <FieldsGrid cols={2}>
                             <TextField control={control} name="code" label="Código" autoFocus />

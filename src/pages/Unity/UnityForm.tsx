@@ -53,10 +53,10 @@ export function UnityForm({
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Section
                         title="Dados da unidade"
-                        description="Informe simbolo e descricao da unidade."
+                        description="Informe o símbolo e descrição da unidade."
                     >
                         <FieldsGrid cols={2}>
-                            <TextField control={control} name="simbol" label="Simbolo" autoFocus />
+                            <TextField control={control} name="simbol" label="Símbolo" autoFocus />
                             <TextField control={control} name="description" label="Descrição" />
                         </FieldsGrid>
                     </Section>

@@ -210,6 +210,7 @@ export function ProductionOrders() {
             id: "actions",
             header: "Ações",
             enableSorting: false,
+            meta: { sortable: false },
             cell: ({ row }) => {
                 const order = row.original;
 
