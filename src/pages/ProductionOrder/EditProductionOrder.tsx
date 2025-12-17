@@ -157,9 +157,9 @@ export function EditProductionOrder() {
                               ? Number(input.unitCost)
                               : null,
 
-                        // UI
-                        productName: input.product?.name,
-                        unitySimbol: input.product?.unity.simbol,
+                      // UI
+                      productName: input.product?.name,
+                      unitySimbol: input.product?.unity.simbol,
                   })) ?? [],
           }
         : defaultProductionOrderFormValues;
