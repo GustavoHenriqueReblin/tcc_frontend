@@ -5,6 +5,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useNavigate } from "react-router-dom";
 import { ProductDefinitionType, productDefinitionTypeLabels } from "@/types/global";
 import { useState } from "react";
+import { formatCurrency, formatCurrencyNumber } from "@/utils/global";
 
 export function Products() {
     usePageTitle("Produtos - ERP Industrial");
@@ -45,9 +46,7 @@ export function Products() {
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
                 return inv
-                    ? `R$ ${Number(inv.costValue).toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                      })}`
+                    ? `${formatCurrency(Number(inv.costValue))}`
                     : "-";
             },
         },
@@ -58,9 +57,7 @@ export function Products() {
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
                 return inv
-                    ? `R$ ${Number(inv.saleValue).toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                      })}`
+                    ? `${formatCurrency(Number(inv.saleValue))}`
                     : "-";
             },
         },
@@ -133,31 +130,25 @@ export function Products() {
             <div className="flex flex-wrap justify-end gap-6 border-t pt-4">
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Produtos</span>
-                    <span className="font-semibold">{totalProducts.toLocaleString("pt-BR")}</span>
+                    <span className="font-semibold">{formatCurrencyNumber(totalProducts)}</span>
                 </div>
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Quantidade total</span>
-                    <span className="font-semibold">{totalQuantity.toLocaleString("pt-BR")}</span>
+                    <span className="font-semibold">{formatCurrencyNumber(totalQuantity)}</span>
                 </div>
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Custo total do estoque</span>
                     <span className="font-semibold">
-                        R${" "}
-                        {totalCost.toLocaleString("pt-BR", {
-                            minimumFractionDigits: 2,
-                        })}
+                        {formatCurrency(totalCost)}
                     </span>
                 </div>
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Valor potencial de venda</span>
                     <span className="font-semibold">
-                        R${" "}
-                        {totalSaleValue.toLocaleString("pt-BR", {
-                            minimumFractionDigits: 2,
-                        })}
+                        {formatCurrency(totalSaleValue)}
                     </span>
                 </div>
             </div>

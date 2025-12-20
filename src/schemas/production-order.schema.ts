@@ -49,6 +49,12 @@ export const productionOrderFormSchema = z.object({
         .optional()
         .refine((v) => v === null || v >= 0, "Perda não pode ser negativa"),
 
+    otherCosts: z
+        .number()
+        .nullable()
+        .optional()
+        .refine((v) => v === null || v >= 0, "Outros custos não podem ser negativos"),
+
     startDate: z.string().nullable().optional(),
     endDate: z.string().nullable().optional(),
     notes: z.string().nullable().optional(),

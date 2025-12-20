@@ -48,6 +48,7 @@ export function CreateProductionOrder() {
                     plannedQty: values.plannedQty,
                     producedQty: values.producedQty ?? null,
                     wasteQty: values.wasteQty ?? null,
+                    otherCosts: values.otherCosts ?? 0,
                     startDate:
                         values.status !== ProductionOrderStatusEnum.PLANNED
                             ? new Date()

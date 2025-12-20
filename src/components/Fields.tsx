@@ -87,8 +87,7 @@ function DateField({
     const [text, setText] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const fallbackText = field.value ? new Date(field.value).toLocaleDateString("pt-BR") : "";
-
+    const fallbackText = field.value ? field.value.split("-").reverse().join("/") : "";
     const displayed = text !== "" ? text : fallbackText;
 
     const handleInputChange = (raw: string) => {
@@ -106,10 +105,10 @@ function DateField({
             const d = digits.slice(0, 2);
             const m = digits.slice(2, 4);
             const y = digits.slice(4);
-            const parsed = new Date(`${y}-${m}-${d}`);
+            const iso = `${y}-${m}-${d}`;
 
-            if (!isNaN(parsed.getTime())) {
-                field.onChange(parsed.toISOString().split("T")[0]);
+            if (!isNaN(Date.parse(iso))) {
+                field.onChange(iso);
                 return;
             }
         }
@@ -156,7 +155,11 @@ function DateField({
                             selected={field.value ? new Date(field.value) : undefined}
                             onSelect={(d) => {
                                 if (d) {
-                                    field.onChange(d.toISOString().split("T")[0]);
+                                    const y = d.getFullYear();
+                                    const m = String(d.getMonth() + 1).padStart(2, "0");
+                                    const day = String(d.getDate()).padStart(2, "0");
+
+                                    field.onChange(`${y}-${m}-${day}`);
                                     setText("");
                                 }
                                 setOpen(false);

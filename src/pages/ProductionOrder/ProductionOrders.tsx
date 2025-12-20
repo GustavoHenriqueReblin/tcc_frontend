@@ -435,17 +435,23 @@ export function ProductionOrders() {
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Qtd. planejada</span>
-                    <span className="font-semibold">{plannedQty.toLocaleString("pt-BR")}</span>
+                    <span className="font-semibold text-gray-400">
+                        {plannedQty.toLocaleString("pt-BR")}
+                    </span>
                 </div>
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Qtd. produzida</span>
-                    <span className="font-semibold">{producedQty.toLocaleString("pt-BR")}</span>
+                    <span className="font-semibold text-green-400">
+                        {producedQty.toLocaleString("pt-BR")}
+                    </span>
                 </div>
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Perdas registradas</span>
-                    <span className="font-semibold">{wasteQty.toLocaleString("pt-BR")}</span>
+                    <span className="font-semibold text-red-400">
+                        {wasteQty.toLocaleString("pt-BR")}
+                    </span>
                 </div>
             </div>
 

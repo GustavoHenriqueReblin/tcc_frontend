@@ -29,6 +29,7 @@ import { useState } from "react";
 import { RecipeItemModal } from "./RecipeItemModal";
 import { PlusCircle } from "lucide-react";
 import { Form } from "@/components/ui/form";
+import { formatCurrencyNumber } from "@/utils/global";
 
 interface Props {
     open: boolean;
@@ -146,10 +147,7 @@ export function ProductRecipeModal({ open, onClose, initialData, onSave }: Props
                                             <p className="font-medium">{item.productName}</p>
                                             <p className="text-xs text-muted-foreground">
                                                 Quantidade:{" "}
-                                                {item.quantity.toLocaleString("pt-BR", {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 4,
-                                                })}{" "}
+                                                {formatCurrencyNumber(item.quantity)}
                                                 {item.unitySimbol}
                                             </p>
                                         </div>

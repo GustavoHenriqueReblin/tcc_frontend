@@ -159,3 +159,15 @@ export function nextFocus(e: KeyboardEvent<HTMLElement>) {
 export function toISODate(d?: Date): string | undefined {
     return d ? d.toISOString().split("T")[0] : undefined;
 }
+
+export const formatCurrency = (value: number) => {
+    return "R$ " + value.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+    })
+};
+
+export const formatCurrencyNumber = (value: number) => {
+    return value.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+    })
+}

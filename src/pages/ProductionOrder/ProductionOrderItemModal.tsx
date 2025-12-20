@@ -1,4 +1,10 @@
-import { Dialog, DialogContent, DialogHeader, DialogFooter } from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
 import { TextField, FieldsGrid } from "@/components/Fields";
@@ -31,15 +37,23 @@ export function ProductionOrderItemModal({ open, onClose, initialData, onSave }:
         <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
             <DialogContent className="max-w-sm">
                 <DialogHeader>
-                    {initialData?.productId ? "Editar insumo" : "Adicionar insumo"}
+                    <DialogTitle>
+                        {initialData?.productId ? "Editar insumo" : "Adicionar insumo"}
+                    </DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
                     <form
-                        onSubmit={handleSubmit((values) => {
-                            onSave(values);
-                            onClose();
-                        })}
+                        onSubmit={handleSubmit(
+                            (values) => {
+                                onClose();
+                                onSave(values);
+                            },
+                            (errors) => {
+                                console.error("FORM ERRORS", errors);
+                                console.log("CURRENT VALUES", form.getValues());
+                            }
+                        )}
                         className="space-y-4"
                     >
                         <FieldsGrid cols={1}>
@@ -71,6 +85,15 @@ export function ProductionOrderItemModal({ open, onClose, initialData, onSave }:
                                 type="number"
                                 decimals={3}
                                 suffix={initialData?.unitySimbol}
+                            />
+
+                            <TextField
+                                control={control}
+                                name="unitCost"
+                                label="Custo unitário *"
+                                type="number"
+                                decimals={3}
+                                prefix="R$ "
                             />
                         </FieldsGrid>
 

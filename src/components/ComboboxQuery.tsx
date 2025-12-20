@@ -59,7 +59,6 @@ export function ComboboxQuery<
 
     const query = useQuery({
         queryKey: [endpoint, extraParams],
-        enabled: !disabled,
         queryFn: async () => {
             const res = await api.get<ApiResponse<ServerList<TItem>>>(endpoint, {
                 params: extraParams,

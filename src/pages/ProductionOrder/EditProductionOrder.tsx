@@ -88,6 +88,7 @@ export function EditProductionOrder() {
                     plannedQty: values.plannedQty,
                     producedQty: values.producedQty ?? null,
                     wasteQty: values.wasteQty ?? null,
+                    otherCosts: values.otherCosts ?? 0,
                     startDate: values.startDate || null,
                     endDate: values.endDate || null,
                     notes: values.notes?.trim() || null,
@@ -141,6 +142,10 @@ export function EditProductionOrder() {
                   order.wasteQty !== null && order.wasteQty !== undefined
                       ? Number(order.wasteQty)
                       : null,
+              otherCosts:
+                  order.otherCosts !== null && order.otherCosts !== undefined
+                      ? Number(order.otherCosts)
+                      : 0,
               startDate: order.startDate
                   ? new Date(order.startDate).toISOString().split("T")[0]
                   : null,

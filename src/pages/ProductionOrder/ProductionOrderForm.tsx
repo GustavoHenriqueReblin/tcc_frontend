@@ -31,6 +31,8 @@ import { ProductionOrderStatusEnum } from "@/types/enums";
 import { productionOrderStatusLabels } from "@/types/global";
 import { Recipe } from "@/types/recipe";
 import { PlusCircle } from "lucide-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { formatCurrency } from "@/utils/global";
 
 interface Props {
     defaultValues: ProductionOrderFormValues;
@@ -63,6 +65,14 @@ export function ProductionOrderForm({
     const { control, handleSubmit, formState, watch } = form;
     const status = watch("status");
     const inputs = watch("inputs") ?? [];
+    const plannedQty = watch("plannedQty") ?? 0;
+    const otherCosts = watch("otherCosts") ?? 0;
+    const totalRawMaterialCost = inputs.reduce((total, item) => {
+        const itemCost = (item.unitCost ?? 0) * item.quantity;
+        return total + itemCost;
+    }, 0);
+
+    const isMobile = useIsMobile();
 
     const handleAddItem = () => {
         setEditingItemIndex(null);
@@ -95,6 +105,82 @@ export function ProductionOrderForm({
 
         form.setValue("inputs", next);
         setEditingItemIndex(null);
+    };
+
+    const renderFooter = () => {
+        const rawMaterialCost = totalRawMaterialCost * (plannedQty || 0);
+        const totalCost = rawMaterialCost + otherCosts;
+
+        function TotalItem({
+            label,
+            value,
+            align = "end",
+        }: {
+            label: string;
+            value: number;
+            align?: "start" | "end";
+        }) {
+            return (
+                <div className="flex flex-col">
+                    <span className={`text-sm text-${align}`}>{label}</span>
+                    <span className={`text-sm font-medium text-${align}`}>
+                        {formatCurrency(value)}
+                    </span>
+                </div>
+            );
+        }
+
+        const Actions = (
+            <div className="flex justify-end gap-3 pt-2">
+                {onCancel && (
+                    <Button type="button" variant="outline" onClick={onCancel}>
+                        Cancelar
+                    </Button>
+                )}
+
+                <Button type="submit" disabled={formState.isSubmitting}>
+                    {formState.isSubmitting ? "Salvando..." : submitLabel}
+                </Button>
+            </div>
+        );
+
+        let totals = null;
+        if (isMobile) {
+            totals = (
+                <div className="flex flex-col gap-4 w-full">
+                    <TotalItem label="Custo matérias primas:" value={rawMaterialCost} />
+                    <TotalItem label="Outros custos:" value={otherCosts} />
+                    <TotalItem label="Custo total:" value={totalCost} />
+
+                    {Actions}
+                </div>
+            );
+        } else {
+            totals = (
+                <div className="flex justify-end items-start gap-10 pt-2">
+                    <TotalItem label="Custo matérias primas:" value={rawMaterialCost} />
+                    <span className="mt-3 text-sm">+</span>
+
+                    <TotalItem label="Outros custos:" value={otherCosts} />
+                    <span className="mt-3 text-sm">=</span>
+
+                    <TotalItem label="Custo total:" value={totalCost} />
+                    {Actions}
+                </div>
+            );
+        }
+
+        return (
+            <>
+                <div id="form-actions" className="flex justify-end gap-10 pt-4">
+                    {totals}
+                </div>
+
+                <FormFooterFloating targetId="form-actions" rightOffset={20}>
+                    {totals}
+                </FormFooterFloating>
+            </>
+        );
     };
 
     if (isLoading) {
@@ -138,6 +224,7 @@ export function ProductionOrderForm({
                                 }
                                 type="date"
                                 disabled={status !== ProductionOrderStatusEnum.PLANNED}
+                                allowFutureDates
                             />
 
                             <TextField
@@ -191,7 +278,9 @@ export function ProductionOrderForm({
                                         selected.items.map((item) => ({
                                             productId: item.productId,
                                             quantity: Number(item.quantity),
-                                            unitCost: null,
+                                            unitCost: Number(
+                                                item.product.productInventory[0].costValue ?? 0
+                                            ),
 
                                             productName: item.product.name,
                                             unitySimbol: item.product.unity.simbol,
@@ -213,7 +302,10 @@ export function ProductionOrderForm({
 
                     <div className="mt-8"></div>
 
-                    <Section title="Quantidades" description="">
+                    <Section
+                        title="Quantidades"
+                        description="Quantidades e demais custos planejados."
+                    >
                         <FieldsGrid cols={4}>
                             <TextField
                                 control={control}
@@ -231,6 +323,15 @@ export function ProductionOrderForm({
                                 type="number"
                                 decimals={3}
                                 suffix={unitySimbol ?? undefined}
+                            />
+
+                            <TextField
+                                control={control}
+                                name="otherCosts"
+                                label="Outros custos"
+                                type="number"
+                                decimals={3}
+                                prefix="R$ "
                             />
                         </FieldsGrid>
                     </Section>
@@ -263,11 +364,33 @@ export function ProductionOrderForm({
                                             <div>
                                                 <p className="font-medium">{item.productName}</p>
 
-                                                <p className="text-xs text-muted-foreground">
-                                                    Quantidade:{" "}
-                                                    {item.quantity.toLocaleString("pt-BR")}{" "}
-                                                    {item.unitySimbol}
-                                                </p>
+                                                <div className="flex gap-2 items-center">
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Quantidade:{" "}
+                                                        {item.quantity.toLocaleString("pt-BR")}{" "}
+                                                        {item.unitySimbol}
+                                                    </p>
+
+                                                    <p className="text-xs text-muted-foreground">
+                                                        *
+                                                    </p>
+
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Custo unitário:{" R$ "}
+                                                        {item.unitCost.toLocaleString("pt-BR")}{" "}
+                                                    </p>
+
+                                                    <p className="text-xs text-muted-foreground">
+                                                        =
+                                                    </p>
+
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {"R$ " +
+                                                            (
+                                                                item.quantity * item.unitCost
+                                                            ).toLocaleString("pt-BR")}{" "}
+                                                    </p>
+                                                </div>
                                             </div>
 
                                             <div className="flex gap-2">
@@ -339,29 +462,7 @@ export function ProductionOrderForm({
                         <TextAreaField control={control} name="notes" label="Notas" />
                     </Section>
 
-                    <div id="form-actions" className="flex justify-end gap-3 pt-4">
-                        {onCancel && (
-                            <Button type="button" variant="outline" onClick={onCancel}>
-                                Cancelar
-                            </Button>
-                        )}
-
-                        <Button type="submit" disabled={formState.isSubmitting}>
-                            {formState.isSubmitting ? "Salvando..." : submitLabel}
-                        </Button>
-                    </div>
-
-                    <FormFooterFloating targetId="form-actions" rightOffset={20}>
-                        {onCancel && (
-                            <Button type="button" variant="outline" onClick={onCancel}>
-                                Cancelar
-                            </Button>
-                        )}
-
-                        <Button type="submit" disabled={formState.isSubmitting}>
-                            {formState.isSubmitting ? "Salvando..." : submitLabel}
-                        </Button>
-                    </FormFooterFloating>
+                    {renderFooter()}
                 </form>
             </Form>
 
@@ -389,6 +490,7 @@ export const defaultProductionOrderFormValues: ProductionOrderFormValues = {
     plannedQty: 0,
     producedQty: null,
     wasteQty: null,
+    otherCosts: 0,
     startDate: null,
     endDate: null,
     notes: "",

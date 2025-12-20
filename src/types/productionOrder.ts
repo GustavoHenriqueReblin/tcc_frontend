@@ -16,8 +16,8 @@ export interface ProductionOrderInput {
         };
     };
 
-    quantity: string;
-    unitCost: string | null;
+    quantity: number;
+    unitCost: number | null;
 
     createdAt: string;
     updatedAt: string;
@@ -52,8 +52,9 @@ export interface ProductionOrder {
     status: ProductionOrderStatus;
 
     plannedQty: number;
-    producedQty: string | null;
-    wasteQty: string | null;
+    producedQty: number | null;
+    wasteQty: number | null;
+    otherCosts: number | null;
 
     startDate: Date | string | null;
     endDate: Date | string | null;
