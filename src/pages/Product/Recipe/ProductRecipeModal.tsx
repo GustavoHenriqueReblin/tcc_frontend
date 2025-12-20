@@ -146,8 +146,7 @@ export function ProductRecipeModal({ open, onClose, initialData, onSave }: Props
                                         <div>
                                             <p className="font-medium">{item.productName}</p>
                                             <p className="text-xs text-muted-foreground">
-                                                Quantidade:{" "}
-                                                {formatCurrencyNumber(item.quantity)}
+                                                Quantidade: {formatCurrencyNumber(item.quantity)}
                                                 {item.unitySimbol}
                                             </p>
                                         </div>

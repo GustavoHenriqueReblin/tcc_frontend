@@ -161,13 +161,16 @@ export function toISODate(d?: Date): string | undefined {
 }
 
 export const formatCurrency = (value: number) => {
-    return "R$ " + value.toLocaleString("pt-BR", {
-        minimumFractionDigits: 2,
-    })
+    return (
+        "R$ " +
+        value.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+        })
+    );
 };
 
 export const formatCurrencyNumber = (value: number) => {
     return value.toLocaleString("pt-BR", {
         minimumFractionDigits: 2,
-    })
-}
+    });
+};

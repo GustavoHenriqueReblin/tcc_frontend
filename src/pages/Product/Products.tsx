@@ -45,9 +45,7 @@ export function Products() {
             meta: { sortable: true },
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
-                return inv
-                    ? `${formatCurrency(Number(inv.costValue))}`
-                    : "-";
+                return inv ? `${formatCurrency(Number(inv.costValue))}` : "-";
             },
         },
         {
@@ -56,9 +54,7 @@ export function Products() {
             meta: { sortable: true },
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
-                return inv
-                    ? `${formatCurrency(Number(inv.saleValue))}`
-                    : "-";
+                return inv ? `${formatCurrency(Number(inv.saleValue))}` : "-";
             },
         },
         {
@@ -140,16 +136,12 @@ export function Products() {
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Custo total do estoque</span>
-                    <span className="font-semibold">
-                        {formatCurrency(totalCost)}
-                    </span>
+                    <span className="font-semibold">{formatCurrency(totalCost)}</span>
                 </div>
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Valor potencial de venda</span>
-                    <span className="font-semibold">
-                        {formatCurrency(totalSaleValue)}
-                    </span>
+                    <span className="font-semibold">{formatCurrency(totalSaleValue)}</span>
                 </div>
             </div>
         </div>
