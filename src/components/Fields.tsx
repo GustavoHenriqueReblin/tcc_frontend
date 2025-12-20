@@ -77,69 +77,107 @@ function DateField({
     field,
     allowFutureDates = false,
     disabled = false,
+    withTime = false,
 }: {
     label: string;
     field: { value: string | null; onChange: (v: string | null) => void };
     allowFutureDates?: boolean;
     disabled?: boolean;
+    withTime?: boolean;
 }) {
     const [open, setOpen] = useState(false);
     const [text, setText] = useState("");
-    const inputRef = useRef<HTMLInputElement>(null);
 
-    const fallbackText = field.value ? field.value.split("-").reverse().join("/") : "";
-    const displayed = text !== "" ? text : fallbackText;
+    const date = field.value ? new Date(field.value) : null;
+
+    const [time, setTime] = useState<{ h: number; m: number } | null>(() => {
+        if (date) {
+            return { h: date.getHours(), m: date.getMinutes() };
+        }
+        const now = new Date();
+        return { h: now.getHours(), m: now.getMinutes() };
+    });
+
+    const displayDate = text !== "" ? text : date ? date.toLocaleDateString("pt-BR") : "";
+
+    const displayTime =
+        withTime && time
+            ? `${String(time.h).padStart(2, "0")}:${String(time.m).padStart(2, "0")}`
+            : "";
+
+    const applyDateTime = (y: number, m: number, d: number, h: number, min: number) => {
+        field.onChange(new Date(y, m, d, h, min, 0).toISOString());
+    };
 
     const handleInputChange = (raw: string) => {
         const digits = raw.replace(/\D/g, "").slice(0, 8);
 
         let formatted = digits;
         if (digits.length > 2) formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
-        if (digits.length > 4) {
+        if (digits.length > 4)
             formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-        }
 
         setText(formatted);
 
-        if (digits.length === 8) {
-            const d = digits.slice(0, 2);
-            const m = digits.slice(2, 4);
-            const y = digits.slice(4);
-            const iso = `${y}-${m}-${d}`;
+        if (digits.length === 8 && time) {
+            const d = Number(digits.slice(0, 2));
+            const m = Number(digits.slice(2, 4)) - 1;
+            const y = Number(digits.slice(4));
 
-            if (!isNaN(Date.parse(iso))) {
-                field.onChange(iso);
-                return;
-            }
+            applyDateTime(y, m, d, time.h, time.m);
+            setText("");
         }
 
         if (!digits) field.onChange(null);
+    };
+
+    const handleDateSelect = (d: Date) => {
+        if (!time) return;
+
+        applyDateTime(d.getFullYear(), d.getMonth(), d.getDate(), time.h, time.m);
+
+        setOpen(false);
+        setText("");
+    };
+
+    const handleTimeChange = (raw: string) => {
+        if (!withTime) return;
+
+        const [h, m] = raw.split(":").map(Number);
+        if (Number.isNaN(h) || Number.isNaN(m)) return;
+
+        setTime({ h, m });
+
+        if (!date) return;
+
+        applyDateTime(date.getFullYear(), date.getMonth(), date.getDate(), h, m);
     };
 
     return (
         <FormItem className="flex flex-col w-full">
             <FormLabel>{label}</FormLabel>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
                 <FormControl>
                     <Input
-                        ref={inputRef}
                         placeholder="dd/mm/aaaa"
-                        value={displayed}
-                        maxLength={10}
-                        inputMode="numeric"
-                        onFocus={() => {
-                            setTimeout(() => setOpen(true), 50);
-                        }}
-                        onClick={() => {
-                            setTimeout(() => {
-                                if (!open) setOpen(true);
-                            }, 50);
-                        }}
+                        value={displayDate}
                         onChange={(e) => handleInputChange(e.target.value)}
+                        onFocus={() => setOpen(true)}
                         disabled={disabled}
+                        className="cursor-text"
                     />
                 </FormControl>
+
+                {withTime && (
+                    <Input
+                        type="time"
+                        className="w-[200px] cursor-text"
+                        value={displayTime}
+                        onChange={(e) => handleTimeChange(e.target.value)}
+                        disabled={disabled}
+                    />
+                )}
 
                 <Popover open={open} onOpenChange={setOpen} modal={false}>
                     <PopoverTrigger asChild>
@@ -152,18 +190,8 @@ function DateField({
                         <Calendar
                             mode="single"
                             locale={ptBR}
-                            selected={field.value ? new Date(field.value) : undefined}
-                            onSelect={(d) => {
-                                if (d) {
-                                    const y = d.getFullYear();
-                                    const m = String(d.getMonth() + 1).padStart(2, "0");
-                                    const day = String(d.getDate()).padStart(2, "0");
-
-                                    field.onChange(`${y}-${m}-${day}`);
-                                    setText("");
-                                }
-                                setOpen(false);
-                            }}
+                            selected={date ?? undefined}
+                            onSelect={(d) => d && handleDateSelect(d)}
                             disabled={allowFutureDates ? false : (d) => d > new Date()}
                         />
                     </PopoverContent>
@@ -187,6 +215,7 @@ export function TextField<T extends FieldValues>({
     suffix,
     decimals,
     allowFutureDates = false,
+    withTime = false,
 }: BaseFieldProps<T> & {
     type?: string;
     mask?: (value: string) => string;
@@ -195,6 +224,7 @@ export function TextField<T extends FieldValues>({
     suffix?: string;
     decimals?: number;
     allowFutureDates?: boolean;
+    withTime?: boolean;
 }) {
     const [displayValue, setDisplayValue] = useState<string>("");
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -257,6 +287,7 @@ export function TextField<T extends FieldValues>({
                             field={field}
                             allowFutureDates={allowFutureDates}
                             disabled={disabled}
+                            withTime={withTime}
                         />
                     );
                 }
@@ -290,8 +321,6 @@ export function TextField<T extends FieldValues>({
                 };
 
                 const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-                    if (disabled) return;
-
                     let value = e.target.value;
 
                     if (prefix) value = value.replace(prefix, "");

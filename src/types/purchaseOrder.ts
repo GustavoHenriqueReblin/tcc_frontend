@@ -19,8 +19,8 @@ export interface PurchaseOrder {
     status: OrderStatus;
     notes: string | null;
 
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 
     supplier?: Supplier;
     items?: PurchaseOrderItem[];

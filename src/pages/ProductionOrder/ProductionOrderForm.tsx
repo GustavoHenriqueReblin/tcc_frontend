@@ -28,11 +28,14 @@ import {
 import { ProductionOrderItemModal } from "./ProductionOrderItemModal";
 
 import { ProductionOrderStatusEnum } from "@/types/enums";
-import { productionOrderStatusLabels } from "@/types/global";
+import { ApiResponse, productionOrderStatusLabels, ServerList } from "@/types/global";
 import { Recipe } from "@/types/recipe";
 import { PlusCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { formatCurrency } from "@/utils/global";
+import { buildApiError, formatCurrency } from "@/utils/global";
+import { ProductionOrder } from "@/types/productionOrder";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/api/client";
 
 interface Props {
     defaultValues: ProductionOrderFormValues;
@@ -62,7 +65,8 @@ export function ProductionOrderForm({
         form.reset(defaultValues);
     }, [defaultValues, form]);
 
-    const { control, handleSubmit, formState, watch } = form;
+    const { control, handleSubmit, formState, watch, setValue } = form;
+    const code = watch("code");
     const status = watch("status");
     const inputs = watch("inputs") ?? [];
     const plannedQty = watch("plannedQty") ?? 0;
@@ -73,6 +77,49 @@ export function ProductionOrderForm({
     }, 0);
 
     const isMobile = useIsMobile();
+
+    const { data: lastOrderData } = useQuery<ProductionOrder | null>({
+        enabled: !code,
+        queryKey: ["production-order-last", code],
+        queryFn: async () => {
+            try {
+                const response = await api.get<ApiResponse<ServerList<ProductionOrder>>>(
+                    "/production-orders",
+                    {
+                        params: {
+                            page: 1,
+                            limit: 1,
+                            search: code ?? "",
+                            sortBy: "createdAt",
+                            sortOrder: "desc",
+                        },
+                    }
+                );
+
+                if (!response.data.success) {
+                    throw new Error(response.data.message || "Erro ao carregar última OP");
+                }
+
+                return response.data.data.items[0] ?? null;
+            } catch (error) {
+                throw buildApiError(error, "Erro ao carregar última ordem de produção");
+            }
+        },
+    });
+
+    useEffect(() => {
+        if (!lastOrderData) return;
+        if (code) return;
+
+        const lastCode = Number(lastOrderData.code);
+        if (Number.isNaN(lastCode)) return;
+
+        setValue("code", String(lastCode + 1), {
+            shouldDirty: true,
+            shouldTouch: true,
+            shouldValidate: true,
+        });
+    }, [lastOrderData, code, setValue]);
 
     const handleAddItem = () => {
         setEditingItemIndex(null);
@@ -200,19 +247,28 @@ export function ProductionOrderForm({
                         description="Código e situação da ordem de produção."
                     >
                         <FieldsGrid cols={4}>
-                            <TextField control={control} name="code" label="Código *" autoFocus />
+                            <div className="flex gap-4">
+                                {code && (
+                                    <TextField
+                                        control={control}
+                                        disabled={!!code}
+                                        name="code"
+                                        label="Código *"
+                                    />
+                                )}
 
-                            <EnumSelect
-                                control={control}
-                                name="status"
-                                label="Status"
-                                enumObject={ProductionOrderStatusEnum}
-                                allowedValues={[
-                                    ProductionOrderStatusEnum.PLANNED,
-                                    ProductionOrderStatusEnum.RUNNING,
-                                ]}
-                                labels={productionOrderStatusLabels}
-                            />
+                                <EnumSelect
+                                    control={control}
+                                    name="status"
+                                    label="Status"
+                                    enumObject={ProductionOrderStatusEnum}
+                                    allowedValues={[
+                                        ProductionOrderStatusEnum.PLANNED,
+                                        ProductionOrderStatusEnum.RUNNING,
+                                    ]}
+                                    labels={productionOrderStatusLabels}
+                                />
+                            </div>
 
                             <TextField
                                 control={control}
@@ -225,6 +281,7 @@ export function ProductionOrderForm({
                                 type="date"
                                 disabled={status !== ProductionOrderStatusEnum.PLANNED}
                                 allowFutureDates
+                                withTime
                             />
 
                             <TextField
@@ -233,6 +290,7 @@ export function ProductionOrderForm({
                                 label="Previsão de fim"
                                 type="date"
                                 allowFutureDates
+                                withTime
                             />
                         </FieldsGrid>
                     </Section>

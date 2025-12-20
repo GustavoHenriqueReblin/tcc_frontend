@@ -28,8 +28,8 @@ export interface Person {
 
     dateOfBirth: string | null;
 
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 
     city?: City | null;
     state?: State | null;

@@ -146,10 +146,8 @@ export function EditProductionOrder() {
                   order.otherCosts !== null && order.otherCosts !== undefined
                       ? Number(order.otherCosts)
                       : 0,
-              startDate: order.startDate
-                  ? new Date(order.startDate).toISOString().split("T")[0]
-                  : null,
-              endDate: order.endDate ? new Date(order.endDate).toISOString().split("T")[0] : null,
+              startDate: order.startDate ?? null,
+              endDate: order.endDate ?? null,
               notes: order.notes ?? "",
 
               inputs:

@@ -8,8 +8,8 @@ export interface Warehouse {
     name: string;
     description: string | null;
 
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface WarehousesResponse {

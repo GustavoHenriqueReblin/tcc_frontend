@@ -75,6 +75,7 @@ export function ProductionOrderItemModal({ open, onClose, initialData, onSave }:
                                 onSelectItem={(item) => {
                                     form.setValue("productName", item.name);
                                     form.setValue("unitySimbol", item.unity.simbol);
+                                    form.setValue("unitCost", initialData.unitCost ?? 0);
                                 }}
                             />
 

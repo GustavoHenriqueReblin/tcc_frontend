@@ -9,8 +9,8 @@ export interface ProductDefinition {
     description: string | null;
     type: ProductDefinitionType;
 
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface Unity {
@@ -20,8 +20,8 @@ export interface Unity {
     simbol: string;
     description: string;
 
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface ProductInventory {
@@ -33,8 +33,8 @@ export interface ProductInventory {
     saleValue: number;
     quantity: number;
 
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface Product {
@@ -46,8 +46,8 @@ export interface Product {
     name: string;
     barcode: string | null;
 
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 
     productDefinition: ProductDefinition;
     unity: Unity;

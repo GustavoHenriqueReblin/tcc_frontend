@@ -56,8 +56,8 @@ export interface ProductionOrder {
     wasteQty: number | null;
     otherCosts: number | null;
 
-    startDate: Date | string | null;
-    endDate: Date | string | null;
+    startDate: string | null;
+    endDate: string | null;
 
     notes: string | null;
 

@@ -7,8 +7,8 @@ export interface RecipeItem {
     productId: number;
     quantity: number;
 
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 
     product?: Product;
 }
@@ -20,8 +20,8 @@ export interface Recipe {
     description: string | null;
     notes: string | null;
 
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 
     product?: Product;
     items?: RecipeItem[];

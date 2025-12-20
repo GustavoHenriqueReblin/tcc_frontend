@@ -21,8 +21,8 @@ export interface DeliveryAddress {
     isDefault: boolean;
     status: Status;
 
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface Customer {
@@ -37,8 +37,8 @@ export interface Customer {
     contactPhone: string | null;
     contactEmail: string | null;
 
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 
     person: Person;
 
