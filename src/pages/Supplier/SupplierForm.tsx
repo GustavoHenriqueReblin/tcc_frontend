@@ -160,7 +160,7 @@ export function SupplierForm({
                                 valueField="id"
                                 labelField="name"
                                 disabled={!countryId}
-                                extraParams={{ countryId }}
+                                extraParams={{ countryId, page: 1, limit: 30 }}
                             />
 
                             <ComboboxQuery
@@ -171,7 +171,7 @@ export function SupplierForm({
                                 valueField="id"
                                 labelField="name"
                                 disabled={!stateId}
-                                extraParams={{ stateId }}
+                                extraParams={{ stateId, page: 1, limit: 6000 }}
                             />
                         </FieldsGrid>
 

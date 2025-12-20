@@ -10,6 +10,8 @@ import {
     endOfMonth,
     subMonths,
     isSameDay,
+    startOfDay,
+    endOfDay,
 } from "date-fns";
 
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -94,6 +96,15 @@ export function DateRangePicker({
         setOpen(next);
     }
 
+    function normalizeRange(range: DateRange): DateRange {
+        if (!range.from || !range.to) return range;
+
+        return {
+            from: startOfDay(range.from),
+            to: endOfDay(range.to),
+        };
+    }
+
     return (
         <Popover open={open} onOpenChange={handleOpenChange}>
             <Label className="mb-2">Período</Label>
@@ -101,15 +112,10 @@ export function DateRangePicker({
             <PopoverTrigger asChild>
                 <Button variant="outline" className="justify-start text-left font-normal w-full">
                     <CalendarIcon className="h-4 w-4" />
-                    {value?.from ? (
-                        value.to ? (
-                            <>
-                                {format(value.from, "dd/MM/yyyy")} –{" "}
-                                {format(value.to, "dd/MM/yyyy")}
-                            </>
-                        ) : (
-                            format(value.from, "dd/MM/yyyy")
-                        )
+                    {value?.from && value?.to ? (
+                        <>
+                            {format(value.from, "dd/MM/yyyy")} – {format(value.to, "dd/MM/yyyy")}
+                        </>
                     ) : (
                         <span>Selecione o período</span>
                     )}
@@ -134,7 +140,7 @@ export function DateRangePicker({
                 <div className="flex h-full">
                     <div className="w-44 border-r bg-muted/40 p-2 flex flex-col gap-1">
                         {presets.map((preset) => {
-                            const presetRange = preset.getRange();
+                            const presetRange = normalizeRange(preset.getRange());
                             const active = isPresetActive(value, presetRange);
 
                             return (
@@ -168,7 +174,8 @@ export function DateRangePicker({
 
                                 if (!range?.from || !range?.to) return;
 
-                                onChange(range);
+                                const normalized = normalizeRange(range);
+                                onChange(normalized);
                                 setOpen(false);
                             }}
                         />

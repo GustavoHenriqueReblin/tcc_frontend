@@ -9,7 +9,7 @@ import { ProductionOrderStatusEnum } from "@/types/enums";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/api/client";
-import { buildApiError, cn, toISODate } from "@/utils/global";
+import { buildApiError, cn, toISOEndOfDay, toISOStartOfDay } from "@/utils/global";
 import { StatusActionButton } from "@/components/StatusActionButton";
 import { useState } from "react";
 import { FinishProductionOrderValues } from "@/schemas/production-order.schema";
@@ -173,6 +173,7 @@ export function ProductionOrders() {
             },
         },
         {
+            accessorKey: "plannedQty",
             header: "Qtd. planejada",
             meta: { sortable: true },
             cell: ({ row }) =>
@@ -181,6 +182,7 @@ export function ProductionOrders() {
                 }`,
         },
         {
+            accessorKey: "producedQty",
             header: "Qtd. produzida",
             meta: { sortable: true },
             cell: ({ row }) =>
@@ -188,23 +190,31 @@ export function ProductionOrders() {
                     ? `${Number(row.original.producedQty).toLocaleString("pt-BR")} ${
                           row.original.recipe.product.unity.simbol
                       }`
-                    : "-",
+                    : "",
         },
         {
+            accessorKey: "startDate",
             header: "Início",
             meta: { sortable: true },
             cell: ({ row }) =>
                 row.original.startDate
-                    ? new Date(row.original.startDate).toLocaleDateString("pt-BR")
-                    : "-",
+                    ? new Date(row.original.startDate).toLocaleString("pt-BR", {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                      })
+                    : "",
         },
         {
+            accessorKey: "endDate",
             header: "Fim",
             meta: { sortable: true },
             cell: ({ row }) =>
                 row.original.endDate
-                    ? new Date(row.original.endDate).toLocaleDateString("pt-BR")
-                    : "-",
+                    ? new Date(row.original.endDate).toLocaleString("pt-BR", {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                      })
+                    : "",
         },
         {
             id: "actions",
@@ -288,7 +298,7 @@ export function ProductionOrders() {
 
                         {(order.status === ProductionOrderStatusEnum.FINISHED ||
                             order.status === ProductionOrderStatusEnum.CANCELED) && (
-                            <span className="text-xs text-muted-foreground">—</span>
+                            <span className="text-xs text-muted-foreground"></span>
                         )}
                     </div>
                 );
@@ -329,12 +339,13 @@ export function ProductionOrders() {
                                     if (!range?.from || !range?.to) return;
 
                                     setRange(range);
+
                                     setFilters((prev) => ({
                                         ...prev,
-                                        startDateFrom: toISODate(range.from),
-                                        startDateTo: toISODate(range.to),
-                                        endDateFrom: toISODate(range.from),
-                                        endDateTo: toISODate(range.to),
+                                        startDateFrom: toISOStartOfDay(range.from),
+                                        startDateTo: toISOEndOfDay(range.to),
+                                        endDateFrom: toISOStartOfDay(range.from),
+                                        endDateTo: toISOEndOfDay(range.to),
                                     }));
                                 }}
                             />

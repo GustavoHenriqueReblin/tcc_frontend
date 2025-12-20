@@ -156,8 +156,14 @@ export function nextFocus(e: KeyboardEvent<HTMLElement>) {
     }
 }
 
-export function toISODate(d?: Date): string | undefined {
-    return d ? d.toISOString().split("T")[0] : undefined;
+export function toISOStartOfDay(date: Date): string {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+    return d.toISOString();
+}
+
+export function toISOEndOfDay(date: Date): string {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+    return d.toISOString();
 }
 
 export const formatCurrency = (value: number) => {
