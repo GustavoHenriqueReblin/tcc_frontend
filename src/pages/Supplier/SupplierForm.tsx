@@ -14,6 +14,7 @@ import { FormFooterFloating } from "@/components/FormFooterFloating";
 import { maskCEP, maskCPFOrCNPJ, maskPhone } from "@/utils/global";
 import { maritalStatusLabels, personTypeLabels, statusLabels } from "@/types/global";
 import { ComboboxQuery } from "@/components/ComboboxQuery";
+import { useCnpjLookup } from "@/hooks/useCnpjLookup";
 
 interface Props {
     defaultValues: SupplierFormValues;
@@ -34,6 +35,8 @@ export function SupplierForm({
         resolver: zodResolver(supplierFormSchema),
         defaultValues,
     });
+
+    const { lookupCnpj } = useCnpjLookup({ form });
 
     useEffect(() => {
         form.reset(defaultValues);
@@ -81,6 +84,7 @@ export function SupplierForm({
                                 name="person.taxId"
                                 label="CPF/CNPJ"
                                 mask={maskCPFOrCNPJ}
+                                onBlur={(e) => lookupCnpj(e.target.value)}
                             />
                             <TextField
                                 control={control}

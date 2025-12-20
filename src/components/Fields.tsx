@@ -1,4 +1,4 @@
-import { ChangeEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { ChangeEvent, FocusEventHandler, ReactNode, useCallback, useRef, useState } from "react";
 import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -216,6 +216,7 @@ export function TextField<T extends FieldValues>({
     decimals,
     allowFutureDates = false,
     withTime = false,
+    onBlur,
 }: BaseFieldProps<T> & {
     type?: string;
     mask?: (value: string) => string;
@@ -225,11 +226,10 @@ export function TextField<T extends FieldValues>({
     decimals?: number;
     allowFutureDates?: boolean;
     withTime?: boolean;
+    onBlur?: FocusEventHandler<HTMLInputElement>;
 }) {
-    const [displayValue, setDisplayValue] = useState<string>("");
+    const [editingValue, setEditingValue] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
-
-    const fieldValueRef = useRef<unknown>("");
 
     const parseNumber = useCallback((value: unknown): number | null => {
         if (value === null || value === undefined || value === "") return null;
@@ -239,7 +239,7 @@ export function TextField<T extends FieldValues>({
                 ? value
                 : Number(String(value).replace(/\./g, "").replace(",", "."));
 
-        return isNaN(n) ? null : n;
+        return Number.isNaN(n) ? null : n;
     }, []);
 
     const formatNumber = useCallback(
@@ -271,10 +271,6 @@ export function TextField<T extends FieldValues>({
         [type, prefix, suffix, formatNumber, parseNumber]
     );
 
-    useEffect(() => {
-        setDisplayValue(applyFormat(fieldValueRef.current));
-    }, [applyFormat]);
-
     return (
         <FormField
             control={control}
@@ -292,16 +288,20 @@ export function TextField<T extends FieldValues>({
                     );
                 }
 
-                fieldValueRef.current = field.value;
+                const displayValue =
+                    editingValue !== null
+                        ? editingValue
+                        : mask
+                          ? mask(String(field.value ?? ""))
+                          : applyFormat(field.value);
 
                 const handleFocus = () => {
-                    const n = type === "number" ? parseNumber(field.value) : field.value;
-
                     if (type === "number") {
+                        const n = parseNumber(field.value);
                         field.onChange(n);
-                        setDisplayValue(n === null ? "" : String(n).replace(".", ","));
+                        setEditingValue(n === null ? "" : String(n).replace(".", ","));
                     } else {
-                        setDisplayValue(n ? String(n) : "");
+                        setEditingValue(field.value ? String(field.value) : "");
                     }
 
                     requestAnimationFrame(() => {
@@ -309,19 +309,29 @@ export function TextField<T extends FieldValues>({
                     });
                 };
 
-                const handleBlur = () => {
+                const handleBlur = (e) => {
                     if (type === "number") {
                         const n = parseNumber(field.value);
                         field.onChange(n);
-                        setDisplayValue(n === null ? "" : applyFormat(n));
-                        return;
                     }
 
-                    setDisplayValue(field.value ? String(field.value) : "");
+                    setEditingValue(null);
+
+                    if (onBlur) onBlur(e);
                 };
 
                 const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
                     let value = e.target.value;
+
+                    if (decimals !== undefined) {
+                        value = value.replace(/[^\d,]/g, "");
+
+                        const [int, dec] = value.split(",");
+
+                        if (dec !== undefined) {
+                            value = `${int},${dec.slice(0, decimals)}`;
+                        }
+                    }
 
                     if (prefix) value = value.replace(prefix, "");
                     if (suffix) value = value.replace(` ${suffix}`, "").replace(suffix, "");
@@ -330,14 +340,14 @@ export function TextField<T extends FieldValues>({
                         const normalized = value.replace(/\./g, "").replace(",", ".");
                         const num = normalized === "" ? null : Number(normalized);
 
-                        field.onChange(isNaN(Number(num)) ? null : num);
-                        setDisplayValue(value);
+                        field.onChange(num === null || Number.isNaN(num) ? null : num);
+                        setEditingValue(value);
                         return;
                     }
 
                     const masked = mask ? mask(value) : value;
                     field.onChange(masked);
-                    setDisplayValue(masked);
+                    setEditingValue(masked);
                 };
 
                 return (

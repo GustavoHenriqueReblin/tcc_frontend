@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
-import { maskCEP, maskCPFOrCNPJ, maskPhone, maskRG } from "@/utils/global";
+import { maskCEP, maskCPFOrCNPJ, maskPhone } from "@/utils/global";
 import { maritalStatusLabels, personTypeLabels, statusLabels } from "@/types/global";
 import { useEffect } from "react";
 import { ComboboxQuery } from "@/components/ComboboxQuery";
+import { useCnpjLookup } from "@/hooks/useCnpjLookup";
 
 interface Props {
     defaultValues: CustomerFormValues;
@@ -34,6 +35,8 @@ export function CustomerForm({
         resolver: zodResolver(customerFormSchema),
         defaultValues,
     });
+
+    const { lookupCnpj } = useCnpjLookup({ form });
 
     useEffect(() => {
         form.reset(defaultValues);
@@ -81,13 +84,9 @@ export function CustomerForm({
                                 name="person.taxId"
                                 label="CPF/CNPJ"
                                 mask={maskCPFOrCNPJ}
+                                onBlur={(e) => lookupCnpj(e.target.value)}
                             />
-                            <TextField
-                                control={control}
-                                name="person.nationalId"
-                                label="RG"
-                                mask={maskRG}
-                            />
+                            <TextField control={control} name="person.nationalId" label="RG" />
                             <TextField
                                 control={control}
                                 name="person.dateOfBirth"
