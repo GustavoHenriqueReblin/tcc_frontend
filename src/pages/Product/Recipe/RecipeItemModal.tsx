@@ -29,6 +29,7 @@ export function RecipeItemModal({ open, onClose, initialData, onSave }: Props) {
     });
 
     const { control, trigger, getValues } = form;
+    const unitySimbol = form.watch("unitySimbol");
 
     const validateAndSubmit = async () => {
         const isValid = await trigger(undefined, { shouldFocus: true });
@@ -85,6 +86,7 @@ export function RecipeItemModal({ open, onClose, initialData, onSave }: Props) {
                                 label="Quantidade *"
                                 type="number"
                                 decimals={3}
+                                suffix={unitySimbol && " " + unitySimbol}
                             />
                         </FieldsGrid>
 
