@@ -131,9 +131,9 @@ export function EditCustomer() {
                   dateOfBirth: customer.person.dateOfBirth
                       ? customer.person.dateOfBirth.split("T")[0]
                       : "",
-                  countryId: customer.person.countryId ?? 0,
-                  stateId: customer.person.stateId ?? 0,
-                  cityId: customer.person.cityId ?? 0,
+                  countryId: customer.person.countryId || null,
+                  stateId: customer.person.stateId || null,
+                  cityId: customer.person.cityId || null,
               },
           }
         : defaultCustomerFormValues;

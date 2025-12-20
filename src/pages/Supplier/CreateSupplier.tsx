@@ -49,9 +49,9 @@ export function CreateSupplier() {
                         notes: values.person.notes || null,
                         dateOfBirth: values.person.dateOfBirth || null,
 
-                        countryId: values.person.countryId,
-                        stateId: values.person.stateId,
-                        cityId: values.person.cityId,
+                        countryId: values.person.countryId || null,
+                        stateId: values.person.stateId || null,
+                        cityId: values.person.cityId || null,
                     },
                 });
 

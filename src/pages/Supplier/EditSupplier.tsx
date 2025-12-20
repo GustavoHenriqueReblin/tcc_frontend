@@ -141,9 +141,9 @@ export function EditSupplier() {
                   dateOfBirth: supplier.person.dateOfBirth
                       ? supplier.person.dateOfBirth.split("T")[0]
                       : "",
-                  countryId: supplier.person.countryId ?? 0,
-                  stateId: supplier.person.stateId ?? 0,
-                  cityId: supplier.person.cityId ?? 0,
+                  countryId: supplier.person.countryId || null,
+                  stateId: supplier.person.stateId || null,
+                  cityId: supplier.person.cityId || null,
               },
           }
         : defaultSupplierFormValues;

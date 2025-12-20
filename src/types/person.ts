@@ -4,8 +4,8 @@ export interface Person {
     id: number;
     enterpriseId: number;
 
-    countryId: number;
-    stateId: number;
+    countryId: number | null;
+    stateId: number | null;
     cityId: number | null;
 
     name: string | null;
