@@ -85,7 +85,9 @@ export function EditCustomer() {
                 toast.success("Cliente alterado com sucesso.", { id: toastId });
                 return response.data.data;
             } catch (error) {
-                toast.error("Falha ao atualizar o cliente.", { id: toastId });
+                toast.error(error.response.data.message ?? "Falha ao atualizar o cliente.", {
+                    id: toastId,
+                });
                 throw buildApiError(error, "Erro ao atualizar cliente");
             }
         },

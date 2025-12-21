@@ -171,14 +171,14 @@ export function toISOEndOfDay(date: Date): string {
 export const formatCurrency = (value: number) => {
     return (
         "R$ " +
-        value.toLocaleString("pt-BR", {
+        Number(value).toLocaleString("pt-BR", {
             minimumFractionDigits: 2,
         })
     );
 };
 
 export const formatNumber = (value: number) => {
-    return value.toLocaleString("pt-BR");
+    return Number(value).toLocaleString("pt-BR");
 };
 
 export const formatDate = (value: Date, opts?: Intl.DateTimeFormatOptions) => {

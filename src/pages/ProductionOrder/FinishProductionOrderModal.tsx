@@ -38,7 +38,7 @@ export function FinishProductionOrderModal({
         defaultValues: {
             producedQty: order.plannedQty,
             wasteQty: null,
-            endDate: new Date().toISOString().split("T")[0],
+            endDate: new Date().toISOString(),
             notes: null,
         },
     });

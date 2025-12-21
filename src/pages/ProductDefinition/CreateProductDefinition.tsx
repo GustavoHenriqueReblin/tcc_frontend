@@ -38,7 +38,9 @@ export function CreateProductDefinition() {
                 toast.success("Definição cadastrada com sucesso.", { id: toastId });
                 return response.data.data;
             } catch (error) {
-                toast.error("Falha ao cadastrar a definição.", { id: toastId });
+                toast.error(error.response.data.message ?? "Falha ao cadastrar a definição.", {
+                    id: toastId,
+                });
                 throw buildApiError(error, "Erro ao cadastrar definição");
             }
         },

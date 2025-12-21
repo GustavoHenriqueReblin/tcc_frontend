@@ -45,7 +45,9 @@ export function AdjustmentEntryForm() {
                 setUnitySimbol(null);
                 toast.success("Ajuste registrado com sucesso.", { id: toastId });
             } catch (error) {
-                toast.error("Falha ao registrar o ajuste.", { id: toastId });
+                toast.error(error.response.data.message ?? "Falha ao registrar o ajuste.", {
+                    id: toastId,
+                });
                 throw buildApiError(error, "Erro ao registrar ajuste de estoque.");
             }
         },

@@ -96,7 +96,9 @@ export function ProductionOrders() {
                 toast.success("Ordem de produção finalizada.", { id: toastId });
                 return response.data.data;
             } catch (error) {
-                toast.error("Falha ao finalizar produção.", { id: toastId });
+                toast.error(error.response.data.message ?? "Falha ao finalizar produção.", {
+                    id: toastId,
+                });
                 throw buildApiError(error, "Erro ao finalizar produção");
             }
         },
@@ -135,9 +137,12 @@ export function ProductionOrders() {
                 });
                 return response.data.data;
             } catch (error) {
-                toast.error("Falha ao atualizar a ordem de produção.", {
-                    id: toastId,
-                });
+                toast.error(
+                    error.response.data.message ?? "Falha ao atualizar a ordem de produção.",
+                    {
+                        id: toastId,
+                    }
+                );
                 throw buildApiError(error, "Erro ao atualizar ordem de produção");
             }
         },

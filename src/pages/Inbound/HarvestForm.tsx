@@ -42,7 +42,9 @@ export function HarvestForm() {
                 setUnitySimbol(null);
                 toast.success("Colheita registrado com sucesso.", { id: toastId });
             } catch (error) {
-                toast.error("Falha ao registrar a colheita.", { id: toastId });
+                toast.error(error.response.data.message ?? "Falha ao registrar a colheita.", {
+                    id: toastId,
+                });
                 throw buildApiError(error, "Erro ao registrar a colheita.");
             }
         },

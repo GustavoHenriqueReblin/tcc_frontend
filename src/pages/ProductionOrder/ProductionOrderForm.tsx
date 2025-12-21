@@ -78,40 +78,50 @@ export function ProductionOrderForm({
 
     const isMobile = useIsMobile();
 
-    const { data: lastOrderData } = useQuery<ProductionOrder | null>({
-        enabled: !code,
-        queryKey: ["production-order-last", code],
-        queryFn: async () => {
-            try {
-                const response = await api.get<ApiResponse<ServerList<ProductionOrder>>>(
-                    "/production-orders",
-                    {
-                        params: {
-                            page: 1,
-                            limit: 1,
-                            search: code ?? "",
-                            sortBy: "createdAt",
-                            sortOrder: "desc",
-                        },
+    const { data: lastOrderData, isLoading: lastOrderIsLoading } = useQuery<ProductionOrder | null>(
+        {
+            enabled: !code,
+            queryKey: ["production-order-last", code],
+            queryFn: async () => {
+                try {
+                    const response = await api.get<ApiResponse<ServerList<ProductionOrder>>>(
+                        "/production-orders",
+                        {
+                            params: {
+                                page: 1,
+                                limit: 1,
+                                search: code ?? "",
+                                sortBy: "createdAt",
+                                sortOrder: "desc",
+                            },
+                        }
+                    );
+
+                    if (!response.data.success) {
+                        throw new Error(response.data.message || "Erro ao carregar última OP");
                     }
-                );
 
-                if (!response.data.success) {
-                    throw new Error(response.data.message || "Erro ao carregar última OP");
+                    return response.data.data.items[0] ?? null;
+                } catch (error) {
+                    throw buildApiError(error, "Erro ao carregar última ordem de produção");
                 }
-
-                return response.data.data.items[0] ?? null;
-            } catch (error) {
-                throw buildApiError(error, "Erro ao carregar última ordem de produção");
-            }
-        },
-    });
+            },
+        }
+    );
 
     useEffect(() => {
-        if (!lastOrderData) return;
         if (code) return;
 
-        const lastCode = Number(lastOrderData.code);
+        if (!lastOrderData && !lastOrderIsLoading) {
+            setValue("code", "1", {
+                shouldDirty: true,
+                shouldTouch: true,
+                shouldValidate: true,
+            });
+            return;
+        }
+
+        const lastCode = Number(lastOrderData?.code);
         if (Number.isNaN(lastCode)) return;
 
         setValue("code", String(lastCode + 1), {
@@ -119,7 +129,7 @@ export function ProductionOrderForm({
             shouldTouch: true,
             shouldValidate: true,
         });
-    }, [lastOrderData, code, setValue]);
+    }, [lastOrderData, lastOrderIsLoading, code, setValue]);
 
     const handleAddItem = () => {
         setEditingItemIndex(null);

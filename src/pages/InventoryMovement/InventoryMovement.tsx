@@ -20,7 +20,14 @@ import { Input } from "@/components/ui/input";
 import { DateRangePicker } from "@/components/DateRangePicker";
 import { ComboboxStandalone } from "@/components/ComboboxStandalone";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { cn, formatDate, formatNumber, toISOEndOfDay, toISOStartOfDay } from "@/utils/global";
+import {
+    cn,
+    formatCurrency,
+    formatDate,
+    formatNumber,
+    toISOEndOfDay,
+    toISOStartOfDay,
+} from "@/utils/global";
 import type { ApiResponse, ServerList } from "@/types/global";
 import { MovementSourceEnum, MovementTypeEnum } from "@/types/enums";
 import { InventoryMovement } from "@/types/inventoryMovement";
@@ -355,103 +362,108 @@ export function InventoryMovementPage() {
                         const typeStyle = movementTypeStyles[movement.direction];
                         return (
                             <div key={movement.id} className="relative pl-10 mb-2">
-                                {" "}
                                 <div
                                     className={cn(
                                         "absolute left-0 top-4 flex size-8 items-center justify-center rounded-full border bg-background shadow-sm",
                                         typeStyle
                                     )}
                                 >
-                                    {" "}
                                     {isIn ? (
                                         <ArrowDownLeft className="size-4" />
                                     ) : (
                                         <ArrowUpRight className="size-4" />
-                                    )}{" "}
-                                </div>{" "}
+                                    )}
+                                </div>
                                 <div className="rounded-xl border bg-card shadow-sm p-4 space-y-3">
-                                    {" "}
                                     <div className="flex flex-wrap items-center gap-2">
-                                        {" "}
                                         <span
                                             className={cn(
                                                 "px-2.5 py-1 text-xs font-semibold rounded-full border",
                                                 typeStyle
                                             )}
                                         >
-                                            {" "}
-                                            {movementTypeLabels[movement.direction]}{" "}
-                                        </span>{" "}
+                                            {movementTypeLabels[movement.direction]}
+                                        </span>
                                         <span className="flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground">
-                                            {" "}
-                                            {sourceIcons[movement.source]}{" "}
-                                            {movementSourceLabels[movement.source]}{" "}
-                                        </span>{" "}
+                                            {sourceIcons[movement.source]}
+                                            {movementSourceLabels[movement.source]}
+                                        </span>
                                         {movement.reference && (
                                             <span className="text-xs text-muted-foreground">
-                                                {" "}
-                                                Ref: {movement.reference}{" "}
+                                                Ref: {movement.reference}
                                             </span>
-                                        )}{" "}
+                                        )}
                                         <span className="ml-auto text-xs text-muted-foreground flex items-center gap-1">
-                                            {" "}
-                                            <CalendarClock className="size-4" />{" "}
+                                            <CalendarClock className="size-4" />
                                             {formatDate(new Date(movement.createdAt), {
                                                 dateStyle: "short",
                                                 timeStyle: "short",
-                                            })}{" "}
-                                        </span>{" "}
-                                    </div>{" "}
+                                            })}
+                                        </span>
+                                    </div>
                                     <div className="flex flex-wrap gap-6 text-sm">
-                                        {" "}
                                         <div className="flex items-baseline gap-2">
-                                            {" "}
                                             <span
                                                 className={cn("text-2xl font-semibold", qtyColor)}
                                             >
-                                                {" "}
-                                                {isIn ? "+" : "-"}{" "}
-                                                {formatNumber(movement.quantity)}{" "}
-                                            </span>{" "}
+                                                {isIn ? "+" : "-"}
+                                                {formatNumber(movement.quantity)}
+                                            </span>
                                             <span className="text-muted-foreground">
-                                                {" "}
-                                                {movement.product?.unity?.simbol ?? "un"}{" "}
-                                            </span>{" "}
-                                        </div>{" "}
+                                                {movement.product?.unity?.simbol ?? "un"}
+                                            </span>
+                                        </div>
                                         <div className="flex flex-col gap-1">
-                                            {" "}
                                             <span className="text-xs text-muted-foreground">
-                                                {" "}
-                                                Saldo após o movimento{" "}
-                                            </span>{" "}
+                                                Saldo após o movimento
+                                            </span>
                                             <span className="font-semibold">
-                                                {" "}
                                                 {formatNumber(movement.balance)}{" "}
-                                                {movement.product?.unity?.simbol ?? "un"}{" "}
-                                            </span>{" "}
-                                        </div>{" "}
+                                                {movement.product?.unity?.simbol ?? "un"}
+                                            </span>
+                                        </div>
+                                        {movement.unitCost && (
+                                            <div className="max-w-xl flex flex-col gap-1">
+                                                <span className="text-xs text-muted-foreground">
+                                                    Custo unitário
+                                                </span>
+                                                <p className="text-sm">
+                                                    {formatCurrency(Number(movement.unitCost))}
+                                                </p>
+                                            </div>
+                                        )}
+                                        {movement.unitCost && movement.quantity && (
+                                            <div className="max-w-xl flex flex-col gap-1">
+                                                <span className="text-xs text-muted-foreground">
+                                                    Total
+                                                </span>
+                                                <p className="text-sm">
+                                                    {formatCurrency(
+                                                        Number(movement.quantity) *
+                                                            Number(movement.unitCost)
+                                                    )}
+                                                </p>
+                                            </div>
+                                        )}
                                         {movement.notes && (
                                             <div className="max-w-xl">
-                                                {" "}
                                                 <span className="text-xs text-muted-foreground">
-                                                    {" "}
-                                                    Observação{" "}
-                                                </span>{" "}
-                                                <p className="text-sm">{movement.notes}</p>{" "}
+                                                    Observação
+                                                </span>
+                                                <p className="text-sm">{movement.notes}</p>
                                             </div>
-                                        )}{" "}
-                                    </div>{" "}
+                                        )}
+                                    </div>
                                     {movement.balance <= 0 && (
                                         <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                                            {" "}
                                             <AlertTriangle className="size-4" /> Atenção: saldo
-                                            crítico após este movimento.{" "}
+                                            crítico após este movimento.
                                         </div>
-                                    )}{" "}
-                                </div>{" "}
+                                    )}
+                                </div>
                                 {idx !== movements.length - 1 && (
                                     <div className="absolute left-[15px] top-12 h-full w-px bg-border" />
-                                )}{" "}
+                                )}
                             </div>
                         );
                     })}

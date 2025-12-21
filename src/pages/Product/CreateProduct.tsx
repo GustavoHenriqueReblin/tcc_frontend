@@ -63,7 +63,9 @@ export function CreateProduct() {
                 toast.success("Produto cadastrado com sucesso.", { id: toastId });
                 return response.data.data;
             } catch (error) {
-                toast.error("Falha ao cadastrar produto.", { id: toastId });
+                toast.error(error.response.data.message ?? "Falha ao cadastrar produto.", {
+                    id: toastId,
+                });
                 throw buildApiError(error, "Erro ao cadastrar produto");
             }
         },

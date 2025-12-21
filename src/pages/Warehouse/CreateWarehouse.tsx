@@ -35,7 +35,9 @@ export function CreateWarehouse() {
                 toast.success("Depósito cadastrado com sucesso.", { id: toastId });
                 return response.data.data;
             } catch (error) {
-                toast.error("Falha ao cadastrar o depósito.", { id: toastId });
+                toast.error(error.response.data.message ?? "Falha ao cadastrar o depósito.", {
+                    id: toastId,
+                });
                 throw buildApiError(error, "Erro ao cadastrar depósito");
             }
         },

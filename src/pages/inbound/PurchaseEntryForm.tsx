@@ -94,7 +94,9 @@ export function PurchaseEntryForm() {
 
                 toast.success("Compra registrada com sucesso.", { id: toastId });
             } catch (error) {
-                toast.error("Falha ao registrar a compra.", { id: toastId });
+                toast.error(error.response.data.message ?? "Falha ao registrar a compra.", {
+                    id: toastId,
+                });
                 throw buildApiError(error, "Erro ao registrar compra.");
             }
         },
