@@ -9,7 +9,14 @@ import { ProductionOrderStatusEnum } from "@/types/enums";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/api/client";
-import { buildApiError, cn, toISOEndOfDay, toISOStartOfDay } from "@/utils/global";
+import {
+    buildApiError,
+    cn,
+    formatDate,
+    formatNumber,
+    toISOEndOfDay,
+    toISOStartOfDay,
+} from "@/utils/global";
 import { StatusActionButton } from "@/components/StatusActionButton";
 import { useState } from "react";
 import { FinishProductionOrderValues } from "@/schemas/production-order.schema";
@@ -177,7 +184,7 @@ export function ProductionOrders() {
             header: "Qtd. planejada",
             meta: { sortable: true },
             cell: ({ row }) =>
-                `${Number(row.original.plannedQty ?? 0).toLocaleString("pt-BR")} ${
+                `${formatNumber(Number(row.original.plannedQty ?? 0))} ${
                     row.original.recipe.product.unity.simbol
                 }`,
         },
@@ -187,7 +194,7 @@ export function ProductionOrders() {
             meta: { sortable: true },
             cell: ({ row }) =>
                 row.original.producedQty != null
-                    ? `${Number(row.original.producedQty).toLocaleString("pt-BR")} ${
+                    ? `${formatNumber(Number(row.original.producedQty))} ${
                           row.original.recipe.product.unity.simbol
                       }`
                     : "",
@@ -198,7 +205,7 @@ export function ProductionOrders() {
             meta: { sortable: true },
             cell: ({ row }) =>
                 row.original.startDate
-                    ? new Date(row.original.startDate).toLocaleString("pt-BR", {
+                    ? formatDate(new Date(row.original.startDate), {
                           dateStyle: "short",
                           timeStyle: "short",
                       })
@@ -210,7 +217,7 @@ export function ProductionOrders() {
             meta: { sortable: true },
             cell: ({ row }) =>
                 row.original.endDate
-                    ? new Date(row.original.endDate).toLocaleString("pt-BR", {
+                    ? formatDate(new Date(row.original.endDate), {
                           dateStyle: "short",
                           timeStyle: "short",
                       })
@@ -446,23 +453,19 @@ export function ProductionOrders() {
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Qtd. planejada</span>
-                    <span className="font-semibold text-gray-400">
-                        {plannedQty.toLocaleString("pt-BR")}
-                    </span>
+                    <span className="font-semibold text-gray-400">{formatNumber(plannedQty)}</span>
                 </div>
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Qtd. produzida</span>
                     <span className="font-semibold text-green-400">
-                        {producedQty.toLocaleString("pt-BR")}
+                        {formatNumber(producedQty)}
                     </span>
                 </div>
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Perdas registradas</span>
-                    <span className="font-semibold text-red-400">
-                        {wasteQty.toLocaleString("pt-BR")}
-                    </span>
+                    <span className="font-semibold text-red-400">{formatNumber(wasteQty)}</span>
                 </div>
             </div>
 

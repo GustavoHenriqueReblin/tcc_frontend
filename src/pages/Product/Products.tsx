@@ -5,7 +5,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useNavigate } from "react-router-dom";
 import { ProductDefinitionType, productDefinitionTypeLabels } from "@/types/global";
 import { useState } from "react";
-import { formatCurrency, formatCurrencyNumber } from "@/utils/global";
+import { formatCurrency, formatNumber } from "@/utils/global";
 
 export function Products() {
     usePageTitle("Produtos - ERP Industrial");
@@ -34,9 +34,7 @@ export function Products() {
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
                 const unity = row.original.unity?.simbol ?? "";
-                return inv
-                    ? `${Number(inv.quantity).toLocaleString("pt-BR")} ${unity}`.trim()
-                    : "-";
+                return inv ? `${formatNumber(Number(inv.quantity))} ${unity}`.trim() : "-";
             },
         },
         {
@@ -126,12 +124,12 @@ export function Products() {
             <div className="flex flex-wrap justify-end gap-6 border-t pt-4">
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Produtos</span>
-                    <span className="font-semibold">{formatCurrencyNumber(totalProducts)}</span>
+                    <span className="font-semibold">{formatNumber(totalProducts)}</span>
                 </div>
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Quantidade total</span>
-                    <span className="font-semibold">{formatCurrencyNumber(totalQuantity)}</span>
+                    <span className="font-semibold">{formatNumber(totalQuantity)}</span>
                 </div>
 
                 <div className="flex flex-col items-end">

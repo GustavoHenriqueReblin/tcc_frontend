@@ -82,9 +82,11 @@ function isPresetActive(value: DateRange | undefined, presetRange: DateRange): b
 export function DateRangePicker({
     value,
     onChange,
+    showLabel = true,
 }: {
     value: DateRange | undefined;
     onChange: (range: DateRange | undefined) => void;
+    showLabel?: boolean;
 }) {
     const [open, setOpen] = useState(false);
     const [draftRange, setDraftRange] = useState<DateRange | undefined>(value);
@@ -107,7 +109,7 @@ export function DateRangePicker({
 
     return (
         <Popover open={open} onOpenChange={handleOpenChange}>
-            <Label className="mb-2">Período</Label>
+            {showLabel && <Label className="mb-2">Período</Label>}
 
             <PopoverTrigger asChild>
                 <Button variant="outline" className="justify-start text-left font-normal w-full">

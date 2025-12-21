@@ -55,6 +55,7 @@ export const MovementSourceEnum = {
     HARVEST: "HARVEST",
     SALE: "SALE",
     ADJUSTMENT: "ADJUSTMENT",
+    PRODUCTION: "PRODUCTION",
 } as const;
 
 export const ProductionOrderStatusEnum = {

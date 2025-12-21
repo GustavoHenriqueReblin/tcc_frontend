@@ -16,13 +16,8 @@ import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
 import { AdjustInventoryModal } from "@/pages/Product/AdjustInventory/AdjustInventoryModal";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ProductRecipes } from "./Recipe/ProductRecipes";
-import { ProductDefinition } from "@/types/product";
-import { api } from "@/api/client";
-import { ApiResponse, ServerList } from "@/types/global";
-import { buildApiError } from "@/utils/global";
-import { ProductDefinitionTypeEnum } from "@/types/enums";
 import { SlidersHorizontal } from "lucide-react";
 
 interface Props {
@@ -49,34 +44,11 @@ export function ProductForm({
     });
     const queryClient = useQueryClient();
 
-    const { data: productDefinitionsResponse } = useQuery<ProductDefinition[], Error>({
-        queryKey: ["/product-definitions", {}],
-        queryFn: async () => {
-            try {
-                const response =
-                    await api.get<ApiResponse<ServerList<ProductDefinition>>>(
-                        "/product-definitions"
-                    );
-
-                if (!response.data.success) {
-                    throw new Error(
-                        response.data.message || "Erro ao carregar definições do produto"
-                    );
-                }
-
-                return response.data.data.items;
-            } catch (error) {
-                throw buildApiError(error, "Erro ao carregar definições do produto");
-            }
-        },
-    });
-
     useEffect(() => {
         form.reset(defaultValues);
     }, [form, defaultValues]);
 
     const recipes = form.watch("recipes") ?? [];
-    const idDefinition = form.watch("productDefinitionId");
 
     const handleRecipesChange = (nextRecipes: RecipeFormValue[]) => {
         form.setValue("recipes", nextRecipes, { shouldDirty: true });
@@ -174,12 +146,7 @@ export function ProductForm({
                     </Section>
 
                     <div className="mt-8" />
-
-                    {productDefinitionsResponse?.find(
-                        (pd) => pd.type === ProductDefinitionTypeEnum.FINISHED_PRODUCT
-                    ).id === idDefinition && (
-                        <ProductRecipes recipes={recipes} onChange={handleRecipesChange} />
-                    )}
+                    <ProductRecipes recipes={recipes} onChange={handleRecipesChange} />
 
                     <div id="form-actions" className="flex justify-end gap-3 pt-4">
                         {onCancel && (

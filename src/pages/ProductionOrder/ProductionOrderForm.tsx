@@ -32,7 +32,7 @@ import { ApiResponse, productionOrderStatusLabels, ServerList } from "@/types/gl
 import { Recipe } from "@/types/recipe";
 import { PlusCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { buildApiError, formatCurrency } from "@/utils/global";
+import { buildApiError, formatCurrency, formatNumber } from "@/utils/global";
 import { ProductionOrder } from "@/types/productionOrder";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/client";
@@ -424,8 +424,7 @@ export function ProductionOrderForm({
 
                                                 <div className="flex gap-2 items-center">
                                                     <p className="text-xs text-muted-foreground">
-                                                        Quantidade:{" "}
-                                                        {item.quantity.toLocaleString("pt-BR")}{" "}
+                                                        Quantidade: {formatNumber(item.quantity)}{" "}
                                                         {item.unitySimbol}
                                                     </p>
 
@@ -434,8 +433,8 @@ export function ProductionOrderForm({
                                                     </p>
 
                                                     <p className="text-xs text-muted-foreground">
-                                                        Custo unitário:{" R$ "}
-                                                        {item.unitCost.toLocaleString("pt-BR")}{" "}
+                                                        Custo unitário:{" "}
+                                                        {formatCurrency(item.unitCost)}{" "}
                                                     </p>
 
                                                     <p className="text-xs text-muted-foreground">
@@ -443,10 +442,9 @@ export function ProductionOrderForm({
                                                     </p>
 
                                                     <p className="text-xs text-muted-foreground">
-                                                        {"R$ " +
-                                                            (
-                                                                item.quantity * item.unitCost
-                                                            ).toLocaleString("pt-BR")}{" "}
+                                                        {formatCurrency(
+                                                            item.quantity * item.unitCost
+                                                        )}{" "}
                                                     </p>
                                                 </div>
                                             </div>

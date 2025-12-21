@@ -177,8 +177,10 @@ export const formatCurrency = (value: number) => {
     );
 };
 
-export const formatCurrencyNumber = (value: number) => {
-    return value.toLocaleString("pt-BR", {
-        minimumFractionDigits: 2,
-    });
+export const formatNumber = (value: number) => {
+    return value.toLocaleString("pt-BR");
+};
+
+export const formatDate = (value: Date, opts?: Intl.DateTimeFormatOptions) => {
+    return value.toLocaleString("pt-BR", opts);
 };

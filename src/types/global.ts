@@ -74,6 +74,7 @@ export const movementSourceLabels: Record<MovementSource, string> = {
     HARVEST: "Colheita",
     SALE: "Venda",
     ADJUSTMENT: "Ajuste / Saldo inicial",
+    PRODUCTION: "Produção",
 };
 
 export const productionOrderStatusLabels: Record<ProductionOrderStatus, string> = {

@@ -19,6 +19,7 @@ import { FormItem } from "./ui/form";
 interface ComboboxStandaloneProps<TItem> {
     value: number | null;
     onChange: (value: number | null) => void;
+    onSelectItem?: (item: TItem) => void;
 
     label?: string;
     endpoint: string;
@@ -42,6 +43,7 @@ export function ComboboxStandalone<TItem extends Record<string, unknown>>({
     disabled = false,
     extraParams = {},
     showError = true,
+    onSelectItem,
 }: ComboboxStandaloneProps<TItem>) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLButtonElement>(null);
@@ -128,6 +130,7 @@ export function ComboboxStandalone<TItem extends Record<string, unknown>>({
                                         onSelect={() => {
                                             onChange(val);
                                             setOpen(false);
+                                            onSelectItem?.(item);
                                         }}
                                     >
                                         <Check
