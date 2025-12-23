@@ -13,6 +13,10 @@ export const purchaseEntryItemSchema = z.object({
     unitCost: z.number().refine((value) => value >= 0, {
         message: "Custo deve ser maior ou igual a zero.",
     }),
+
+    // UI
+    productName: z.string().optional(),
+    unitySimbol: z.string().optional(),
 });
 
 export const purchaseEntrySchema = z.object({

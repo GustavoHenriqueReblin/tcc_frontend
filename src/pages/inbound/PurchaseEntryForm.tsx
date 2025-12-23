@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -58,7 +58,6 @@ const buildDefaultValues = (): PurchaseEntryFormValues => ({
 });
 
 export function PurchaseEntryForm() {
-    const [unitySimbol, setUnitySimbol] = useState<string | null>(null);
     const queryClient = useQueryClient();
     const form = useForm<PurchaseEntryFormValues>({
         resolver: zodResolver(purchaseEntrySchema),
@@ -181,56 +180,63 @@ export function PurchaseEntryForm() {
                         description="Produtos, quantidades e valores unitários."
                     >
                         <div className="space-y-4">
-                            {itemsArray.fields.map((field, index) => (
-                                <div key={field.id} className="rounded-md border p-4 space-y-4">
-                                    <div className="flex items-center justify-between gap-4">
-                                        <p className="text-sm font-medium">Item {index + 1}</p>
+                            {itemsArray.fields.map((field, index) => {
+                                const unitySimbol = form.watch(`items.${index}.unitySimbol`);
 
-                                        <Button
-                                            type="button"
-                                            variant="destructive"
-                                            size="sm"
-                                            onClick={() => handleRemoveItem(index)}
-                                            disabled={itemsArray.fields.length === 1}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                            Remover
-                                        </Button>
+                                return (
+                                    <div key={field.id} className="rounded-md border p-4 space-y-4">
+                                        <div className="flex items-center justify-between gap-4">
+                                            <p className="text-sm font-medium">Item {index + 1}</p>
+
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                size="sm"
+                                                onClick={() => handleRemoveItem(index)}
+                                                disabled={itemsArray.fields.length === 1}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                                Remover
+                                            </Button>
+                                        </div>
+
+                                        <FieldsGrid cols={3}>
+                                            <ComboboxQuery<PurchaseEntryFormValues, ProductOption>
+                                                control={control}
+                                                name={`items.${index}.productId` as const}
+                                                label="Produto"
+                                                endpoint="/products"
+                                                valueField="id"
+                                                labelField="name"
+                                                onSelectItem={(e) => {
+                                                    form.setValue(
+                                                        `items.${index}.unitySimbol`,
+                                                        e.unity.simbol
+                                                    );
+                                                }}
+                                            />
+
+                                            <TextField
+                                                control={control}
+                                                name={`items.${index}.quantity` as const}
+                                                label="Quantidade"
+                                                type="number"
+                                                decimals={3}
+                                                suffix={unitySimbol && " " + unitySimbol}
+                                            />
+
+                                            <TextField
+                                                control={control}
+                                                name={`items.${index}.unitCost` as const}
+                                                label="Custo unitário"
+                                                type="number"
+                                                decimals={3}
+                                                prefix="R$ "
+                                            />
+                                        </FieldsGrid>
                                     </div>
-
-                                    <FieldsGrid cols={3}>
-                                        <ComboboxQuery<PurchaseEntryFormValues, ProductOption>
-                                            control={control}
-                                            name={`items.${index}.productId` as const}
-                                            label="Produto"
-                                            endpoint="/products"
-                                            valueField="id"
-                                            labelField="name"
-                                            onSelectItem={(e) => {
-                                                setUnitySimbol(e.unity.simbol);
-                                            }}
-                                        />
-
-                                        <TextField
-                                            control={control}
-                                            name={`items.${index}.quantity` as const}
-                                            label="Quantidade"
-                                            type="number"
-                                            decimals={3}
-                                            suffix={unitySimbol && " " + unitySimbol}
-                                        />
-
-                                        <TextField
-                                            control={control}
-                                            name={`items.${index}.unitCost` as const}
-                                            label="Custo unitário"
-                                            type="number"
-                                            decimals={3}
-                                            prefix="R$ "
-                                        />
-                                    </FieldsGrid>
-                                </div>
-                            ))}
+                                );
+                            })}
 
                             <Button
                                 type="button"
