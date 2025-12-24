@@ -56,8 +56,8 @@ export function Warehouses() {
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
                 onRowClick={handleRowClick}
                 mobileFields={[
-                    { label: "Código", value: "code" },
                     { label: "Nome", value: "name" },
+                    { label: "Código", value: "code" },
                     { label: "Descrição", value: "description" },
                 ]}
             />

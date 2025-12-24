@@ -19,6 +19,7 @@ import { AdjustInventoryModal } from "@/pages/Product/AdjustInventory/AdjustInve
 import { useQueryClient } from "@tanstack/react-query";
 import { ProductRecipes } from "./Recipe/ProductRecipes";
 import { SlidersHorizontal } from "lucide-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface Props {
     defaultValues: ProductFormValues;
@@ -43,6 +44,7 @@ export function ProductForm({
         defaultValues,
     });
     const queryClient = useQueryClient();
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         form.reset(defaultValues);
@@ -73,7 +75,12 @@ export function ProductForm({
                         description="Informações gerais do produto e vinculações."
                     >
                         <FieldsGrid cols={2}>
-                            <TextField control={control} name="name" label="Nome *" autoFocus />
+                            <TextField
+                                control={control}
+                                name="name"
+                                label="Nome *"
+                                autoFocus={!isMobile}
+                            />
                             <TextField control={control} name="barcode" label="Código de barras" />
                         </FieldsGrid>
 

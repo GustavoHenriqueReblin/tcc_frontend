@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface Props {
     defaultValues: WarehouseFormValues;
@@ -30,6 +31,8 @@ export function WarehouseForm({
         resolver: zodResolver(warehouseFormSchema),
         defaultValues,
     });
+
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         form.reset(defaultValues);
@@ -56,7 +59,12 @@ export function WarehouseForm({
                         description="Informe o código, nome e descrição do depósito."
                     >
                         <FieldsGrid cols={2}>
-                            <TextField control={control} name="code" label="Código" autoFocus />
+                            <TextField
+                                control={control}
+                                name="code"
+                                label="Código"
+                                autoFocus={!isMobile}
+                            />
                             <TextField control={control} name="name" label="Nome" />
                         </FieldsGrid>
 

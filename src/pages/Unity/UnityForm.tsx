@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface Props {
     defaultValues: UnityFormValues;
@@ -30,6 +31,8 @@ export function UnityForm({
         resolver: zodResolver(unityFormSchema),
         defaultValues,
     });
+
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         form.reset(defaultValues);
@@ -56,7 +59,12 @@ export function UnityForm({
                         description="Informe o símbolo e descrição da unidade."
                     >
                         <FieldsGrid cols={2}>
-                            <TextField control={control} name="simbol" label="Símbolo" autoFocus />
+                            <TextField
+                                control={control}
+                                name="simbol"
+                                label="Símbolo"
+                                autoFocus={!isMobile}
+                            />
                             <TextField control={control} name="description" label="Descrição" />
                         </FieldsGrid>
                     </Section>

@@ -59,8 +59,15 @@ export function ProductDefinitions() {
                 onRowClick={handleRowClick}
                 mobileFields={[
                     { label: "Nome", value: "name" },
+                    {
+                        label: "Tipo",
+                        value: "type",
+                        render: (value, row) =>
+                            productDefinitionTypeLabels[
+                                row.type as keyof typeof productDefinitionTypeLabels
+                            ] ?? value,
+                    },
                     { label: "Descrição", value: "description" },
-                    { label: "Tipo", value: "type" },
                 ]}
             />
         </div>

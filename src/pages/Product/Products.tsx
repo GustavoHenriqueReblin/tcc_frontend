@@ -92,9 +92,43 @@ export function Products() {
                 onRowClick={handleRowClick}
                 mobileFields={[
                     { label: "Nome", value: "name" },
-                    { label: "Unidade", value: "unity.simbol" },
-                    { label: "Quantidade", value: "productInventory.0.quantity" },
-                    { label: "Venda", value: "productInventory.0.saleValue" },
+                    {
+                        label: "Tipo",
+                        value: "productDefinition.type",
+                        render: (value, row) => {
+                            const type = row.productDefinition?.type as
+                                | ProductDefinitionType
+                                | undefined;
+                            return type ? productDefinitionTypeLabels[type] : value;
+                        },
+                    },
+                    {
+                        label: "Quantidade",
+                        value: "productInventory.0.quantity",
+                        render: (_value, row) => {
+                            const inv = row.productInventory?.[0];
+                            const unity = row.unity?.simbol ?? "";
+                            return inv
+                                ? `${formatNumber(Number(inv.quantity))} ${unity}`.trim()
+                                : "-";
+                        },
+                    },
+                    {
+                        label: "Custo",
+                        value: "productInventory.0.costValue",
+                        render: (_value, row) => {
+                            const inv = row.productInventory?.[0];
+                            return inv ? `${formatCurrency(Number(inv.costValue))}` : "-";
+                        },
+                    },
+                    {
+                        label: "Venda",
+                        value: "productInventory.0.saleValue",
+                        render: (_value, row) => {
+                            const inv = row.productInventory?.[0];
+                            return inv ? `${formatCurrency(Number(inv.saleValue))}` : "-";
+                        },
+                    },
                 ]}
                 onDataResult={(data) => {
                     let qty = 0;

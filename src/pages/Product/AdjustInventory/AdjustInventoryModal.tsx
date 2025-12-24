@@ -18,6 +18,7 @@ import { buildApiError } from "@/utils/global";
 import { ComboboxStandalone } from "../../../components/ComboboxStandalone";
 import { ApiResponse } from "@/types/global";
 import { InventoryMovement } from "@/types/inventoryMovement";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface AdjustInventoryModalProps {
     productData: { id: number; quantity: number };
@@ -32,6 +33,7 @@ export function AdjustInventoryModal({
     onClose,
     onSuccess,
 }: AdjustInventoryModalProps) {
+    const isMobile = useIsMobile();
     const [diference, setDiference] = useState<number | null>(null);
     const [quantity, setQuantity] = useState<number | null>(null);
     const [warehouseId, setWarehouseId] = useState<number | null>(null);
@@ -73,7 +75,7 @@ export function AdjustInventoryModal({
                 <div>
                     <FieldsGrid cols={2}>
                         <TextFieldStandalone
-                            autoFocus
+                            autoFocus={!isMobile}
                             label="Quantidade *"
                             type="number"
                             value={quantity}

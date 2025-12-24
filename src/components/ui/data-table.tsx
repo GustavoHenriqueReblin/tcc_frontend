@@ -221,7 +221,7 @@ export function DataTable<TData extends object>({
 
                         <div className="flex gap-2">
                             <Input
-                                autoFocus
+                                autoFocus={!isMobile}
                                 placeholder="Pesquisar..."
                                 className="flex-1"
                                 onChange={(e) => setSearchInput(e.target.value)}
@@ -278,15 +278,32 @@ export function DataTable<TData extends object>({
                                     )}
                                     {...clickableCardProps}
                                 >
-                                    <div className="font-medium text-lg truncate mb-1">
-                                        {resolve(0)}
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">
-                                        {resolve(1)}
-                                    </div>
+                                    {resolve(0) && (
+                                        <div className="font-medium text-lg truncate mb-1">
+                                            {resolve(0)}
+                                        </div>
+                                    )}
+                                    {resolve(1) && (
+                                        <div className="text-sm text-muted-foreground">
+                                            {resolve(1)}
+                                        </div>
+                                    )}
                                     <div className="flex items-center gap-2 text-sm">
-                                        <span className="text-muted-foreground">{resolve(2)}</span>
-                                        <span className="text-muted-foreground">{resolve(3)}</span>
+                                        {resolve(2) && (
+                                            <span className="text-muted-foreground">
+                                                {resolve(2)}
+                                            </span>
+                                        )}
+                                        {resolve(3) && (
+                                            <span className="text-muted-foreground">
+                                                {resolve(3)}
+                                            </span>
+                                        )}
+                                        {resolve(4) && (
+                                            <span className="text-muted-foreground">
+                                                {resolve(4)}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             );
@@ -338,7 +355,7 @@ export function DataTable<TData extends object>({
                     )}
 
                     <Input
-                        autoFocus
+                        autoFocus={!isMobile}
                         placeholder="Pesquisar..."
                         className="w-full md:w-56"
                         onChange={(e) => setSearchInput(e.target.value)}

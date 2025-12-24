@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface Props {
     defaultValues: ProductDefinitionFormValues;
@@ -35,6 +36,8 @@ export function ProductDefinitionForm({
         resolver: zodResolver(productDefinitionFormSchema),
         defaultValues,
     });
+
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         form.reset(defaultValues);
@@ -61,7 +64,12 @@ export function ProductDefinitionForm({
                         description="Informe os dados principais desta definição de produto."
                     >
                         <FieldsGrid cols={2}>
-                            <TextField control={control} name="name" label="Nome" autoFocus />
+                            <TextField
+                                control={control}
+                                name="name"
+                                label="Nome"
+                                autoFocus={!isMobile}
+                            />
                             <EnumSelect
                                 control={control}
                                 name="type"

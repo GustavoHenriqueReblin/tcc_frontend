@@ -15,6 +15,7 @@ import { maskCEP, maskCPFOrCNPJ, maskPhone } from "@/utils/global";
 import { maritalStatusLabels, personTypeLabels, statusLabels } from "@/types/global";
 import { ComboboxQuery } from "@/components/ComboboxQuery";
 import { useCnpjLookup } from "@/hooks/useCnpjLookup";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface Props {
     defaultValues: SupplierFormValues;
@@ -36,6 +37,7 @@ export function SupplierForm({
         defaultValues,
     });
 
+    const isMobile = useIsMobile();
     const { lookupCnpj } = useCnpjLookup({ form });
 
     useEffect(() => {
@@ -69,7 +71,7 @@ export function SupplierForm({
                                 control={control}
                                 name="person.name"
                                 label="Nome *"
-                                autoFocus
+                                autoFocus={!isMobile}
                             />
                             <TextField
                                 control={control}

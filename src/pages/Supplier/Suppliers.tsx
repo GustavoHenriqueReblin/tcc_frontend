@@ -69,9 +69,24 @@ export function Suppliers() {
                 onRowClick={handleRowClick}
                 mobileFields={[
                     { label: "Nome", value: "person.name" },
-                    { label: "Telefone", value: "person.phone" },
-                    { label: "Cidade", value: "person.city.name" },
-                    { label: "UF", value: "person.state.uf" },
+                    { label: "CPF/CNPJ", value: "person.taxId" },
+                    {
+                        label: "Telefone",
+                        value: "person.phone",
+                        render: (_value, row) => {
+                            const number = row.person.phone || row.person.cellphone;
+                            return number;
+                        },
+                    },
+                    {
+                        label: "Cidade/UF",
+                        value: "person.city.name",
+                        render: (_value, row) => {
+                            const city = row.person.city?.name ?? "";
+                            const uf = row.person.state?.uf ?? "";
+                            return city ? `${city} - ${uf}` : "";
+                        },
+                    },
                 ]}
             />
         </div>

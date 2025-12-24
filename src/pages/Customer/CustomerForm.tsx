@@ -15,6 +15,7 @@ import { maritalStatusLabels, personTypeLabels, statusLabels } from "@/types/glo
 import { useEffect } from "react";
 import { ComboboxQuery } from "@/components/ComboboxQuery";
 import { useCnpjLookup } from "@/hooks/useCnpjLookup";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface Props {
     defaultValues: CustomerFormValues;
@@ -36,6 +37,7 @@ export function CustomerForm({
         defaultValues,
     });
 
+    const isMobile = useIsMobile();
     const { lookupCnpj } = useCnpjLookup({ form });
 
     useEffect(() => {
@@ -69,7 +71,7 @@ export function CustomerForm({
                                 control={control}
                                 name="person.name"
                                 label="Nome *"
-                                autoFocus
+                                autoFocus={!isMobile}
                             />
                             <TextField
                                 control={control}

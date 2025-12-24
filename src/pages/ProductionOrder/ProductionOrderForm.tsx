@@ -427,14 +427,15 @@ export function ProductionOrderForm({
                                     {inputs.map((item, index) => (
                                         <div
                                             key={`${item.productId}-${index}`}
-                                            className="border rounded-md p-3 flex justify-between items-center"
+                                            className={`border rounded-md p-3 flex ${isMobile ? "flex-col" : "flex-row"} justify-between items-center`}
                                         >
                                             <div>
                                                 <p className="font-medium">{item.productName}</p>
 
                                                 <div className="flex gap-2 items-center">
                                                     <p className="text-xs text-muted-foreground">
-                                                        Quantidade: {formatNumber(item.quantity)}{" "}
+                                                        {isMobile ? "Qtd:" : "Quantidade:"}{" "}
+                                                        {formatNumber(item.quantity)}{" "}
                                                         {item.unitySimbol}
                                                     </p>
 
@@ -443,7 +444,9 @@ export function ProductionOrderForm({
                                                     </p>
 
                                                     <p className="text-xs text-muted-foreground">
-                                                        Custo unitário:{" "}
+                                                        {isMobile
+                                                            ? "Custo unit.:"
+                                                            : "Custo unitário:"}{" "}
                                                         {formatCurrency(item.unitCost)}{" "}
                                                     </p>
 
@@ -459,7 +462,9 @@ export function ProductionOrderForm({
                                                 </div>
                                             </div>
 
-                                            <div className="flex gap-2">
+                                            <div
+                                                className={`flex gap-2 ${isMobile ? "w-full justify-end mt-4" : ""}`}
+                                            >
                                                 <Button
                                                     type="button"
                                                     variant="outline"

@@ -333,12 +333,27 @@ export function ProductionOrders() {
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
                 mobileFields={[
                     { label: "Código", value: "code" },
-                    { label: "Produto", value: "product.name" },
+                    {
+                        label: "Produto",
+                        value: "recipe.product.name",
+                        render: (_value, row) =>
+                            row.recipe?.product?.name ?? row.product?.name ?? "",
+                    },
                     {
                         label: "Status",
                         value: "status",
-                        render: (v, row) =>
-                            productionOrderStatusLabels[(row as ProductionOrder).status] ?? v,
+                        render: (value, row) => productionOrderStatusLabels[row.status] ?? value,
+                    },
+                    {
+                        label: "Planejado",
+                        value: "plannedQty",
+                        render: (_value, row) => {
+                            const plannedQty = row.plannedQty ?? null;
+                            const unity = row.recipe?.product?.unity?.simbol ?? "";
+                            return plannedQty != null
+                                ? `${formatNumber(Number(plannedQty))} ${unity}`.trim()
+                                : "";
+                        },
                     },
                 ]}
                 filters={filters}
