@@ -256,7 +256,7 @@ export function ProductionOrderForm({
                         title="Identificação"
                         description="Código e situação da ordem de produção."
                     >
-                        <FieldsGrid cols={4}>
+                        <FieldsGrid cols={3}>
                             <div className="flex gap-4">
                                 {code && (
                                     <TextField
@@ -308,7 +308,7 @@ export function ProductionOrderForm({
                     <div className="mt-8"></div>
 
                     <Section title="Planejamento" description="Depósito, receita e lote.">
-                        <FieldsGrid cols={4}>
+                        <FieldsGrid cols={3}>
                             <ComboboxQuery
                                 control={control}
                                 name="warehouseId"
@@ -374,7 +374,7 @@ export function ProductionOrderForm({
                         title="Quantidades"
                         description="Quantidades e demais custos planejados."
                     >
-                        <FieldsGrid cols={4}>
+                        <FieldsGrid cols={3}>
                             <TextField
                                 control={control}
                                 name="plannedQty"
