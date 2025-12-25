@@ -22,7 +22,7 @@ export function EditProductionOrder() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    usePageTitle("Edicao de ordem de produção - ERP Industrial");
+    usePageTitle("Edição de ordem de produção - ERP Industrial");
 
     useEffect(() => {
         if (!id) navigate("/production-orders");

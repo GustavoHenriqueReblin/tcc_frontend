@@ -58,7 +58,8 @@ export function Products() {
         {
             accessorKey: "productDefinition",
             header: "Tipo",
-            meta: { sortable: true },
+            enableSorting: false,
+            meta: { sortable: false },
             cell: ({ row }) => {
                 const type = row.original.productDefinition?.type as
                     | ProductDefinitionType

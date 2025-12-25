@@ -199,6 +199,24 @@ export function InventoryMovementPage() {
                     completa.
                 </p>
 
+                <div className="max-w-xl">
+                    <ComboboxStandalone<{
+                        id: number;
+                        name: string;
+                        unity: {
+                            simbol: string;
+                        };
+                    }>
+                        label="Produto *"
+                        endpoint="/products"
+                        valueField="id"
+                        labelField="name"
+                        value={productId}
+                        onChange={(val) => setProductId(val)}
+                        showError={false}
+                    />
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
                     <div className="rounded-xl border bg-card p-3">
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -258,24 +276,6 @@ export function InventoryMovementPage() {
             </header>
 
             <section className="rounded-xl border bg-card p-4 space-y-4">
-                <div className="max-w-xl">
-                    <ComboboxStandalone<{
-                        id: number;
-                        name: string;
-                        unity: {
-                            simbol: string;
-                        };
-                    }>
-                        label="Produto *"
-                        endpoint="/products"
-                        valueField="id"
-                        labelField="name"
-                        value={productId}
-                        onChange={(val) => setProductId(val)}
-                        showError={false}
-                    />
-                </div>
-
                 <div className="flex flex-wrap gap-2 items-center">
                     {shortcutButton("Hoje", "today")}
                     {shortcutButton("Últimos 7 dias", "7d")}
