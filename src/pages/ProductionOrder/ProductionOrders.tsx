@@ -356,7 +356,7 @@ export function ProductionOrders() {
         },
         {
             accessorKey: "endDate",
-            header: "Fim",
+            header: "Término",
             meta: { sortable: true },
             cell: ({ row }) =>
                 row.original.endDate

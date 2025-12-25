@@ -297,7 +297,7 @@ export function ProductionOrderForm({
                             <TextField
                                 control={control}
                                 name="endDate"
-                                label="Previsão de fim"
+                                label="Previsão de término"
                                 type="date"
                                 allowFutureDates
                                 withTime
