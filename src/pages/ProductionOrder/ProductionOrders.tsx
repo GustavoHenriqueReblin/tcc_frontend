@@ -14,6 +14,7 @@ import {
     cn,
     formatDate,
     formatNumber,
+    openPDF,
     toISOEndOfDay,
     toISOStartOfDay,
 } from "@/utils/global";
@@ -308,9 +309,23 @@ export function ProductionOrders() {
                             </>
                         )}
 
-                        {(order.status === ProductionOrderStatusEnum.FINISHED ||
-                            order.status === ProductionOrderStatusEnum.CANCELED) && (
+                        {order.status === ProductionOrderStatusEnum.CANCELED ? (
                             <span className="text-xs text-muted-foreground"></span>
+                        ) : (
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    const toastId = toast.loading("Gerando arquivo...");
+                                    await openPDF(order.id, "production-order");
+                                    toast.success("Arquivo gerado com sucesso.", {
+                                        id: toastId,
+                                    });
+                                }}
+                            >
+                                Visualizar
+                            </Button>
                         )}
                     </div>
                 );
@@ -336,8 +351,7 @@ export function ProductionOrders() {
                     {
                         label: "Produto",
                         value: "recipe.product.name",
-                        render: (_value, row) =>
-                            row.recipe?.product?.name ?? row.product?.name ?? "",
+                        render: (_value, row) => row.recipe?.product?.name ?? "",
                     },
                     {
                         label: "Status",

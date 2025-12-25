@@ -3,6 +3,7 @@ import { ApiResponse } from "@/types/global";
 import { AxiosError } from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { env } from "@/config/env";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -184,3 +185,21 @@ export const formatNumber = (value: number) => {
 export const formatDate = (value: Date, opts?: Intl.DateTimeFormatOptions) => {
     return value.toLocaleString("pt-BR", opts);
 };
+
+export async function openPDF(id: number, path: string) {
+    const url = `${env.VITE_API_URL}/reports/${path}/${id}/pdf`;
+    const response = await fetch(url, {
+        credentials: "include",
+    });
+
+    if (!response.ok) {
+        throw new Error("Erro ao gerar PDF");
+    }
+
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    window.open(blobUrl, "_blank");
+
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+}
