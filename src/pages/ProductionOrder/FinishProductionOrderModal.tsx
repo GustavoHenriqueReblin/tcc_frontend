@@ -88,7 +88,6 @@ export function FinishProductionOrderModal({
                             name="endDate"
                             label="Data de término"
                             type="date"
-                            disabled
                         />
 
                         <TextAreaField control={form.control} name="notes" label="Observações" />

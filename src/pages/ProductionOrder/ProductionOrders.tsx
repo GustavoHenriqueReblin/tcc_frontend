@@ -82,6 +82,13 @@ export function ProductionOrders() {
             const toastId = toast.loading("Finalizando produção...");
 
             try {
+                if (new Date(order.endDate ?? values.endDate) < new Date(order.startDate)) {
+                    toast.error("Data da finalização não pode ser anterior à data de início", {
+                        id: toastId,
+                    });
+                    return;
+                }
+
                 const payload = {
                     ...order,
                     status: ProductionOrderStatusEnum.FINISHED,
