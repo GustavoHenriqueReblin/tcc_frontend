@@ -1,4 +1,4 @@
-import { DataTable } from "@/components/ui/data-table";
+﻿import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
 
@@ -28,6 +28,12 @@ import { EnumStandalone } from "@/components/Fields";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/DateRangePicker";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 
 const productionOrderStatusColors: Record<ProductionOrderStatus, string> = {
     PLANNED: "bg-gray-200 text-gray-800",
@@ -155,6 +161,130 @@ export function ProductionOrders() {
         },
     });
 
+    const renderActions = (order: ProductionOrder, orientation: "row" | "column" = "row") => {
+        if (order.status === ProductionOrderStatusEnum.CANCELED) return null;
+
+        const stacked = orientation === "column";
+        const buttonClassName = stacked ? "w-full justify-center" : undefined;
+
+        return (
+            <div className={cn("flex gap-2", stacked ? "flex-col" : "items-center")}>
+                {order.status === ProductionOrderStatusEnum.PLANNED && (
+                    <>
+                        <StatusActionButton
+                            label="Iniciar"
+                            intent="primary"
+                            className={buttonClassName}
+                            confirmTitle="Iniciar ordem de produção?"
+                            confirmDescription={
+                                <>
+                                    A ordem passará para o status
+                                    <strong> Em produção</strong>.
+                                    <br />
+                                    Deseja continuar?
+                                </>
+                            }
+                            confirmLabel="Iniciar produção"
+                            onConfirm={() =>
+                                updateStatusMutation.mutate({
+                                    order,
+                                    status: ProductionOrderStatusEnum.RUNNING,
+                                })
+                            }
+                        />
+                        <StatusActionButton
+                            label="Cancelar"
+                            intent="danger"
+                            className={buttonClassName}
+                            confirmTitle="Cancelar ordem de produção?"
+                            confirmDescription="Esta ação irá cancelar a ordem de produção."
+                            confirmLabel="Cancelar ordem"
+                            onConfirm={() =>
+                                updateStatusMutation.mutate({
+                                    order,
+                                    status: ProductionOrderStatusEnum.CANCELED,
+                                })
+                            }
+                        />
+                    </>
+                )}
+
+                {order.status === ProductionOrderStatusEnum.RUNNING && (
+                    <>
+                        <Button
+                            size="sm"
+                            variant="success"
+                            className={buttonClassName}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setFinishOrder({
+                                    ...order,
+                                    plannedQty: Number(order.plannedQty),
+                                });
+                            }}
+                        >
+                            Finalizar
+                        </Button>
+
+                        <StatusActionButton
+                            label="Cancelar"
+                            intent="danger"
+                            className={buttonClassName}
+                            confirmTitle="Cancelar ordem de produção?"
+                            confirmDescription="Esta ação irá cancelar a ordem de produção."
+                            confirmLabel="Cancelar ordem"
+                            onConfirm={() =>
+                                updateStatusMutation.mutate({
+                                    order,
+                                    status: ProductionOrderStatusEnum.CANCELED,
+                                })
+                            }
+                        />
+                    </>
+                )}
+
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className={buttonClassName}
+                    onClick={async (e) => {
+                        e.stopPropagation();
+                        const toastId = toast.loading("Gerando arquivo...");
+                        await openPDF(order.id, "production-order");
+                        toast.success("Arquivo gerado com sucesso.", {
+                            id: toastId,
+                        });
+                    }}
+                >
+                    Visualizar
+                </Button>
+            </div>
+        );
+    };
+
+    const renderMobileActions = (order: ProductionOrder) => {
+        const actions = renderActions(order, "column");
+
+        return (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        aria-label="Ações"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <MoreHorizontal className="size-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[calc(100vw-2.5rem)] max-w-80 p-2">
+                    {actions}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        );
+    };
+
     const columns: ColumnDef<ProductionOrder>[] = [
         {
             accessorKey: "code",
@@ -237,98 +367,7 @@ export function ProductionOrders() {
             cell: ({ row }) => {
                 const order = row.original;
 
-                return (
-                    <div className="flex items-center gap-2">
-                        {order.status === ProductionOrderStatusEnum.PLANNED && (
-                            <>
-                                <StatusActionButton
-                                    label="Iniciar"
-                                    intent="primary"
-                                    confirmTitle="Iniciar ordem de produção?"
-                                    confirmDescription={
-                                        <>
-                                            A ordem passará para o status
-                                            <strong> Em produção</strong>.
-                                            <br />
-                                            Deseja continuar?
-                                        </>
-                                    }
-                                    confirmLabel="Iniciar produção"
-                                    onConfirm={() =>
-                                        updateStatusMutation.mutate({
-                                            order,
-                                            status: ProductionOrderStatusEnum.RUNNING,
-                                        })
-                                    }
-                                />
-                                <StatusActionButton
-                                    label="Cancelar"
-                                    intent="danger"
-                                    confirmTitle="Cancelar ordem de produção?"
-                                    confirmDescription="Esta ação irá cancelar a ordem de produção."
-                                    confirmLabel="Cancelar ordem"
-                                    onConfirm={() =>
-                                        updateStatusMutation.mutate({
-                                            order,
-                                            status: ProductionOrderStatusEnum.CANCELED,
-                                        })
-                                    }
-                                />
-                            </>
-                        )}
-
-                        {order.status === ProductionOrderStatusEnum.RUNNING && (
-                            <>
-                                <Button
-                                    size="sm"
-                                    variant="success"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setFinishOrder({
-                                            ...order,
-                                            plannedQty: Number(order.plannedQty),
-                                        });
-                                    }}
-                                >
-                                    Finalizar
-                                </Button>
-
-                                <StatusActionButton
-                                    label="Cancelar"
-                                    intent="danger"
-                                    confirmTitle="Cancelar ordem de produção?"
-                                    confirmDescription="Esta ação irá cancelar a ordem de produção."
-                                    confirmLabel="Cancelar ordem"
-                                    onConfirm={() =>
-                                        updateStatusMutation.mutate({
-                                            order,
-                                            status: ProductionOrderStatusEnum.CANCELED,
-                                        })
-                                    }
-                                />
-                            </>
-                        )}
-
-                        {order.status === ProductionOrderStatusEnum.CANCELED ? (
-                            <span className="text-xs text-muted-foreground"></span>
-                        ) : (
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={async (e) => {
-                                    e.stopPropagation();
-                                    const toastId = toast.loading("Gerando arquivo...");
-                                    await openPDF(order.id, "production-order");
-                                    toast.success("Arquivo gerado com sucesso.", {
-                                        id: toastId,
-                                    });
-                                }}
-                            >
-                                Visualizar
-                            </Button>
-                        )}
-                    </div>
-                );
+                return renderActions(order);
             },
         },
     ];
@@ -356,7 +395,16 @@ export function ProductionOrders() {
                     {
                         label: "Status",
                         value: "status",
-                        render: (value, row) => productionOrderStatusLabels[row.status] ?? value,
+                        render: (_value, row) => (
+                            <span
+                                className={[
+                                    "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+                                    productionOrderStatusColors[row.status],
+                                ].join(" ")}
+                            >
+                                {productionOrderStatusLabels[row.status] ?? ""}
+                            </span>
+                        ),
                     },
                     {
                         label: "Planejado",
@@ -370,6 +418,7 @@ export function ProductionOrders() {
                         },
                     },
                 ]}
+                mobileRowActions={renderMobileActions}
                 filters={filters}
                 filterComponents={
                     <>

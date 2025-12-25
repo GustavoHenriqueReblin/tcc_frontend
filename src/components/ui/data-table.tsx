@@ -37,6 +37,7 @@ export interface DataTableProps<
     filters?: TFilters;
     filterComponents?: ReactNode;
     mobileFields?: DataTableMobileField<TData>[];
+    mobileRowActions?: (row: TData) => ReactNode;
     defaultSort?: { sortBy: string; sortOrder: "asc" | "desc" };
     defaultPageSize?: number;
     showSearch?: boolean;
@@ -93,6 +94,7 @@ export function DataTable<TData extends object>({
     filters,
     filterComponents,
     mobileFields = [],
+    mobileRowActions,
     defaultSort = { sortBy: "id", sortOrder: "asc" },
     defaultPageSize = 8,
     showSearch = true,
@@ -268,6 +270,8 @@ export function DataTable<TData extends object>({
                                   }
                                 : {};
 
+                            const actions = mobileRowActions?.(row.original);
+
                             return (
                                 <div
                                     key={row.id}
@@ -278,31 +282,41 @@ export function DataTable<TData extends object>({
                                     )}
                                     {...clickableCardProps}
                                 >
-                                    {resolve(0) && (
-                                        <div className="font-medium text-lg truncate mb-1">
-                                            {resolve(0)}
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex-1 min-w-0 space-y-1">
+                                            {resolve(0) && (
+                                                <div className="font-medium text-lg truncate">
+                                                    {resolve(0)}
+                                                </div>
+                                            )}
+                                            {resolve(1) && (
+                                                <div className="text-sm text-muted-foreground">
+                                                    {resolve(1)}
+                                                </div>
+                                            )}
+                                            <div className="flex items-center gap-2 text-sm">
+                                                {resolve(2) && (
+                                                    <span className="text-muted-foreground">
+                                                        {resolve(2)}
+                                                    </span>
+                                                )}
+                                                {resolve(3) && (
+                                                    <span className="text-muted-foreground">
+                                                        {resolve(3)}
+                                                    </span>
+                                                )}
+                                                {resolve(4) && (
+                                                    <span className="text-muted-foreground">
+                                                        {resolve(4)}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
-                                    )}
-                                    {resolve(1) && (
-                                        <div className="text-sm text-muted-foreground">
-                                            {resolve(1)}
-                                        </div>
-                                    )}
-                                    <div className="flex items-center gap-2 text-sm">
-                                        {resolve(2) && (
-                                            <span className="text-muted-foreground">
-                                                {resolve(2)}
-                                            </span>
-                                        )}
-                                        {resolve(3) && (
-                                            <span className="text-muted-foreground">
-                                                {resolve(3)}
-                                            </span>
-                                        )}
-                                        {resolve(4) && (
-                                            <span className="text-muted-foreground">
-                                                {resolve(4)}
-                                            </span>
+
+                                        {actions && (
+                                            <div onClick={(e) => e.stopPropagation()}>
+                                                {actions}
+                                            </div>
                                         )}
                                     </div>
                                 </div>

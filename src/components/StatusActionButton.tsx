@@ -27,6 +27,7 @@ interface StatusActionButtonProps {
     cancelLabel?: string;
     onConfirm: () => void;
     disabled?: boolean;
+    className?: string;
 }
 
 const intentToVariant: Record<StatusActionIntent, ButtonVariant> = {
@@ -45,6 +46,7 @@ export function StatusActionButton({
     cancelLabel = "Cancelar",
     onConfirm,
     disabled = false,
+    className,
 }: StatusActionButtonProps) {
     const stop = (e: MouseEvent) => e.stopPropagation();
 
@@ -59,6 +61,7 @@ export function StatusActionButton({
                     size="sm"
                     variant={actionVariant}
                     disabled={disabled}
+                    className={className}
                     onClick={stop}
                 >
                     {label}
