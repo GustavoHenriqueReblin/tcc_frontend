@@ -5,7 +5,7 @@ import { Supplier } from "@/types/supplier";
 import { useNavigate } from "react-router-dom";
 
 export function Suppliers() {
-    usePageTitle("Fornecedores - ERP Industrial");
+    usePageTitle("Fornecedores - ERP industrial");
     const navigate = useNavigate();
 
     const columns: ColumnDef<Supplier>[] = [

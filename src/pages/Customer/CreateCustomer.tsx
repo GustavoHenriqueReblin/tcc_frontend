@@ -12,7 +12,7 @@ import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 
 export function CreateCustomer() {
-    usePageTitle("Cadastro de cliente - ERP Industrial");
+    usePageTitle("Cadastro de cliente - ERP industrial");
     const queryClient = useQueryClient();
 
     const navigate = useNavigate();

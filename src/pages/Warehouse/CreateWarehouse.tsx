@@ -11,7 +11,7 @@ import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 
 export function CreateWarehouse() {
-    usePageTitle("Cadastro de depósito - ERP Industrial");
+    usePageTitle("Cadastro de depósito - ERP industrial");
     const queryClient = useQueryClient();
 
     const navigate = useNavigate();

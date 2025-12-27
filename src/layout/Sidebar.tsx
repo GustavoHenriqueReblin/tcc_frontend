@@ -32,7 +32,7 @@ export const menuConfig = [
             { label: "Clientes", to: "/customers", icon: Users },
             { label: "Fornecedores", to: "/suppliers", icon: Users },
             {
-                label: "Definições de Produto",
+                label: "Definições de produto",
                 to: "/product-definitions",
                 icon: BoxIcon,
             },
@@ -119,7 +119,7 @@ export function Sidebar({
                             {!collapsed && (
                                 <div className="space-y-0.5">
                                     <p className="text-sm font-semibold leading-tight">
-                                        ERP Industrial
+                                        ERP industrial
                                     </p>
                                     <p className="text-[11px] tracking-wide text-muted-foreground">
                                         {user?.enterpriseName}

@@ -20,7 +20,7 @@ export function EditProductDefinition() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    usePageTitle("Edição de definição de produto - ERP Industrial");
+    usePageTitle("Edição de definição de produto - ERP industrial");
 
     useEffect(() => {
         if (!id) navigate("/product-definitions");

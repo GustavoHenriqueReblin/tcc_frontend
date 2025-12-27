@@ -11,7 +11,7 @@ import { AdjustmentEntryForm } from "./AdjustmentEntryForm";
 import { HarvestForm } from "./HarvestForm";
 
 export function InboundEntry() {
-    usePageTitle("Entrada de Mercadoria - ERP Industrial");
+    usePageTitle("Entrada de Mercadoria - ERP industrial");
     const [type, setType] = useState<MovementSource>(MovementSourceEnum.PURCHASE);
 
     return (

@@ -5,7 +5,7 @@ import { Unity } from "@/types/unity";
 import { useNavigate } from "react-router-dom";
 
 export function Unities() {
-    usePageTitle("Unidades de Medida - ERP Industrial");
+    usePageTitle("Unidades de Medida - ERP industrial");
     const navigate = useNavigate();
 
     const columns: ColumnDef<Unity>[] = [

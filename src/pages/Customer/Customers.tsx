@@ -5,7 +5,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useNavigate } from "react-router-dom";
 
 export function Customers() {
-    usePageTitle("Clientes - ERP Industrial");
+    usePageTitle("Clientes - ERP industrial");
     const navigate = useNavigate();
 
     const columns: ColumnDef<Customer>[] = [

@@ -63,7 +63,7 @@ type ProductionOrderFilters = {
 };
 
 export function ProductionOrders() {
-    usePageTitle("Ordens de produção - ERP Industrial");
+    usePageTitle("Ordens de produção - ERP industrial");
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const isMobile = useIsMobile();

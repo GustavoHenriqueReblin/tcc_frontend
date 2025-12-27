@@ -11,7 +11,7 @@ import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 
 export function CreateProductDefinition() {
-    usePageTitle("Cadastro de definição de produto - ERP Industrial");
+    usePageTitle("Cadastro de definição de produto - ERP industrial");
     const queryClient = useQueryClient();
 
     const navigate = useNavigate();

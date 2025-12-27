@@ -7,6 +7,9 @@ export const harvestSchema = z.object({
     warehouseId: z.number().refine((value) => value > 0, {
         message: "Selecione o depósito.",
     }),
+    unitCost: z.number().refine((value) => value >= 0, {
+        message: "Custo deve ser maior ou igual a zero.",
+    }),
     quantity: z
         .number()
         .optional()

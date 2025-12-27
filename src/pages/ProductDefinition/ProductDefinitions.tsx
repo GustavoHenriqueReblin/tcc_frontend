@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { productDefinitionTypeLabels } from "@/types/global";
 
 export function ProductDefinitions() {
-    usePageTitle("Definições de Produto - ERP Industrial");
+    usePageTitle("Definições de produto - ERP industrial");
     const navigate = useNavigate();
 
     const columns: ColumnDef<ProductDefinition>[] = [
@@ -48,7 +48,7 @@ export function ProductDefinitions() {
     return (
         <div className="space-y-2">
             <div className="flex items-center justify-between gap-2 flex-wrap">
-                <h2 className="text-xl font-semibold">Definições de Produto</h2>
+                <h2 className="text-xl font-semibold">Definições de roduto</h2>
             </div>
 
             <DataTable<ProductDefinition>

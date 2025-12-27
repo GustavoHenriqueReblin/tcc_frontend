@@ -36,8 +36,8 @@ import { movementSourceLabels } from "@/types/global";
 type PeriodShortcut = "today" | "7d" | "30d" | "custom";
 
 const movementTypeStyles: Record<keyof typeof MovementTypeEnum, string> = {
-    IN: "bg-emerald-50 text-emerald-800 border-emerald-100",
-    OUT: "bg-red-50 text-red-700 border-red-100",
+    IN: "bg-red-50 text-red-700 border-red-100",
+    OUT: "bg-emerald-50 text-emerald-800 border-emerald-100",
 };
 
 const movementTypeLabels: Record<keyof typeof MovementTypeEnum, string> = {
@@ -54,7 +54,7 @@ const sourceIcons: Record<keyof typeof MovementSourceEnum, JSX.Element> = {
 };
 
 export function InventoryMovementPage() {
-    usePageTitle("Movimentação de estoque - ERP Industrial");
+    usePageTitle("Movimentação de estoque - ERP industrial");
 
     const [period, setPeriod] = useState<PeriodShortcut>("7d");
     const [customRange, setCustomRange] = useState<DateRange | undefined>();
@@ -146,6 +146,35 @@ export function InventoryMovementPage() {
             balanceAfterLast: movements[0]?.balance ?? null,
         };
     }, [movements]);
+    const averages = useMemo(() => {
+        let inTotalValue = 0;
+        let inTotalQty = 0;
+
+        let outTotalValue = 0;
+        let outTotalQty = 0;
+
+        movements.forEach((m) => {
+            const qty = Number(m.quantity);
+            const unitCost = Number(m.unitCost);
+
+            if (!qty || !unitCost) return;
+
+            if (m.direction === MovementTypeEnum.IN) {
+                inTotalQty += qty;
+                inTotalValue += qty * unitCost;
+            }
+
+            if (m.direction === MovementTypeEnum.OUT) {
+                outTotalQty += qty;
+                outTotalValue += qty * unitCost;
+            }
+        });
+
+        return {
+            avgInCost: inTotalQty > 0 ? inTotalValue / inTotalQty : null,
+            avgOutPrice: outTotalQty > 0 ? outTotalValue / outTotalQty : null,
+        };
+    }, [movements]);
 
     const shortcutButton = (label: string, value: PeriodShortcut) => (
         <Button
@@ -169,9 +198,9 @@ export function InventoryMovementPage() {
             onClick={() => setTypeFilter((prev) => (prev === value ? null : value))}
         >
             {value === MovementTypeEnum.IN ? (
-                <ArrowDownLeft className="size-4 text-emerald-600" />
+                <ArrowDownLeft className="size-4 text-red-600" />
             ) : (
-                <ArrowUpRight className="size-4 text-red-600" />
+                <ArrowUpRight className="size-4 text-emerald-600" />
             )}
             {movementTypeLabels[value]}
         </Button>
@@ -217,7 +246,7 @@ export function InventoryMovementPage() {
                     />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 pt-2">
                     <div className="rounded-xl border bg-card p-3">
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
                             Saldo após última movimentação
@@ -236,21 +265,47 @@ export function InventoryMovementPage() {
 
                     <div className="rounded-xl border bg-card p-3">
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            Médias no período
+                        </p>
+
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 text-sm">
+                                <ArrowDownLeft className="size-4 text-red-600" />
+                                <span className="text-muted-foreground">Custo médio</span>
+                                <span className="ml-auto font-semibold text-red-600">
+                                    {averages.avgInCost != null
+                                        ? formatCurrency(averages.avgInCost)
+                                        : "--"}
+                                </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm">
+                                <ArrowUpRight className="size-4 text-emerald-600" />
+                                <span className="text-muted-foreground">Preço médio</span>
+                                <span className="ml-auto font-semibold text-emerald-600">
+                                    {averages.avgOutPrice != null
+                                        ? formatCurrency(averages.avgOutPrice)
+                                        : "--"}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="rounded-xl border bg-card p-3">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
                             Impacto no período selecionado
                         </p>
                         <div className="flex items-center gap-2">
-                            <span className="text-2xl font-semibold text-emerald-700">
+                            <span className="text-2xl font-semibold text-red-600">
                                 +{formatNumber(totals.inQty)}
                             </span>
-                            <span className="text-2xl font-semibold text-red-600">
+                            <span className="text-2xl font-semibold text-emerald-700">
                                 -{formatNumber(totals.outQty)}
                             </span>
                             <span
                                 className={cn(
-                                    "text-sm px-2 py-1 rounded-full border",
-                                    totals.net >= 0
-                                        ? "bg-emerald-50 text-emerald-800 border-emerald-100"
-                                        : "bg-red-50 text-red-700 border-red-100"
+                                    "text-sm px-2 py-1.5 rounded-full border",
+                                    totals.net >= 0 ? "bg-red-50" : "bg-emerald-50"
                                 )}
                             >
                                 {totals.net >= 0 ? "+" : ""}
@@ -358,7 +413,7 @@ export function InventoryMovementPage() {
                 {productId &&
                     movements.map((movement, idx) => {
                         const isIn = movement.direction === MovementTypeEnum.IN;
-                        const qtyColor = isIn ? "text-emerald-700" : "text-red-600";
+                        const qtyColor = isIn ? "text-red-600" : "text-emerald-700";
                         const typeStyle = movementTypeStyles[movement.direction];
                         return (
                             <div key={movement.id} className="relative pl-10 mb-2">

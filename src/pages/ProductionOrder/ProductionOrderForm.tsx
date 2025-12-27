@@ -357,14 +357,14 @@ export function ProductionOrderForm({
                                 }}
                             />
 
-                            <ComboboxQuery
+                            {/* <ComboboxQuery
                                 control={control}
                                 name="lotId"
                                 label="Lote"
                                 endpoint="/lots"
                                 valueField="id"
                                 labelField="code"
-                            />
+                            /> */}
                         </FieldsGrid>
                     </Section>
 
@@ -455,9 +455,22 @@ export function ProductionOrderForm({
                                                     </p>
 
                                                     <p className="text-xs text-muted-foreground">
+                                                        {"Custo total:"}{" "}
                                                         {formatCurrency(
                                                             item.quantity * item.unitCost
                                                         )}{" "}
+                                                    </p>
+                                                </div>
+                                                <div className="flex gap-2 items-center mt-0.5">
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {isMobile
+                                                            ? "Qtd total:"
+                                                            : "Quantidade total:"}{" "}
+                                                        {formatNumber(
+                                                            item.quantity *
+                                                                (form.getValues("plannedQty") ?? 1)
+                                                        )}{" "}
+                                                        {item.unitySimbol}
                                                     </p>
                                                 </div>
                                             </div>

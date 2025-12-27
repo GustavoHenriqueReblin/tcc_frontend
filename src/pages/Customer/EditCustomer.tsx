@@ -20,7 +20,7 @@ export function EditCustomer() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    usePageTitle("Edição de cliente - ERP Industrial");
+    usePageTitle("Edição de cliente - ERP industrial");
 
     useEffect(() => {
         if (!id) navigate("/customers");

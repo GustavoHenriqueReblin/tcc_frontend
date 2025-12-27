@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { ProductDefinitionTypeEnum } from "@/types/enums";
 
 export function CreateProduct() {
-    usePageTitle("Cadastro de produto - ERP Industrial");
+    usePageTitle("Cadastro de produto - ERP industrial");
     const queryClient = useQueryClient();
     const [searchParams] = useSearchParams();
     const type = searchParams.get("type") as ProductDefinitionType;

@@ -16,7 +16,7 @@ import { ProductDefinitionTypeEnum } from "@/types/enums";
 import { api } from "@/api/client";
 
 export function RawMaterials() {
-    usePageTitle("Matérias primas - ERP Industrial");
+    usePageTitle("Matérias primas - ERP industrial");
     const navigate = useNavigate();
 
     const [totalQuantity, setTotalQuantity] = useState<number>(0);

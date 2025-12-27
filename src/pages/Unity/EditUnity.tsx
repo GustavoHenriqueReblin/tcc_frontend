@@ -20,7 +20,7 @@ export function EditUnity() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    usePageTitle("Edição de unidade - ERP Industrial");
+    usePageTitle("Edição de unidade - ERP industrial");
 
     useEffect(() => {
         if (!id) navigate("/unities");

@@ -11,7 +11,7 @@ import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 
 export function CreateUnity() {
-    usePageTitle("Cadastro de unidade - ERP Industrial");
+    usePageTitle("Cadastro de unidade - ERP industrial");
     const queryClient = useQueryClient();
 
     const navigate = useNavigate();

@@ -125,7 +125,7 @@ const featuredModules = [
 ];
 
 export function Home() {
-    usePageTitle("Dashboard - ERP Industrial");
+    usePageTitle("Dashboard - ERP industrial");
 
     return (
         <div className="mx-auto max-w-7xl space-y-8">

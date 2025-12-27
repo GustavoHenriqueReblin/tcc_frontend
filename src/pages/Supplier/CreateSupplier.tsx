@@ -11,7 +11,7 @@ import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 
 export function CreateSupplier() {
-    usePageTitle("Cadastro de fornecedor - ERP Industrial");
+    usePageTitle("Cadastro de fornecedor - ERP industrial");
     const queryClient = useQueryClient();
 
     const navigate = useNavigate();

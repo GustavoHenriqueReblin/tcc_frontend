@@ -15,7 +15,7 @@ import { ProductionOrderStatusEnum } from "@/types/enums";
 import { buildNestedPayload } from "@/utils/buildNestedItems";
 
 export function CreateProductionOrder() {
-    usePageTitle("Cadastro de ordem de produção - ERP Industrial");
+    usePageTitle("Cadastro de ordem de produção - ERP industrial");
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 

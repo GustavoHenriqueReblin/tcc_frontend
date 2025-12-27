@@ -20,7 +20,7 @@ export function EditWarehouse() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    usePageTitle("Edição de depósito - ERP Industrial");
+    usePageTitle("Edição de depósito - ERP industrial");
 
     useEffect(() => {
         if (!id) navigate("/warehouses");

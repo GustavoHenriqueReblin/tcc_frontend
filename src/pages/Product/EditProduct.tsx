@@ -24,7 +24,7 @@ export function EditProduct() {
     const [searchParams] = useSearchParams();
     const type = searchParams.get("type") as ProductDefinitionType;
 
-    usePageTitle("Edição de produto - ERP Industrial");
+    usePageTitle("Edição de produto - ERP industrial");
 
     useEffect(() => {
         if (!id)

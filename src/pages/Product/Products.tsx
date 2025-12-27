@@ -16,7 +16,7 @@ import { ProductDefinitionTypeEnum } from "@/types/enums";
 import { api } from "@/api/client";
 
 export function Products() {
-    usePageTitle("Produtos - ERP Industrial");
+    usePageTitle("Produtos - ERP industrial");
     const navigate = useNavigate();
 
     const [totalQuantity, setTotalQuantity] = useState<number>(0);
