@@ -15,8 +15,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ProductDefinitionTypeEnum } from "@/types/enums";
 import { api } from "@/api/client";
 
-export function Products() {
-    usePageTitle("Produtos - ERP Industrial");
+export function RawMaterials() {
+    usePageTitle("Matérias primas - ERP Industrial");
     const navigate = useNavigate();
 
     const [totalQuantity, setTotalQuantity] = useState<number>(0);
@@ -24,14 +24,14 @@ export function Products() {
     const [totalSaleValue, setTotalSaleValue] = useState<number>(0);
     const [totalProducts, setTotalProducts] = useState<number>(0);
 
-    const { data: finishedProductDefinition } = useQuery<ProductDefinition>({
-        queryKey: ["product-definition", ProductDefinitionTypeEnum.FINISHED_PRODUCT],
+    const { data: rawMaterialDefinition } = useQuery<ProductDefinition>({
+        queryKey: ["product-definition", ProductDefinitionTypeEnum.RAW_MATERIAL],
         queryFn: async () => {
             const response = await api.get<ApiResponse<ServerList<ProductDefinition>>>(
                 "/product-definitions",
                 {
                     params: {
-                        type: ProductDefinitionTypeEnum.FINISHED_PRODUCT,
+                        type: ProductDefinitionTypeEnum.RAW_MATERIAL,
                         limit: 1,
                     },
                 }
@@ -105,25 +105,26 @@ export function Products() {
     ];
 
     const handleRowClick = (row: Product) => {
-        navigate(`/products/edit/${row.id}?type=${ProductDefinitionTypeEnum.FINISHED_PRODUCT}`);
+        navigate(`/raw-material/edit/${row.id}?type=${ProductDefinitionTypeEnum.RAW_MATERIAL}`);
     };
 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
-                <h2 className="text-xl font-semibold">Produtos</h2>
+                <h2 className="text-xl font-semibold">Matérias primas</h2>
             </div>
 
             <DataTable<Product>
                 columns={columns}
                 endpoint="/products"
                 filters={
-                    finishedProductDefinition
-                        ? { productDefinitionId: finishedProductDefinition.id }
+                    rawMaterialDefinition
+                        ? { productDefinitionId: rawMaterialDefinition.id }
                         : undefined
                 }
-                createButtonDescription="Novo produto"
-                createButtonParams={`type=${ProductDefinitionTypeEnum.FINISHED_PRODUCT}`}
+                createButtonDescription="Nova matéria"
+                createButtonParams={`type=${ProductDefinitionTypeEnum.RAW_MATERIAL}`}
+                customPathNavigate="/raw-material"
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
                 onRowClick={handleRowClick}
                 mobileFields={[
@@ -171,8 +172,8 @@ export function Products() {
                     let cost = 0;
                     let sale = 0;
 
-                    data.forEach((product) => {
-                        const inv = product.productInventory?.[0];
+                    data.forEach((rawMaterial) => {
+                        const inv = rawMaterial.productInventory?.[0];
                         if (!inv) return;
 
                         const q = Number(inv.quantity ?? 0);
@@ -193,7 +194,7 @@ export function Products() {
 
             <div className="flex flex-wrap justify-end gap-6 border-t pt-4">
                 <div className="flex flex-col items-end">
-                    <span className="text-sm text-muted-foreground">Produtos</span>
+                    <span className="text-sm text-muted-foreground">Matérias primas</span>
                     <span className="font-semibold">{formatNumber(totalProducts)}</span>
                 </div>
 

@@ -33,6 +33,8 @@ export interface DataTableProps<
     columns: ColumnDef<TData, unknown>[];
     endpoint: string;
     createButtonDescription: string;
+    createButtonParams?: string;
+    customPathNavigate?: string;
 
     filters?: TFilters;
     filterComponents?: ReactNode;
@@ -91,6 +93,8 @@ export function DataTable<TData extends object>({
     columns,
     endpoint,
     createButtonDescription,
+    createButtonParams,
+    customPathNavigate,
     filters,
     filterComponents,
     mobileFields = [],
@@ -213,7 +217,11 @@ export function DataTable<TData extends object>({
                     <div className="space-y-2">
                         {createButtonDescription && (
                             <Button
-                                onClick={() => navigate(`${endpoint}/create`)}
+                                onClick={() =>
+                                    navigate(
+                                        `${customPathNavigate ?? endpoint}/create${createButtonParams ? `?${createButtonParams}` : ""}`
+                                    )
+                                }
                                 className="w-full flex items-center gap-2"
                             >
                                 <Plus className="size-4" />
@@ -366,7 +374,11 @@ export function DataTable<TData extends object>({
                 <div className="flex gap-2 items-end flex-wrap">
                     {createButtonDescription && (
                         <Button
-                            onClick={() => navigate(`${endpoint}/create`)}
+                            onClick={() =>
+                                navigate(
+                                    `${customPathNavigate ?? endpoint}/create${createButtonParams ? `?${createButtonParams}` : ""}`
+                                )
+                            }
                             className="flex items-center gap-2"
                         >
                             <Plus className="size-4" />

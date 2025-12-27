@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ProductForm, defaultProductFormValues } from "./ProductForm";
@@ -7,7 +7,7 @@ import type { ProductFormValues } from "@/schemas/product.schema";
 
 import { api } from "@/api/client";
 import type { Product } from "@/types/product";
-import type { ApiResponse } from "@/types/global";
+import type { ApiResponse, ProductDefinitionType } from "@/types/global";
 
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Loading } from "@/components/Loading";
@@ -15,17 +15,23 @@ import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 import { isEqual } from "lodash-es";
 import { buildNestedPayload } from "@/utils/buildNestedItems";
+import { ProductDefinitionTypeEnum } from "@/types/enums";
 
 export function EditProduct() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const [searchParams] = useSearchParams();
+    const type = searchParams.get("type") as ProductDefinitionType;
 
     usePageTitle("Edição de produto - ERP Industrial");
 
     useEffect(() => {
-        if (!id) navigate("/products");
-    }, [id, navigate]);
+        if (!id)
+            navigate(
+                type === ProductDefinitionTypeEnum.FINISHED_PRODUCT ? "/products" : "/raw-material"
+            );
+    }, [type, id, navigate]);
 
     const {
         data: product,
@@ -140,7 +146,9 @@ export function EditProduct() {
                 exact: false,
             });
 
-            navigate("/products");
+            navigate(
+                type === ProductDefinitionTypeEnum.FINISHED_PRODUCT ? "/products" : "/raw-material"
+            );
         },
     });
 
@@ -198,7 +206,13 @@ export function EditProduct() {
                         defaultValues={formDefaults}
                         submitLabel="Atualizar produto"
                         onSubmit={(values) => updateMutation.mutate(values)}
-                        onCancel={() => navigate("/products")}
+                        onCancel={() =>
+                            navigate(
+                                type === ProductDefinitionTypeEnum.FINISHED_PRODUCT
+                                    ? "/products"
+                                    : "/raw-material"
+                            )
+                        }
                         isLoading={updateMutation.isPending}
                         Id={Number(id)}
                     />

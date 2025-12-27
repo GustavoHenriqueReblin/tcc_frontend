@@ -15,11 +15,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { recipeItemFormSchema, RecipeItemFormValue } from "@/schemas/product.schema";
 import { Form } from "@/components/ui/form";
 
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/api/client";
+import { ApiResponse, ServerList } from "@/types/global";
+import { ProductDefinitionTypeEnum } from "@/types/enums";
+
 interface Props {
     open: boolean;
     onClose: () => void;
     initialData: RecipeItemFormValue;
     onSave: (data: RecipeItemFormValue) => void;
+}
+
+interface ProductDefinition {
+    id: number;
+    type: string;
 }
 
 export function RecipeItemModal({ open, onClose, initialData, onSave }: Props) {
@@ -30,6 +40,27 @@ export function RecipeItemModal({ open, onClose, initialData, onSave }: Props) {
 
     const { control, trigger, getValues } = form;
     const unitySimbol = form.watch("unitySimbol");
+
+    const { data: rawMaterialDefinition } = useQuery<ProductDefinition>({
+        queryKey: ["product-definition", ProductDefinitionTypeEnum.RAW_MATERIAL],
+        queryFn: async () => {
+            const response = await api.get<ApiResponse<ServerList<ProductDefinition>>>(
+                "/product-definitions",
+                {
+                    params: {
+                        type: ProductDefinitionTypeEnum.RAW_MATERIAL,
+                        limit: 1,
+                    },
+                }
+            );
+
+            if (!response.data.success || response.data.data.items.length === 0) {
+                throw new Error("Definição de matéria-prima não encontrada");
+            }
+
+            return response.data.data.items[0];
+        },
+    });
 
     const validateAndSubmit = async () => {
         const isValid = await trigger(undefined, { shouldFocus: true });
@@ -42,11 +73,7 @@ export function RecipeItemModal({ open, onClose, initialData, onSave }: Props) {
             return;
         }
 
-        submit(getValues());
-    };
-
-    const submit = (data: RecipeItemFormValue) => {
-        onSave(data);
+        onSave(getValues());
         onClose();
     };
 
@@ -71,9 +98,15 @@ export function RecipeItemModal({ open, onClose, initialData, onSave }: Props) {
                                 control={control}
                                 name="productId"
                                 label="Matéria prima *"
-                                endpoint="/products/materials"
+                                endpoint="/products"
+                                extraParams={
+                                    rawMaterialDefinition
+                                        ? { productDefinitionId: rawMaterialDefinition.id }
+                                        : undefined
+                                }
                                 valueField="id"
                                 labelField="name"
+                                disabled={!rawMaterialDefinition}
                                 onSelectItem={(item) => {
                                     form.setValue("productName", item.name);
                                     form.setValue("unitySimbol", item.unity.simbol);

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductForm } from "./ProductForm";
 import { defaultProductFormValues } from "./ProductForm";
@@ -7,13 +7,16 @@ import { api } from "@/api/client";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 import type { Product } from "@/types/product";
-import type { ApiResponse } from "@/types/global";
+import type { ApiResponse, ProductDefinitionType } from "@/types/global";
 import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
+import { ProductDefinitionTypeEnum } from "@/types/enums";
 
 export function CreateProduct() {
     usePageTitle("Cadastro de produto - ERP Industrial");
     const queryClient = useQueryClient();
+    const [searchParams] = useSearchParams();
+    const type = searchParams.get("type") as ProductDefinitionType;
 
     const navigate = useNavigate();
 
@@ -76,7 +79,9 @@ export function CreateProduct() {
                 exact: false,
             });
 
-            navigate("/products");
+            navigate(
+                type === ProductDefinitionTypeEnum.FINISHED_PRODUCT ? "/products" : "/raw-material"
+            );
         },
     });
 
@@ -99,7 +104,13 @@ export function CreateProduct() {
                 defaultValues={defaultProductFormValues}
                 submitLabel="Salvar produto"
                 onSubmit={(values) => mutation.mutate(values)}
-                onCancel={() => navigate("/products")}
+                onCancel={() =>
+                    navigate(
+                        type === ProductDefinitionTypeEnum.FINISHED_PRODUCT
+                            ? "/products"
+                            : "/raw-material"
+                    )
+                }
                 isLoading={mutation.isPending}
             />
         </div>

@@ -3,10 +3,15 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
 
 import type { ProductionOrder } from "@/types/productionOrder";
-import { ApiResponse, ProductionOrderStatus, productionOrderStatusLabels } from "@/types/global";
+import {
+    ApiResponse,
+    ProductionOrderStatus,
+    productionOrderStatusLabels,
+    ServerList,
+} from "@/types/global";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { ProductionOrderStatusEnum } from "@/types/enums";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ProductDefinitionTypeEnum, ProductionOrderStatusEnum } from "@/types/enums";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/api/client";
 import {
@@ -34,6 +39,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
+import { ProductDefinition } from "@/types/product";
 
 const productionOrderStatusColors: Record<ProductionOrderStatus, string> = {
     PLANNED: "bg-gray-200 text-gray-800",
@@ -72,6 +78,27 @@ export function ProductionOrders() {
     const [plannedQty, setPlannedQty] = useState(0);
     const [producedQty, setProducedQty] = useState(0);
     const [wasteQty, setWasteQty] = useState(0);
+
+    const { data: finishedProductDefinition } = useQuery<ProductDefinition>({
+        queryKey: ["product-definition", ProductDefinitionTypeEnum.FINISHED_PRODUCT],
+        queryFn: async () => {
+            const response = await api.get<ApiResponse<ServerList<ProductDefinition>>>(
+                "/product-definitions",
+                {
+                    params: {
+                        type: ProductDefinitionTypeEnum.FINISHED_PRODUCT,
+                        limit: 1,
+                    },
+                }
+            );
+
+            if (!response.data.success || response.data.data.items.length === 0) {
+                throw new Error("Definição de matéria-prima não encontrada");
+            }
+
+            return response.data.data.items[0];
+        },
+    });
 
     const finishOrderMutation = useMutation<
         ProductionOrder,
@@ -452,6 +479,11 @@ export function ProductionOrders() {
                             <ComboboxStandalone
                                 label="Produto"
                                 endpoint="/products"
+                                extraParams={
+                                    finishedProductDefinition
+                                        ? { productDefinitionId: finishedProductDefinition.id }
+                                        : undefined
+                                }
                                 valueField="id"
                                 labelField="name"
                                 value={filters.productId || null}

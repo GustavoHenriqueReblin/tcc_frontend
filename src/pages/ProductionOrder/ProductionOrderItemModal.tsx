@@ -17,6 +17,11 @@ import {
 } from "@/schemas/production-order.schema";
 import { Form } from "@/components/ui/form";
 import { ComboboxQuery } from "@/components/ComboboxQuery";
+import { ProductDefinition } from "@/types/product";
+import { useQuery } from "@tanstack/react-query";
+import { ProductDefinitionTypeEnum } from "@/types/enums";
+import { api } from "@/api/client";
+import { ApiResponse, ServerList } from "@/types/global";
 
 interface Props {
     open: boolean;
@@ -32,6 +37,27 @@ export function ProductionOrderItemModal({ open, onClose, initialData, onSave }:
     });
 
     const { control, handleSubmit } = form;
+
+    const { data: rawMaterialDefinition } = useQuery<ProductDefinition>({
+        queryKey: ["product-definition", ProductDefinitionTypeEnum.RAW_MATERIAL],
+        queryFn: async () => {
+            const response = await api.get<ApiResponse<ServerList<ProductDefinition>>>(
+                "/product-definitions",
+                {
+                    params: {
+                        type: ProductDefinitionTypeEnum.RAW_MATERIAL,
+                        limit: 1,
+                    },
+                }
+            );
+
+            if (!response.data.success || response.data.data.items.length === 0) {
+                throw new Error("Definição de matéria-prima não encontrada");
+            }
+
+            return response.data.data.items[0];
+        },
+    });
 
     return (
         <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -68,7 +94,12 @@ export function ProductionOrderItemModal({ open, onClose, initialData, onSave }:
                                 control={control}
                                 name="productId"
                                 label="Matéria prima *"
-                                endpoint="/products/materials"
+                                endpoint="/products"
+                                extraParams={
+                                    rawMaterialDefinition
+                                        ? { productDefinitionId: rawMaterialDefinition.id }
+                                        : undefined
+                                }
                                 valueField="id"
                                 labelField="name"
                                 disabled={!!initialData?.productId}

@@ -16,10 +16,14 @@ import { Form } from "@/components/ui/form";
 import { Loading } from "@/components/Loading";
 import { FormFooterFloating } from "@/components/FormFooterFloating";
 import { AdjustInventoryModal } from "@/pages/Product/AdjustInventory/AdjustInventoryModal";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProductRecipes } from "./Recipe/ProductRecipes";
 import { SlidersHorizontal } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useSearchParams } from "react-router-dom";
+import { ApiResponse, ProductDefinitionType, ServerList } from "@/types/global";
+import { ProductDefinition } from "@/types/product";
+import { api } from "@/api/client";
 
 interface Props {
     defaultValues: ProductFormValues;
@@ -45,6 +49,32 @@ export function ProductForm({
     });
     const queryClient = useQueryClient();
     const isMobile = useIsMobile();
+    const [searchParams] = useSearchParams();
+    const type = searchParams.get("type") as ProductDefinitionType;
+
+    useQuery<ProductDefinition>({
+        queryKey: ["product-definition", type],
+        enabled: !form.getValues("productDefinitionId") && !!type,
+        queryFn: async () => {
+            const response = await api.get<ApiResponse<ServerList<ProductDefinition>>>(
+                "/product-definitions",
+                {
+                    params: {
+                        type: type,
+                        limit: 1,
+                    },
+                }
+            );
+
+            if (!response.data.success || response.data.data.items.length === 0) {
+                throw new Error("Definição de matéria-prima não encontrada");
+            }
+
+            const id = response.data.data.items[0].id;
+            if (id) form.setValue("productDefinitionId", id);
+            return response.data.data.items[0];
+        },
+    });
 
     useEffect(() => {
         form.reset(defaultValues);

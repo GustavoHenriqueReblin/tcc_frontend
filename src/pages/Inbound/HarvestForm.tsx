@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Form } from "@/components/ui/form";
@@ -13,9 +13,11 @@ import { api } from "@/api/client";
 import { buildApiError } from "@/utils/global";
 
 import { harvestSchema, type HarvestFormValues } from "@/schemas/inbound/harvest.schema";
-import { ApiResponse } from "@/types/global";
+import { ApiResponse, ServerList } from "@/types/global";
 import { InventoryMovement } from "@/types/inventoryMovement";
 import { useState } from "react";
+import { ProductDefinition } from "@/types/product";
+import { ProductDefinitionTypeEnum } from "@/types/enums";
 
 export function HarvestForm() {
     const [unitySimbol, setUnitySimbol] = useState<string | null>(null);
@@ -24,6 +26,27 @@ export function HarvestForm() {
     const form = useForm<HarvestFormValues>({
         resolver: zodResolver(harvestSchema),
         defaultValues: defaultHarvestValues,
+    });
+
+    const { data: rawMaterialDefinition } = useQuery<ProductDefinition>({
+        queryKey: ["product-definition", ProductDefinitionTypeEnum.RAW_MATERIAL],
+        queryFn: async () => {
+            const response = await api.get<ApiResponse<ServerList<ProductDefinition>>>(
+                "/product-definitions",
+                {
+                    params: {
+                        type: ProductDefinitionTypeEnum.RAW_MATERIAL,
+                        limit: 1,
+                    },
+                }
+            );
+
+            if (!response.data.success || response.data.data.items.length === 0) {
+                throw new Error("Definição de matéria-prima não encontrada");
+            }
+
+            return response.data.data.items[0];
+        },
     });
 
     const mutation = useMutation({
@@ -96,6 +119,11 @@ export function HarvestForm() {
                                 name="productId"
                                 label="Produto"
                                 endpoint="/products"
+                                extraParams={
+                                    rawMaterialDefinition
+                                        ? { productDefinitionId: rawMaterialDefinition.id }
+                                        : undefined
+                                }
                                 valueField="id"
                                 labelField="name"
                                 onSelectItem={(e) => {

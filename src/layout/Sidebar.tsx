@@ -12,6 +12,7 @@ import {
     Users,
     Warehouse,
     Weight,
+    Layers,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link, useLocation } from "react-router-dom";
@@ -41,6 +42,7 @@ export const menuConfig = [
         type: "group",
         label: "Estoque",
         items: [
+            { label: "Matérias primas", to: "/raw-material", icon: Layers },
             { label: "Produtos", to: "/products", icon: Package },
             {
                 label: "Entrada de mercadoria",
@@ -58,6 +60,11 @@ export const menuConfig = [
         ],
     },
 ];
+
+function isRouteActive(pathname: string, basePath: string) {
+    if (pathname === basePath) return true;
+    return pathname.startsWith(`${basePath}/`);
+}
 
 export function Sidebar({
     mode,
@@ -125,7 +132,7 @@ export function Sidebar({
                     <nav className="flex-1 px-3 py-2 space-y-2">
                         {menuConfig.map((entry) => {
                             if (entry.type === "item") {
-                                const active = location.pathname === entry.to;
+                                const active = isRouteActive(location.pathname, entry.to);
                                 const Icon = entry.icon;
 
                                 const content = (
@@ -192,7 +199,10 @@ export function Sidebar({
                                             )}
                                         >
                                             {entry.items.map((item) => {
-                                                const active = location.pathname === item.to;
+                                                const active = isRouteActive(
+                                                    location.pathname,
+                                                    item.to
+                                                );
                                                 const Icon = item.icon;
 
                                                 const content = (
