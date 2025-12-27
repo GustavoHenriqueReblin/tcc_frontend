@@ -311,7 +311,7 @@ export function TextField<T extends FieldValues>({
 
                 const handleBlur = (e) => {
                     if (type === "number") {
-                        const n = parseNumber(field.value);
+                        const n = parseNumber(field.value ?? 0);
                         field.onChange(n);
                     }
 
