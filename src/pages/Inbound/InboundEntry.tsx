@@ -6,9 +6,9 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { MovementSourceEnum } from "@/types/enums";
 import { MovementSource, movementSourceLabels } from "@/types/global";
 
-import { PurchaseEntryForm } from "./PurchaseEntryForm";
-import { AdjustmentEntryForm } from "./AdjustmentEntryForm";
-import { HarvestForm } from "./HarvestForm";
+import { PurchaseEntryForm } from "./Forms/PurchaseEntryForm";
+import { AdjustmentEntryForm } from "./Forms/AdjustmentEntryForm";
+import { HarvestForm } from "./Forms/HarvestForm";
 
 export function InboundEntry() {
     usePageTitle("Entrada de Mercadoria - ERP industrial");

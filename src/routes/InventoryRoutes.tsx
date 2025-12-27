@@ -1,5 +1,5 @@
 import { Route } from "react-router-dom";
-import { InboundEntry } from "@/pages/Inbound/Inbound";
+import { InboundEntry } from "@/pages/Inbound/InboundEntry";
 import { InventoryMovementPage } from "@/pages/InventoryMovement/InventoryMovement";
 
 export function InventoryRoutes() {
