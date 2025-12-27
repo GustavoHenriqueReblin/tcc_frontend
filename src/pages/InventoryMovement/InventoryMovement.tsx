@@ -150,8 +150,8 @@ export function InventoryMovementPage() {
         let inTotalValue = 0;
         let inTotalQty = 0;
 
-        let outTotalValue = 0;
-        let outTotalQty = 0;
+        // let outTotalValue = 0;
+        // let outTotalQty = 0;
 
         movements.forEach((m) => {
             const qty = Number(m.quantity);
@@ -164,15 +164,15 @@ export function InventoryMovementPage() {
                 inTotalValue += qty * unitCost;
             }
 
-            if (m.direction === MovementTypeEnum.OUT) {
-                outTotalQty += qty;
-                outTotalValue += qty * unitCost;
-            }
+            // if (m.direction === MovementTypeEnum.OUT) {
+            //     outTotalQty += qty;
+            //     outTotalValue += qty * unitCost;
+            // }
         });
 
         return {
             avgInCost: inTotalQty > 0 ? inTotalValue / inTotalQty : null,
-            avgOutPrice: outTotalQty > 0 ? outTotalValue / outTotalQty : null,
+            avgOutPrice: null, //outTotalQty > 0 ? outTotalValue / outTotalQty : null,
         };
     }, [movements]);
 
@@ -477,29 +477,32 @@ export function InventoryMovementPage() {
                                                 {movement.product?.unity?.simbol ?? "un"}
                                             </span>
                                         </div>
-                                        {movement.unitCost && (
-                                            <div className="max-w-xl flex flex-col gap-1">
-                                                <span className="text-xs text-muted-foreground">
-                                                    Custo unitário
-                                                </span>
-                                                <p className="text-sm">
-                                                    {formatCurrency(Number(movement.unitCost))}
-                                                </p>
-                                            </div>
-                                        )}
-                                        {movement.unitCost && movement.quantity && (
-                                            <div className="max-w-xl flex flex-col gap-1">
-                                                <span className="text-xs text-muted-foreground">
-                                                    Total
-                                                </span>
-                                                <p className="text-sm">
-                                                    {formatCurrency(
-                                                        Number(movement.quantity) *
-                                                            Number(movement.unitCost)
-                                                    )}
-                                                </p>
-                                            </div>
-                                        )}
+                                        {movement.unitCost &&
+                                            movement.direction === MovementTypeEnum.IN && (
+                                                <div className="max-w-xl flex flex-col gap-1">
+                                                    <span className="text-xs text-muted-foreground">
+                                                        Custo unitário
+                                                    </span>
+                                                    <p className="text-sm">
+                                                        {formatCurrency(Number(movement.unitCost))}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        {movement.unitCost &&
+                                            movement.quantity &&
+                                            movement.direction === MovementTypeEnum.IN && (
+                                                <div className="max-w-xl flex flex-col gap-1">
+                                                    <span className="text-xs text-muted-foreground">
+                                                        Total
+                                                    </span>
+                                                    <p className="text-sm">
+                                                        {formatCurrency(
+                                                            Number(movement.quantity) *
+                                                                Number(movement.unitCost)
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            )}
                                         {movement.notes && (
                                             <div className="max-w-xl">
                                                 <span className="text-xs text-muted-foreground">
