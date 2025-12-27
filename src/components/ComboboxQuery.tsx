@@ -10,7 +10,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { cn, nextFocus } from "@/utils/global";
+import { cn, nextFocus, normalizeString } from "@/utils/global";
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/client";
@@ -143,7 +143,7 @@ export function ComboboxQuery<
                                             <CommandItem
                                                 className="cursor-pointer hover:bg-accent"
                                                 key={value}
-                                                value={labelText}
+                                                value={normalizeString(labelText)}
                                                 onSelect={() => {
                                                     field.onChange(Number(value));
                                                     onSelectItem?.(item);

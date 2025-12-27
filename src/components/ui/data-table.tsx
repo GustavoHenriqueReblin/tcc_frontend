@@ -326,9 +326,15 @@ export function DataTable<TData extends object>({
                 )}
 
                 <div className="flex items-center justify-between pt-2">
-                    <p className="text-sm text-muted-foreground">
-                        Página {pagination.pageIndex + 1} de {meta.totalPages}
-                    </p>
+                    <div className="flex flex-col gap-2">
+                        <p className="text-sm text-muted-foreground">
+                            Página {meta.totalPages ? pagination.pageIndex + 1 : 0} de{" "}
+                            {meta.totalPages}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                            Total de {meta.total} {meta.total > 1 ? "registros" : "registro"}
+                        </p>
+                    </div>
 
                     <div className="flex items-center gap-2">
                         <Button
@@ -493,9 +499,15 @@ export function DataTable<TData extends object>({
             </div>
 
             <div className="flex items-center justify-between pt-2">
-                <p className="text-sm text-muted-foreground">
-                    Página {pagination.pageIndex + 1} de {meta.totalPages}
-                </p>
+                <div className="flex gap-4">
+                    <p className="text-sm text-muted-foreground">
+                        Página {meta.totalPages ? pagination.pageIndex + 1 : 0} de {meta.totalPages}
+                    </p>
+                    <p className="text-sm text-muted-foreground">-</p>
+                    <p className="text-sm text-muted-foreground">
+                        Total de {meta.total} {meta.total > 1 ? "registros" : "registro"}
+                    </p>
+                </div>
 
                 <div className="flex items-center gap-2">
                     <Button

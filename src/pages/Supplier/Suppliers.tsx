@@ -21,6 +21,10 @@ export function Suppliers() {
             id: "person.phone",
             header: "Telefone",
             meta: { sortable: false },
+            cell: ({ row }) => {
+                const number = row.original.person.phone || row.original.person.cellphone;
+                return number;
+            },
         },
 
         {

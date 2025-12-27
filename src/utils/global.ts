@@ -203,3 +203,10 @@ export async function openPDF(id: number, path: string) {
 
     setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
 }
+
+export function normalizeString(text: string) {
+    return text
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+}
