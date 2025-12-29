@@ -284,10 +284,17 @@ export function ProductionOrders() {
                     onClick={async (e) => {
                         e.stopPropagation();
                         const toastId = toast.loading("Gerando arquivo...");
-                        await openPDF(order.id, "production-order");
-                        toast.success("Arquivo gerado com sucesso.", {
-                            id: toastId,
-                        });
+                        try {
+                            await openPDF(order.id, "production-order");
+                            toast.success("Arquivo gerado com sucesso.", {
+                                id: toastId,
+                            });
+                        } catch (error) {
+                            console.log(error);
+                            toast.success("Falha ao gerar o arquivo.", {
+                                id: toastId,
+                            });
+                        }
                     }}
                 >
                     Visualizar
