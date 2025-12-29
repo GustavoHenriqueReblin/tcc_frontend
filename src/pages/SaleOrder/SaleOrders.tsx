@@ -51,8 +51,10 @@ export function SaleOrders() {
             const toastId = toast.loading("Atualizando venda...");
 
             try {
+                /* eslint-disable @typescript-eslint/no-unused-vars */
+                const { items: _items, ...orderWithoutItems } = order;
                 const response = await api.put(`/sale-orders/${order.id}`, {
-                    ...order,
+                    ...orderWithoutItems,
                     status,
                 });
 

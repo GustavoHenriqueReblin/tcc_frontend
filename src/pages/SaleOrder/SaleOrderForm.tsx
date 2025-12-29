@@ -251,7 +251,13 @@ export function SaleOrderForm({
         <div className="rounded-md border bg-card p-6">
             <Form {...form}>
                 <form
-                    onSubmit={handleSubmit((values) => onSubmit(values, { removedItemIds }))}
+                    onSubmit={handleSubmit(
+                        (values) => onSubmit(values, { removedItemIds }),
+                        (errors) => {
+                            console.error("FORM ERRORS", errors);
+                            console.log("CURRENT VALUES", form.getValues());
+                        }
+                    )}
                     className="space-y-8"
                 >
                     <Section
@@ -456,5 +462,13 @@ export const defaultSaleOrderFormValues: SaleOrderFormValues = {
     discount: 0,
     otherCosts: 0,
     notes: "",
-    items: [],
+    items: [
+        {
+            productId: null,
+            quantity: 0,
+            productUnitPrice: 0,
+            unitCost: 0,
+            unitPrice: 0,
+        },
+    ],
 };
