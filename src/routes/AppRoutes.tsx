@@ -11,6 +11,7 @@ import { UnityRoutes } from "./UnityRoutes";
 import { WarehouseRoutes } from "./WarehouseRoutes";
 import { InventoryRoutes } from "./InventoryRoutes";
 import { ProductionOrderRoutes } from "./ProductionOrderRoutes";
+import { SaleOrderRoutes } from "./SaleOrderRoutes";
 
 export function AppRoutes() {
     return (
@@ -31,6 +32,7 @@ export function AppRoutes() {
                     {WarehouseRoutes()}
                     {InventoryRoutes()}
                     {ProductionOrderRoutes()}
+                    {SaleOrderRoutes()}
                 </Route>
             </Routes>
         </BrowserRouter>

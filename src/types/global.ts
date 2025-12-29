@@ -77,6 +77,15 @@ export const movementSourceLabels: Record<MovementSource, string> = {
     PRODUCTION: "Produção",
 };
 
+export const orderStatusLabels: Record<OrderStatus, string> = {
+    PENDING: "Pendente",
+    APPROVED: "Aprovado",
+    SHIPPED: "Enviado",
+    RECEIVED: "Recebido",
+    FINISHED: "Finalizado",
+    CANCELED: "Cancelado",
+};
+
 export const productionOrderStatusLabels: Record<ProductionOrderStatus, string> = {
     PLANNED: "Planejada",
     RUNNING: "Em produção",

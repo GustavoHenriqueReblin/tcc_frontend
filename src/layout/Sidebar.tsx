@@ -8,6 +8,7 @@ import {
     Factory,
     History,
     LayoutDashboard,
+    ShoppingCart,
     Package,
     Users,
     Warehouse,
@@ -58,6 +59,11 @@ export const menuConfig = [
             { label: "Unidades de medida", to: "/unities", icon: Weight },
             { label: "Depósitos", to: "/warehouses", icon: Warehouse },
         ],
+    },
+    {
+        type: "group",
+        label: "Comercial",
+        items: [{ label: "Vendas", to: "/sale-orders", icon: ShoppingCart }],
     },
 ];
 
