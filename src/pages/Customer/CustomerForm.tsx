@@ -181,7 +181,7 @@ export function CustomerForm({
                                 valueField="id"
                                 labelField="name"
                                 disabled={!stateId}
-                                extraParams={{ stateId, page: 1, limit: 6000 }}
+                                extraParams={{ stateId }}
                             />
                         </FieldsGrid>
 

@@ -196,8 +196,6 @@ export function ProductionOrders() {
     });
 
     const renderActions = (order: ProductionOrder, orientation: "row" | "column" = "row") => {
-        if (order.status === ProductionOrderStatusEnum.CANCELED) return null;
-
         const stacked = orientation === "column";
         const buttonClassName = stacked ? "w-full justify-center" : undefined;
 
@@ -248,20 +246,22 @@ export function ProductionOrders() {
                     </>
                 )}
 
-                <StatusActionButton
-                    label="Cancelar"
-                    intent="danger"
-                    className={buttonClassName}
-                    confirmTitle="Cancelar ordem de produção?"
-                    confirmDescription="Esta ação irá cancelar a ordem de produção."
-                    confirmLabel="Cancelar ordem"
-                    onConfirm={() =>
-                        updateStatusMutation.mutate({
-                            order,
-                            status: ProductionOrderStatusEnum.CANCELED,
-                        })
-                    }
-                />
+                {order.status !== ProductionOrderStatusEnum.CANCELED && (
+                    <StatusActionButton
+                        label="Cancelar"
+                        intent="danger"
+                        className={buttonClassName}
+                        confirmTitle="Cancelar ordem de produção?"
+                        confirmDescription="Esta ação irá cancelar a ordem de produção."
+                        confirmLabel="Cancelar ordem"
+                        onConfirm={() =>
+                            updateStatusMutation.mutate({
+                                order,
+                                status: ProductionOrderStatusEnum.CANCELED,
+                            })
+                        }
+                    />
+                )}
 
                 <Button
                     size="sm"

@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/components/ui/form";
 
-import { cn, nextFocus, normalizeString } from "@/utils/global";
+import { cn, nextFocus } from "@/utils/global";
 
 interface ComboboxQueryProps<
     TFieldValues extends FieldValues,
@@ -53,19 +53,27 @@ export function ComboboxQuery<
     onSelectItem,
 }: ComboboxQueryProps<TFieldValues, TItem>) {
     const [open, setOpen] = useState(false);
+    const [search, setSearch] = useState("");
+    const searchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const ref = useRef<HTMLButtonElement>(null);
 
     const { setValue } = useFormContext<TFieldValues>();
     const value = useWatch({ control, name });
 
-    const query = useQuery({
-        queryKey: [endpoint, extraParams],
+    const query = useQuery<TItem[]>({
+        queryKey: [endpoint, extraParams, search],
         queryFn: async () => {
             const res = await api.get<ApiResponse<ServerList<TItem>>>(endpoint, {
-                params: extraParams,
+                params: {
+                    ...extraParams,
+                    search: search || undefined,
+                },
             });
+
             return res.data.data.items;
         },
+        enabled: !disabled,
+        placeholderData: (previous) => previous ?? [],
     });
 
     const items = useMemo<TItem[]>(() => query.data ?? [], [query.data]);
@@ -75,6 +83,16 @@ export function ComboboxQuery<
         if (formatLabel) return formatLabel(item);
         const raw = item[labelField];
         return raw == null ? "" : String(raw);
+    };
+
+    const handleSearchChange = (value: string) => {
+        if (searchRef.current) {
+            clearTimeout(searchRef.current);
+        }
+
+        searchRef.current = setTimeout(() => {
+            setSearch(value);
+        }, 300);
     };
 
     useEffect(() => {
@@ -141,10 +159,16 @@ export function ComboboxQuery<
                         </PopoverTrigger>
 
                         <PopoverContent className="p-0 w-(--radix-popover-trigger-width)">
-                            <Command>
-                                <CommandInput placeholder="Buscar..." />
+                            <Command shouldFilter={false}>
+                                <CommandInput
+                                    placeholder="Buscar..."
+                                    onValueChange={handleSearchChange}
+                                />
+
                                 <CommandList>
-                                    <CommandEmpty>Nenhum resultado.</CommandEmpty>
+                                    <CommandEmpty>
+                                        {query.isLoading ? "Buscando..." : "Nenhum resultado."}
+                                    </CommandEmpty>
 
                                     {items.map((item) => {
                                         const valueStr = String(item[valueField]);
@@ -153,7 +177,7 @@ export function ComboboxQuery<
                                         return (
                                             <CommandItem
                                                 key={valueStr}
-                                                value={normalizeString(labelText)}
+                                                value={valueStr}
                                                 className="cursor-pointer hover:bg-accent"
                                                 onSelect={() => {
                                                     field.onChange(Number(valueStr));

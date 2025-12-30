@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/client";
 
@@ -46,18 +46,26 @@ export function ComboboxStandalone<TItem extends Record<string, unknown>>({
     onSelectItem,
 }: ComboboxStandaloneProps<TItem>) {
     const [open, setOpen] = useState(false);
+    const [search, setSearch] = useState("");
+    const searchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const ref = useRef<HTMLButtonElement>(null);
 
-    const query = useQuery({
-        queryKey: [endpoint, extraParams],
+    const query = useQuery<TItem[]>({
+        queryKey: [endpoint, extraParams, search],
         enabled: !disabled,
-        queryFn: async (): Promise<TItem[]> => {
-            const res = await api.get(endpoint, { params: extraParams });
+        queryFn: async () => {
+            const res = await api.get(endpoint, {
+                params: {
+                    ...extraParams,
+                    search: search || undefined,
+                },
+            });
             return res.data.data.items as TItem[];
         },
+        placeholderData: (previous) => previous ?? [],
     });
 
-    const items = query.data ?? [];
+    const items = useMemo<TItem[]>(() => query.data ?? [], [query.data]);
 
     const getItemLabel = (item: TItem | undefined): string => {
         if (!item) return "";
@@ -66,6 +74,16 @@ export function ComboboxStandalone<TItem extends Record<string, unknown>>({
     };
 
     const selectedItem = items.find((i) => String(i[valueField]) === String(value));
+
+    const handleSearchChange = (value: string) => {
+        if (searchRef.current) {
+            clearTimeout(searchRef.current);
+        }
+
+        searchRef.current = setTimeout(() => {
+            setSearch(value);
+        }, 300);
+    };
 
     return (
         <FormItem className="flex flex-col w-full gap-2">
@@ -101,6 +119,7 @@ export function ComboboxStandalone<TItem extends Record<string, unknown>>({
                                         e.preventDefault();
                                         e.stopPropagation();
                                         onChange(null);
+                                        handleSearchChange("");
                                     }}
                                 >
                                     <X className="h-4 w-4 opacity-60 hover:opacity-100 cursor-pointer" />
@@ -112,11 +131,13 @@ export function ComboboxStandalone<TItem extends Record<string, unknown>>({
                 </PopoverTrigger>
 
                 <PopoverContent className="p-0 w-(--radix-popover-trigger-width)">
-                    <Command>
-                        <CommandInput placeholder="Buscar..." />
+                    <Command shouldFilter={false}>
+                        <CommandInput placeholder="Buscar..." onValueChange={handleSearchChange} />
 
                         <CommandList>
-                            <CommandEmpty>Nenhum resultado.</CommandEmpty>
+                            <CommandEmpty>
+                                {query.isLoading ? "Buscando..." : "Nenhum resultado."}
+                            </CommandEmpty>
 
                             {items.map((item) => {
                                 const val = Number(item[valueField]);
@@ -126,7 +147,7 @@ export function ComboboxStandalone<TItem extends Record<string, unknown>>({
                                     <CommandItem
                                         className="cursor-pointer"
                                         key={val}
-                                        value={labelTxt}
+                                        value={String(val)}
                                         onSelect={() => {
                                             onChange(val);
                                             setOpen(false);

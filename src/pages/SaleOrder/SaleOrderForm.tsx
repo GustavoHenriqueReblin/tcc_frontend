@@ -16,13 +16,12 @@ import {
     type SaleOrderFormValues,
     type SaleOrderItemFormValues,
 } from "@/schemas/sale-order.schema";
-import { OrderStatusEnum, ProductDefinitionTypeEnum } from "@/types/enums";
+import { OrderStatusEnum } from "@/types/enums";
 import { ApiResponse, ServerList, orderStatusLabels } from "@/types/global";
 import { SaleOrder } from "@/types/saleOrder";
 import { api } from "@/api/client";
 import { buildApiError, formatCurrency, round3 } from "@/utils/global";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { ProductDefinition } from "@/types/product";
 
 type CustomerOption = {
     id: number;
@@ -113,27 +112,6 @@ export function SaleOrderForm({
     );
 
     const total = round3(Math.max(subtotal - discount + otherCosts, 0));
-
-    const { data: finishedProductDefinition } = useQuery<ProductDefinition>({
-        queryKey: ["product-definition", ProductDefinitionTypeEnum.FINISHED_PRODUCT],
-        queryFn: async () => {
-            const response = await api.get<ApiResponse<ServerList<ProductDefinition>>>(
-                "/product-definitions",
-                {
-                    params: {
-                        type: ProductDefinitionTypeEnum.FINISHED_PRODUCT,
-                        limit: 1,
-                    },
-                }
-            );
-
-            if (!response.data.success || response.data.data.items.length === 0) {
-                throw new Error("Definição de matéria-prima não encontrada");
-            }
-
-            return response.data.data.items[0];
-        },
-    });
 
     const { data: lastSaleOrder, isLoading: lastOrderIsLoading } = useQuery<SaleOrder | null>({
         enabled: !code,
@@ -389,6 +367,7 @@ export function SaleOrderForm({
                                 const unity = watch(`items.${index}.unitySimbol`);
                                 const qty = watch(`items.${index}.quantity`) ?? 0;
                                 const price = watch(`items.${index}.unitPrice`) ?? 0;
+                                const productId = watch(`items.${index}.productId`) ?? 0;
                                 const productUnitPrice =
                                     watch(`items.${index}.productUnitPrice`) ?? 0;
                                 const inventoryQty =
@@ -422,14 +401,6 @@ export function SaleOrderForm({
                                                 endpoint="/products"
                                                 valueField="id"
                                                 labelField="name"
-                                                extraParams={
-                                                    finishedProductDefinition
-                                                        ? {
-                                                              productDefinitionId:
-                                                                  finishedProductDefinition.id,
-                                                          }
-                                                        : undefined
-                                                }
                                                 onSelectItem={(product) => {
                                                     setValue(
                                                         `items.${index}.unitySimbol`,
@@ -507,10 +478,11 @@ export function SaleOrderForm({
                                                     </div>
                                                 )}
                                                 {typeof inventoryQty === "number" &&
-                                                    inventoryQty <= 0 && (
+                                                    inventoryQty <= 0 &&
+                                                    !!productId && (
                                                         <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
                                                             <AlertTriangle className="size-4" />{" "}
-                                                            Atenção: saldo crítico:{" "}
+                                                            Atenção, saldo crítico:{" "}
                                                             <>{inventoryQty + " " + unity}</>
                                                         </div>
                                                     )}
