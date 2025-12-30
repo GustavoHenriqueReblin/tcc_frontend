@@ -116,6 +116,8 @@ export function DataTable<TData extends object>({
         },
     ]);
 
+    // temp
+    const FETCH_PAGE_SIZE = 100;
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: defaultPageSize,
@@ -146,22 +148,13 @@ export function DataTable<TData extends object>({
     }, [searchInput]);
 
     const { data, isLoading } = useQuery<ApiResponse<ServerList<TData>>>({
-        queryKey: [
-            "datatable",
-            endpoint,
-            pagination.pageIndex,
-            pagination.pageSize,
-            search,
-            sortBy,
-            sortOrder,
-            filters,
-        ],
+        queryKey: ["datatable", endpoint, search, sortBy, sortOrder, filters],
         staleTime: 0,
         queryFn: async () => {
             const response = await api.get<ApiResponse<ServerList<TData>>>(endpoint, {
                 params: {
-                    page: pagination.pageIndex + 1,
-                    limit: pagination.pageSize,
+                    page: 1,
+                    limit: FETCH_PAGE_SIZE,
                     search,
                     sortBy,
                     sortOrder,
@@ -184,8 +177,7 @@ export function DataTable<TData extends object>({
         onSortingChange: setSorting,
         onPaginationChange: setPagination,
         manualSorting: true,
-        manualPagination: true,
-        pageCount: meta.totalPages,
+        manualPagination: false,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
     });
