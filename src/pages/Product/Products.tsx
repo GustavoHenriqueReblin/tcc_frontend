@@ -7,7 +7,7 @@ import { ComboboxStandalone } from "@/components/ComboboxStandalone";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { formatCurrency, formatNumber } from "@/utils/global";
 import { ProductDefinitionType, productDefinitionTypeLabels } from "@/types/global";
-import { Product } from "@/types/product";
+import { Product, ProductServerList } from "@/types/product";
 
 type ProductFilters = {
     productDefinitionId?: number;
@@ -161,27 +161,13 @@ export function Products() {
                         },
                     },
                 ]}
-                onDataResult={(data) => {
-                    let qty = 0;
-                    let cost = 0;
-                    let sale = 0;
+                onResult={(result) => {
+                    if (!("totals" in result)) return;
+                    const totals = (result as ProductServerList<Product>).totals;
 
-                    data.forEach((product) => {
-                        const inv = product.productInventory?.[0];
-                        if (!inv) return;
-
-                        const q = Number(inv.quantity ?? 0);
-                        const c = Number(inv.costValue ?? 0);
-                        const s = Number(inv.saleValue ?? 0);
-
-                        qty += q;
-                        cost += q * c;
-                        sale += q * s;
-                    });
-
-                    setTotalQuantity(qty);
-                    setTotalCost(cost);
-                    setTotalSaleValue(sale);
+                    setTotalQuantity(totals.totalQuantity);
+                    setTotalCost(totals.totalCost);
+                    setTotalSaleValue(totals.totalSaleValue);
                 }}
             />
 

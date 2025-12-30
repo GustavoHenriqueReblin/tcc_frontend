@@ -1,5 +1,13 @@
-import { Pagination, ProductDefinitionType } from "./global";
+import { Pagination, ProductDefinitionType, ServerListWithTotals } from "./global";
 import { Recipe } from "./recipe";
+
+export interface ProductTotals {
+    totalQuantity: number;
+    totalCost: number;
+    totalSaleValue: number;
+}
+
+export type ProductServerList<TProduct> = ServerListWithTotals<TProduct, ProductTotals>;
 
 export interface ProductDefinition {
     id: number;

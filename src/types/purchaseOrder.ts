@@ -1,6 +1,20 @@
-import { OrderStatus } from "./global";
+import { OrderStatus, ServerListWithTotals } from "./global";
 import { Product } from "./product";
 import { Supplier } from "./supplier";
+
+export interface ProductionOrderTotals {
+    plannedQty: number;
+    producedQty: number;
+    wasteQty: number;
+    plannedCount: number;
+    runningCount: number;
+    finishedCount: number;
+}
+
+export type ProductionOrderServerList<TProductionOrder> = ServerListWithTotals<
+    TProductionOrder,
+    ProductionOrderTotals
+>;
 
 export interface PurchaseOrderItem {
     id: number;

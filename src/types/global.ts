@@ -106,6 +106,10 @@ export interface ServerList<TData> {
     meta: Pagination;
 }
 
+export interface ServerListWithTotals<TData, TTotals> extends ServerList<TData> {
+    totals: TTotals;
+}
+
 export interface Pagination {
     total: number;
     page: number;

@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { ProductDefinition } from "@/types/product";
+import { ProductionOrderServerList } from "@/types/purchaseOrder";
 
 const productionOrderStatusColors: Record<ProductionOrderStatus, string> = {
     PLANNED: "bg-gray-200 text-gray-800",
@@ -516,30 +517,18 @@ export function ProductionOrders() {
                     }
                     handleRowClick(row);
                 }}
-                onDataResult={(data) => {
-                    let planned = 0;
-                    let produced = 0;
-                    let waste = 0;
-                    let plannedC = 0;
-                    let runningC = 0;
-                    let finishedC = 0;
+                onResult={(result) => {
+                    if (!("totals" in result)) return;
 
-                    data.forEach((o) => {
-                        planned += Number(o.plannedQty ?? 0);
-                        produced += Number(o.producedQty ?? 0);
-                        waste += Number(o.wasteQty ?? 0);
+                    const totals = (result as ProductionOrderServerList<ProductionOrder>).totals;
 
-                        if (o.status === ProductionOrderStatusEnum.PLANNED) plannedC++;
-                        if (o.status === ProductionOrderStatusEnum.RUNNING) runningC++;
-                        if (o.status === ProductionOrderStatusEnum.FINISHED) finishedC++;
-                    });
+                    setPlannedOrders(totals.plannedCount);
+                    setRunningOrders(totals.runningCount);
+                    setFinishedOrders(totals.finishedCount);
 
-                    setPlannedOrders(plannedC);
-                    setRunningOrders(runningC);
-                    setFinishedOrders(finishedC);
-                    setPlannedQty(planned);
-                    setProducedQty(produced);
-                    setWasteQty(waste);
+                    setPlannedQty(totals.plannedQty);
+                    setProducedQty(totals.producedQty);
+                    setWasteQty(totals.wasteQty);
                 }}
             />
 

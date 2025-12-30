@@ -1,6 +1,15 @@
-import { OrderStatus } from "./global";
+import { OrderStatus, ServerListWithTotals } from "./global";
 import { Product } from "./product";
 import { Customer } from "./customer";
+
+export interface SaleTotals {
+    subtotal: number;
+    discount: number;
+    otherCosts: number;
+    total: number;
+}
+
+export type SaleOrderServerList<TSale> = ServerListWithTotals<TSale, SaleTotals>;
 
 export interface SaleOrderItem {
     id: number;

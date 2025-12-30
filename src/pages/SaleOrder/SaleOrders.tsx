@@ -19,7 +19,7 @@ import { ComboboxStandalone } from "@/components/ComboboxStandalone";
 import { EnumStandalone } from "@/components/Fields";
 import { DateRangePicker } from "@/components/DateRangePicker";
 
-import type { SaleOrder } from "@/types/saleOrder";
+import type { SaleOrder, SaleOrderServerList } from "@/types/saleOrder";
 import type { OrderStatus } from "@/types/global";
 import { orderStatusLabels } from "@/types/global";
 import { OrderStatusEnum } from "@/types/enums";
@@ -401,28 +401,15 @@ export function SaleOrders() {
                     }
                     handleRowClick(row);
                 }}
-                onDataResult={(data) => {
-                    const totals = data.reduce(
-                        (acc, order) => {
-                            acc.subtotal += Number(
-                                order.items.reduce(
-                                    (total, item) =>
-                                        total +
-                                        Number(item.productUnitPrice) * Number(item.quantity),
-                                    0
-                                ) ?? 0
-                            );
-                            acc.discount += Number(order.discount ?? 0);
-                            acc.otherCosts += Number(order.otherCosts ?? 0);
-                            return acc;
-                        },
-                        { subtotal: 0, discount: 0, otherCosts: 0 }
-                    );
+                onResult={(result) => {
+                    if (!("totals" in result)) return;
+
+                    const totals = (result as SaleOrderServerList<SaleOrder>).totals;
 
                     setSubtotalValue(totals.subtotal);
                     setTotalDiscount(totals.discount);
                     setTotalOtherCosts(totals.otherCosts);
-                    setTotalValue(totals.subtotal - totals.discount + totals.otherCosts);
+                    setTotalValue(totals.total);
                 }}
             />
 

@@ -1,6 +1,6 @@
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
-import { Product, ProductDefinition } from "@/types/product";
+import { Product, ProductDefinition, ProductServerList } from "@/types/product";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useNavigate } from "react-router-dom";
 import {
@@ -22,7 +22,7 @@ export function RawMaterials() {
     const [totalQuantity, setTotalQuantity] = useState<number>(0);
     const [totalCost, setTotalCost] = useState<number>(0);
     const [totalSaleValue, setTotalSaleValue] = useState<number>(0);
-    const [totalProducts, setTotalProducts] = useState<number>(0);
+    // const [totalProducts, setTotalProducts] = useState<number>(0);
 
     const { data: rawMaterialDefinition } = useQuery<ProductDefinition>({
         queryKey: ["product-definition", ProductDefinitionTypeEnum.RAW_MATERIAL],
@@ -170,36 +170,21 @@ export function RawMaterials() {
                         },
                     },
                 ]}
-                onDataResult={(data) => {
-                    let qty = 0;
-                    let cost = 0;
-                    let sale = 0;
+                onResult={(result) => {
+                    if (!("totals" in result)) return;
+                    const totals = (result as ProductServerList<Product>).totals;
 
-                    data.forEach((rawMaterial) => {
-                        const inv = rawMaterial.productInventory?.[0];
-                        if (!inv) return;
-
-                        const q = Number(inv.quantity ?? 0);
-                        const c = Number(inv.costValue ?? 0);
-                        const s = Number(inv.saleValue ?? 0);
-
-                        qty += q;
-                        cost += q * c;
-                        sale += q * s;
-                    });
-
-                    setTotalProducts(data.length);
-                    setTotalQuantity(qty);
-                    setTotalCost(cost);
-                    setTotalSaleValue(sale);
+                    setTotalQuantity(totals.totalQuantity);
+                    setTotalCost(totals.totalCost);
+                    setTotalSaleValue(totals.totalSaleValue);
                 }}
             />
 
             <div className="flex flex-wrap justify-end gap-6 border-t pt-4">
-                <div className="flex flex-col items-end">
+                {/* <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Matérias primas</span>
                     <span className="font-semibold">{formatNumber(totalProducts)}</span>
-                </div>
+                </div> */}
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Quantidade total</span>

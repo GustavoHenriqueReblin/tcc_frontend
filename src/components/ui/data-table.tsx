@@ -16,7 +16,7 @@ import { ArrowUp, ArrowDown, ArrowUpDown, Plus, Filter } from "lucide-react";
 import { Loading } from "../Loading";
 import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
-import type { ApiResponse, ServerList } from "@/types/global";
+import type { ApiResponse, ServerList, ServerListWithTotals } from "@/types/global";
 import { useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
@@ -46,7 +46,7 @@ export interface DataTableProps<
     className?: string;
 
     onRowClick?: (row: TData) => void;
-    onDataResult?: (data: TData[]) => void;
+    onResult?: (result: ServerList<TData> | ServerListWithTotals<TData, unknown>) => void;
 }
 
 function wrapFilterComponents(node: ReactNode, onAnyChange: () => void): ReactNode {
@@ -104,7 +104,7 @@ export function DataTable<TData extends object>({
     showSearch = true,
     className,
     onRowClick,
-    onDataResult,
+    onResult,
 }: DataTableProps<TData>) {
     const isMobile = useIsMobile();
     const navigate = useNavigate();
@@ -169,7 +169,9 @@ export function DataTable<TData extends object>({
                 },
             });
 
-            onDataResult?.(response.data.data.items);
+            const result = response.data.data;
+            onResult?.(result);
+
             return response.data;
         },
     });
