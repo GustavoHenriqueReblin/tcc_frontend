@@ -30,6 +30,7 @@ export const saleOrderItemSchema = z.object({
     }),
 
     // UI
+    inventoryQuantity: z.number().optional(),
     productName: z.string().optional(),
     unitySimbol: z.string().optional(),
 });

@@ -164,6 +164,7 @@ export function EditSaleOrder() {
                       unitCost: Number(item.unitCost ?? 0),
 
                       // UI
+                      inventoryQuantity: Number(item.product?.productInventory?.[0]?.quantity ?? 0),
                       productName: item.product?.name,
                       unitySimbol: item.product?.unity?.simbol,
                   })) ?? [],

@@ -2,7 +2,7 @@
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { AlertTriangle, PlusCircle, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -36,7 +36,7 @@ type ProductOption = {
     id: number;
     name: string;
     unity?: { simbol: string };
-    productInventory?: { saleValue: number; costValue: number }[];
+    productInventory?: { saleValue: number; costValue: number; quantity?: number | string }[];
 };
 
 type WareHouseOption = {
@@ -66,6 +66,7 @@ const defaultItem: SaleOrderItemFormValues = {
     unitPrice: 0,
     productUnitPrice: 0,
     unitCost: 0,
+    inventoryQuantity: 0,
 };
 
 export function SaleOrderForm({
@@ -271,11 +272,13 @@ export function SaleOrderForm({
 
     const renderFooter = () => {
         const totals = (
-            <div className="flex flex-col gap-1">
-                <span className="text-sm text-muted-foreground">Total</span>
-                <span className="text-lg font-semibold text-green-700">
-                    {formatCurrency(total)}
-                </span>
+            <div className="rounded-md">
+                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="text-lg font-semibold text-green-600">{formatCurrency(total)}</p>
+                <p className="text-xs text-muted-foreground">
+                    Subtotal: {formatCurrency(subtotal)} | Desconto: {formatCurrency(discount)} |
+                    Outros: {formatCurrency(otherCosts)}
+                </p>
             </div>
         );
 
@@ -388,6 +391,8 @@ export function SaleOrderForm({
                                 const price = watch(`items.${index}.unitPrice`) ?? 0;
                                 const productUnitPrice =
                                     watch(`items.${index}.productUnitPrice`) ?? 0;
+                                const inventoryQty =
+                                    watch(`items.${index}.inventoryQuantity`) ?? null;
 
                                 return (
                                     <div
@@ -431,14 +436,21 @@ export function SaleOrderForm({
                                                         product.unity?.simbol ?? ""
                                                     );
                                                     setValue(
+                                                        `items.${index}.inventoryQuantity`,
+                                                        Number(
+                                                            product.productInventory?.[0]
+                                                                ?.quantity ?? 0
+                                                        )
+                                                    );
+                                                    setValue(
                                                         `items.${index}.productName`,
                                                         product.name
                                                     );
                                                     setValue(
                                                         `items.${index}.productUnitPrice`,
                                                         Number(
-                                                            product.productInventory[0].saleValue ??
-                                                                0
+                                                            product.productInventory?.[0]
+                                                                ?.saleValue ?? 0
                                                         )
                                                     );
 
@@ -481,18 +493,28 @@ export function SaleOrderForm({
                                         </FieldsGrid>
 
                                         <div className="flex flex-col gap-1">
-                                            <div className="text-sm text-muted-foreground">
-                                                Total do item:{" "}
-                                                <strong>{formatCurrency(qty * price)}</strong>
+                                            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                                                <span>
+                                                    Total do item:{" "}
+                                                    <strong>{formatCurrency(qty * price)}</strong>
+                                                </span>
+                                                {productUnitPrice !== price && (
+                                                    <div className="text-sm text-muted-foreground">
+                                                        Valor unit. do produto:{" "}
+                                                        <strong>
+                                                            {formatCurrency(productUnitPrice)}
+                                                        </strong>
+                                                    </div>
+                                                )}
+                                                {typeof inventoryQty === "number" &&
+                                                    inventoryQty <= 0 && (
+                                                        <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                                                            <AlertTriangle className="size-4" />{" "}
+                                                            Atenção: saldo crítico:{" "}
+                                                            <>{inventoryQty + " " + unity}</>
+                                                        </div>
+                                                    )}
                                             </div>
-                                            {productUnitPrice !== price && (
-                                                <div className="text-sm text-muted-foreground">
-                                                    Valor unit. do produto:{" "}
-                                                    <strong>
-                                                        {formatCurrency(productUnitPrice)}
-                                                    </strong>
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
                                 );
@@ -534,16 +556,6 @@ export function SaleOrderForm({
                                 prefix="R$ "
                                 onBlur={distributeAdjustmentsToItems}
                             />
-
-                            <div className="rounded-md border p-3">
-                                <p className="text-xs text-muted-foreground">Total</p>
-                                <p className="text-lg font-semibold">{formatCurrency(total)}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    Subtotal: {formatCurrency(subtotal)} | Desconto:{" "}
-                                    {formatCurrency(discount)} | Outros:{" "}
-                                    {formatCurrency(otherCosts)}
-                                </p>
-                            </div>
                         </FieldsGrid>
 
                         <TextAreaField control={control} name="notes" label="Observações" />
@@ -571,6 +583,7 @@ export const defaultSaleOrderFormValues: SaleOrderFormValues = {
             productUnitPrice: 0,
             unitCost: 0,
             unitPrice: 0,
+            inventoryQuantity: 0,
         },
     ],
 };
