@@ -258,15 +258,13 @@ export function SaleOrders() {
         {
             accessorKey: "discount",
             header: "Desconto",
-            meta: { sortable: false },
-            enableSorting: false,
+            meta: { sortable: true },
             cell: ({ row }) => formatCurrency(Number(row.original.discount ?? 0)),
         },
         {
             accessorKey: "otherCosts",
             header: "Outros custos",
-            meta: { sortable: false },
-            enableSorting: false,
+            meta: { sortable: true },
             cell: ({ row }) => formatCurrency(Number(row.original.otherCosts ?? 0)),
         },
         {

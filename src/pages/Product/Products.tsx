@@ -59,6 +59,7 @@ export function Products() {
         {
             id: "quantity",
             header: "Quantidade",
+            accessorKey: "productInventory[0].quantity",
             meta: { sortable: true },
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
@@ -69,6 +70,7 @@ export function Products() {
         {
             id: "costValue",
             header: "Custo Unit.",
+            accessorKey: "productInventory[0].costValue",
             meta: { sortable: true },
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
@@ -78,6 +80,7 @@ export function Products() {
         {
             id: "saleValue",
             header: "Venda Unit.",
+            accessorKey: "productInventory[0].saleValue",
             meta: { sortable: true },
             cell: ({ row }) => {
                 const inv = row.original.productInventory?.[0];
