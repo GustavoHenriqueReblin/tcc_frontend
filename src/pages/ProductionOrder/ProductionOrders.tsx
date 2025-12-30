@@ -226,20 +226,6 @@ export function ProductionOrders() {
                                 })
                             }
                         />
-                        <StatusActionButton
-                            label="Cancelar"
-                            intent="danger"
-                            className={buttonClassName}
-                            confirmTitle="Cancelar ordem de produção?"
-                            confirmDescription="Esta ação irá cancelar a ordem de produção."
-                            confirmLabel="Cancelar ordem"
-                            onConfirm={() =>
-                                updateStatusMutation.mutate({
-                                    order,
-                                    status: ProductionOrderStatusEnum.CANCELED,
-                                })
-                            }
-                        />
                     </>
                 )}
 
@@ -259,23 +245,23 @@ export function ProductionOrders() {
                         >
                             Finalizar
                         </Button>
-
-                        <StatusActionButton
-                            label="Cancelar"
-                            intent="danger"
-                            className={buttonClassName}
-                            confirmTitle="Cancelar ordem de produção?"
-                            confirmDescription="Esta ação irá cancelar a ordem de produção."
-                            confirmLabel="Cancelar ordem"
-                            onConfirm={() =>
-                                updateStatusMutation.mutate({
-                                    order,
-                                    status: ProductionOrderStatusEnum.CANCELED,
-                                })
-                            }
-                        />
                     </>
                 )}
+
+                <StatusActionButton
+                    label="Cancelar"
+                    intent="danger"
+                    className={buttonClassName}
+                    confirmTitle="Cancelar ordem de produção?"
+                    confirmDescription="Esta ação irá cancelar a ordem de produção."
+                    confirmLabel="Cancelar ordem"
+                    onConfirm={() =>
+                        updateStatusMutation.mutate({
+                            order,
+                            status: ProductionOrderStatusEnum.CANCELED,
+                        })
+                    }
+                />
 
                 <Button
                     size="sm"
