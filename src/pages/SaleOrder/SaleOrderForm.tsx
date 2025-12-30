@@ -420,7 +420,7 @@ export function SaleOrderForm({
                                 name="discount"
                                 label="Desconto"
                                 type="number"
-                                decimals={2}
+                                decimals={3}
                                 prefix="R$ "
                             />
 
@@ -429,7 +429,7 @@ export function SaleOrderForm({
                                 name="otherCosts"
                                 label="Outros custos"
                                 type="number"
-                                decimals={2}
+                                decimals={3}
                                 prefix="R$ "
                             />
 

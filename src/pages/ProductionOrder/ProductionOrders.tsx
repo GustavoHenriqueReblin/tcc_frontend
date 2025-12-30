@@ -277,7 +277,7 @@ export function ProductionOrders() {
                             });
                         } catch (error) {
                             console.log(error);
-                            toast.success("Falha ao gerar o arquivo.", {
+                            toast.error("Falha ao gerar o arquivo.", {
                                 id: toastId,
                             });
                         }
