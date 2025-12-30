@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { MoreHorizontal } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
 import { DataTable } from "@/components/ui/data-table";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -14,6 +15,9 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ComboboxStandalone } from "@/components/ComboboxStandalone";
+import { EnumStandalone } from "@/components/Fields";
+import { DateRangePicker } from "@/components/DateRangePicker";
 
 import type { SaleOrder } from "@/types/saleOrder";
 import type { OrderStatus } from "@/types/global";
@@ -21,7 +25,14 @@ import { orderStatusLabels } from "@/types/global";
 import { OrderStatusEnum } from "@/types/enums";
 
 import { api } from "@/api/client";
-import { buildApiError, formatCurrency, formatDate, openPDF } from "@/utils/global";
+import {
+    buildApiError,
+    formatCurrency,
+    formatDate,
+    openPDF,
+    toISOEndOfDay,
+    toISOStartOfDay,
+} from "@/utils/global";
 
 const statusColors: Record<OrderStatus, string> = {
     PENDING: "bg-gray-200 text-gray-800",
@@ -32,12 +43,32 @@ const statusColors: Record<OrderStatus, string> = {
     CANCELED: "bg-red-100 text-red-800",
 };
 
+type SaleOrderFilters = {
+    createdAtFrom?: string;
+    createdAtTo?: string;
+    customerId?: number | null;
+    status?: OrderStatus;
+};
+
+type CustomerOption = {
+    id: number;
+    person?: {
+        name?: string | null;
+        legalName?: string | null;
+    };
+};
+
+const customerLabel = (customer: CustomerOption) =>
+    customer.person?.name ?? customer.person?.legalName ?? `Cliente #${customer.id}`;
+
 export function SaleOrders() {
     usePageTitle("Vendas - ERP industrial");
 
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
+    const [range, setRange] = useState<DateRange | undefined>();
+    const [filters, setFilters] = useState<SaleOrderFilters>({});
     const [totalOrders, setTotalOrders] = useState(0);
     const [totalValue, setTotalValue] = useState(0);
     const [totalDiscount, setTotalDiscount] = useState(0);
@@ -216,7 +247,7 @@ export function SaleOrders() {
         },
         {
             accessorKey: "createdAt",
-            header: "Criado em",
+            header: "Criada em",
             meta: { sortable: true },
             cell: ({ row }) =>
                 row.original.createdAt
@@ -244,6 +275,56 @@ export function SaleOrders() {
                 endpoint="/sale-orders"
                 createButtonDescription="Nova venda"
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
+                filters={filters}
+                filterComponents={
+                    <>
+                        <div className="w-full md:w-56">
+                            <DateRangePicker
+                                value={range}
+                                onChange={(selectedRange) => {
+                                    if (!selectedRange?.from || !selectedRange?.to) return;
+
+                                    setRange(selectedRange);
+                                    setFilters((prev) => ({
+                                        ...prev,
+                                        createdAtFrom: toISOStartOfDay(selectedRange.from),
+                                        createdAtTo: toISOEndOfDay(selectedRange.to),
+                                    }));
+                                }}
+                            />
+                        </div>
+
+                        <div className="w-full md:w-56">
+                            <ComboboxStandalone<CustomerOption>
+                                label="Cliente"
+                                endpoint="/customers"
+                                valueField="id"
+                                labelField="id"
+                                formatLabel={customerLabel}
+                                value={filters.customerId ?? null}
+                                showError={false}
+                                onChange={(val) =>
+                                    setFilters((prev) => ({ ...prev, customerId: val }))
+                                }
+                            />
+                        </div>
+
+                        <div className="w-full md:w-56">
+                            <EnumStandalone
+                                label="Status"
+                                enumObject={OrderStatusEnum}
+                                labels={orderStatusLabels}
+                                value={filters.status ?? null}
+                                onChange={(val) =>
+                                    setFilters((prev) => ({
+                                        ...prev,
+                                        status: val ?? undefined,
+                                    }))
+                                }
+                            />
+                        </div>
+                    </>
+                }
                 mobileFields={[
                     { label: "Código", value: "code" },
                     {

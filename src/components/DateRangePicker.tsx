@@ -176,6 +176,10 @@ export function DateRangePicker({
 
                                 if (!range?.from || !range?.to) return;
 
+                                if (isSameDay(range.from, range.to)) {
+                                    return;
+                                }
+
                                 const normalized = normalizeRange(range);
                                 onChange(normalized);
                                 setOpen(false);
