@@ -82,6 +82,10 @@ export function ProductionOrderForm({
         {
             enabled: !code,
             queryKey: ["production-order-last", code],
+            staleTime: 0,
+            gcTime: 0,
+            refetchOnMount: "always",
+            refetchOnWindowFocus: false,
             queryFn: async () => {
                 try {
                     const response = await api.get<ApiResponse<ServerList<ProductionOrder>>>(

@@ -20,7 +20,7 @@ import { OrderStatusEnum, ProductDefinitionTypeEnum } from "@/types/enums";
 import { ApiResponse, ServerList, orderStatusLabels } from "@/types/global";
 import { SaleOrder } from "@/types/saleOrder";
 import { api } from "@/api/client";
-import { buildApiError, formatCurrency } from "@/utils/global";
+import { buildApiError, formatCurrency, round3 } from "@/utils/global";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { ProductDefinition } from "@/types/product";
 
@@ -90,7 +90,7 @@ export function SaleOrderForm({
         setCodeLocked(!!defaultValues.code);
     }, [defaultValues, form]);
 
-    const { control, handleSubmit, formState, watch, setValue } = form;
+    const { control, handleSubmit, formState, watch, setValue, getValues } = form;
     const code = watch("code");
 
     const itemsArray = useFieldArray({
@@ -103,11 +103,15 @@ export function SaleOrderForm({
     const discount = watch("discount") ?? 0;
     const otherCosts = watch("otherCosts") ?? 0;
 
-    const subtotal = items.reduce((total, item) => {
-        return total + Number(item.quantity ?? 0) * Number(item.unitPrice ?? 0);
-    }, 0);
+    const subtotal = round3(
+        items.reduce((sum, item) => {
+            const qty = Number(item.quantity ?? 0);
+            const baseUnit = Number(item.productUnitPrice ?? 0);
+            return sum + qty * baseUnit;
+        }, 0)
+    );
 
-    const total = Math.max(subtotal - discount + otherCosts, 0);
+    const total = round3(Math.max(subtotal - discount + otherCosts, 0));
 
     const { data: finishedProductDefinition } = useQuery<ProductDefinition>({
         queryKey: ["product-definition", ProductDefinitionTypeEnum.FINISHED_PRODUCT],
@@ -133,6 +137,10 @@ export function SaleOrderForm({
     const { data: lastSaleOrder, isLoading: lastOrderIsLoading } = useQuery<SaleOrder | null>({
         enabled: !code,
         queryKey: ["sale-order-last", code],
+        staleTime: 0,
+        gcTime: 0,
+        refetchOnMount: "always",
+        refetchOnWindowFocus: false,
         queryFn: async () => {
             try {
                 const response = await api.get<ApiResponse<ServerList<SaleOrder>>>("/sale-orders", {
@@ -174,6 +182,75 @@ export function SaleOrderForm({
         }
     }, [code, lastSaleOrder, lastOrderIsLoading, setValue]);
 
+    const recalcItemPriceAdjustments = () => {
+        const currentItems = getValues("items") ?? [];
+
+        let nextDiscount = 0;
+        let nextOtherCosts = 0;
+
+        currentItems.forEach((item) => {
+            const qty = Number(item?.quantity ?? 0);
+            const unitPrice = Number(item?.unitPrice ?? 0);
+            const productUnitPrice = Number(item?.productUnitPrice ?? 0);
+
+            if (qty <= 0 || productUnitPrice <= 0) return;
+
+            const diff = round3((unitPrice - productUnitPrice) * qty);
+
+            if (diff > 0) {
+                nextOtherCosts = round3(nextOtherCosts + diff);
+            } else if (diff < 0) {
+                nextDiscount = round3(nextDiscount + Math.abs(diff));
+            }
+        });
+
+        setValue("discount", round3(nextDiscount), {
+            shouldDirty: true,
+            shouldValidate: true,
+        });
+
+        setValue("otherCosts", round3(nextOtherCosts), {
+            shouldDirty: true,
+            shouldValidate: true,
+        });
+    };
+
+    const distributeAdjustmentsToItems = () => {
+        const currentItems = getValues("items") ?? [];
+        const discount = Number(getValues("discount") ?? 0);
+        const otherCosts = Number(getValues("otherCosts") ?? 0);
+
+        const baseSubtotal = currentItems.reduce((sum, item) => {
+            const qty = Number(item?.quantity ?? 0);
+            const baseUnit = Number(item?.productUnitPrice ?? 0);
+            return sum + round3(qty * baseUnit);
+        }, 0);
+
+        if (baseSubtotal <= 0) return;
+
+        currentItems.forEach((item, idx) => {
+            const qty = Number(item?.quantity ?? 0);
+            const baseUnit = Number(item?.productUnitPrice ?? 0);
+
+            if (qty <= 0 || baseUnit <= 0) return;
+
+            const baseItemTotal = round3(qty * baseUnit);
+            const ratio = baseItemTotal / baseSubtotal;
+
+            const itemDiscount = round3(discount * ratio);
+            const itemOtherCost = round3(otherCosts * ratio);
+
+            const adjustedTotal = round3(baseItemTotal - itemDiscount + itemOtherCost);
+
+            const adjustedUnit = round3(adjustedTotal / qty);
+
+            setValue(`items.${idx}.unitPrice`, adjustedUnit, {
+                shouldDirty: true,
+                shouldValidate: true,
+            });
+        });
+    };
+
     const handleAddItem = () => {
         itemsArray.append({ ...defaultItem });
     };
@@ -188,13 +265,14 @@ export function SaleOrderForm({
 
         if (itemsArray.fields.length > 1) {
             itemsArray.remove(index);
+            recalcItemPriceAdjustments();
         }
     };
 
     const renderFooter = () => {
         const totals = (
             <div className="flex flex-col gap-1">
-                <span className="text-sm text-muted-foreground">Total estimado</span>
+                <span className="text-sm text-muted-foreground">Total</span>
                 <span className="text-lg font-semibold text-green-700">
                     {formatCurrency(total)}
                 </span>
@@ -308,6 +386,8 @@ export function SaleOrderForm({
                                 const unity = watch(`items.${index}.unitySimbol`);
                                 const qty = watch(`items.${index}.quantity`) ?? 0;
                                 const price = watch(`items.${index}.unitPrice`) ?? 0;
+                                const productUnitPrice =
+                                    watch(`items.${index}.productUnitPrice`) ?? 0;
 
                                 return (
                                     <div
@@ -354,6 +434,13 @@ export function SaleOrderForm({
                                                         `items.${index}.productName`,
                                                         product.name
                                                     );
+                                                    setValue(
+                                                        `items.${index}.productUnitPrice`,
+                                                        Number(
+                                                            product.productInventory[0].saleValue ??
+                                                                0
+                                                        )
+                                                    );
 
                                                     const inv = product.productInventory?.[0];
                                                     if (inv?.saleValue != null) {
@@ -368,6 +455,7 @@ export function SaleOrderForm({
                                                             Number(inv.costValue)
                                                         );
                                                     }
+                                                    recalcItemPriceAdjustments();
                                                 }}
                                             />
 
@@ -378,6 +466,7 @@ export function SaleOrderForm({
                                                 type="number"
                                                 decimals={3}
                                                 suffix={unity && ` ${unity}`}
+                                                onBlur={() => recalcItemPriceAdjustments()}
                                             />
 
                                             <TextField
@@ -387,12 +476,23 @@ export function SaleOrderForm({
                                                 type="number"
                                                 decimals={3}
                                                 prefix="R$ "
+                                                onBlur={() => recalcItemPriceAdjustments()}
                                             />
                                         </FieldsGrid>
 
-                                        <div className="text-sm text-muted-foreground">
-                                            Total do item:{" "}
-                                            <strong>{formatCurrency(qty * price)}</strong>
+                                        <div className="flex flex-col gap-1">
+                                            <div className="text-sm text-muted-foreground">
+                                                Total do item:{" "}
+                                                <strong>{formatCurrency(qty * price)}</strong>
+                                            </div>
+                                            {productUnitPrice !== price && (
+                                                <div className="text-sm text-muted-foreground">
+                                                    Valor unit. do produto:{" "}
+                                                    <strong>
+                                                        {formatCurrency(productUnitPrice)}
+                                                    </strong>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 );
@@ -422,6 +522,7 @@ export function SaleOrderForm({
                                 type="number"
                                 decimals={3}
                                 prefix="R$ "
+                                onBlur={distributeAdjustmentsToItems}
                             />
 
                             <TextField
@@ -431,10 +532,11 @@ export function SaleOrderForm({
                                 type="number"
                                 decimals={3}
                                 prefix="R$ "
+                                onBlur={distributeAdjustmentsToItems}
                             />
 
                             <div className="rounded-md border p-3">
-                                <p className="text-xs text-muted-foreground">Total estimado</p>
+                                <p className="text-xs text-muted-foreground">Total</p>
                                 <p className="text-lg font-semibold">{formatCurrency(total)}</p>
                                 <p className="text-xs text-muted-foreground">
                                     Subtotal: {formatCurrency(subtotal)} | Desconto:{" "}

@@ -28,10 +28,10 @@ export function CreateSaleOrder() {
                     ({ productId, quantity, unitPrice, productUnitPrice, unitCost, id }) => ({
                         id,
                         productId,
-                        quantity: Number(quantity ?? 0),
-                        unitPrice: Number(unitPrice ?? 0),
-                        productUnitPrice: Number(productUnitPrice ?? unitPrice ?? 0),
-                        unitCost: Number(unitCost ?? 0),
+                        quantity: Number(quantity || 0),
+                        unitPrice: Number(unitPrice || 0),
+                        productUnitPrice: Number((productUnitPrice || unitPrice) ?? 0),
+                        unitCost: Number(unitCost || 0),
                     })
                 );
 

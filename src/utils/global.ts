@@ -210,3 +210,5 @@ export function normalizeString(text: string) {
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase();
 }
+
+export const round3 = (value: number) => Math.round((value + Number.EPSILON) * 1000) / 1000;

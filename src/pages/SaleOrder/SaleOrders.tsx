@@ -70,7 +70,9 @@ export function SaleOrders() {
     const [range, setRange] = useState<DateRange | undefined>();
     const [filters, setFilters] = useState<SaleOrderFilters>({});
     const [totalOrders, setTotalOrders] = useState(0);
+    const [subtotalValue, setSubtotalValue] = useState(0);
     const [totalValue, setTotalValue] = useState(0);
+    const [totalOtherCosts, setTotalOtherCosts] = useState(0);
     const [totalDiscount, setTotalDiscount] = useState(0);
 
     const updateStatusMutation = useMutation<
@@ -217,6 +219,7 @@ export function SaleOrders() {
             accessorKey: "customer.person.name",
             header: "Cliente",
             meta: { sortable: false },
+            enableSorting: false,
             cell: ({ row }) => row.original.customer?.person?.name ?? "",
         },
         {
@@ -238,16 +241,47 @@ export function SaleOrders() {
             },
         },
         {
-            accessorKey: "totalValue",
-            header: "Valor total",
-            meta: { sortable: true },
-            cell: ({ row }) => formatCurrency(Number(row.original.totalValue ?? 0)),
+            header: "Subtotal",
+            meta: { sortable: false },
+            enableSorting: false,
+            cell: ({ row }) =>
+                formatCurrency(
+                    Number(
+                        row.original.items.reduce(
+                            (total, item) =>
+                                total + Number(item.productUnitPrice) * Number(item.quantity),
+                            0
+                        ) ?? 0
+                    )
+                ),
         },
         {
             accessorKey: "discount",
             header: "Desconto",
             meta: { sortable: false },
+            enableSorting: false,
             cell: ({ row }) => formatCurrency(Number(row.original.discount ?? 0)),
+        },
+        {
+            accessorKey: "otherCosts",
+            header: "Outros custos",
+            meta: { sortable: false },
+            enableSorting: false,
+            cell: ({ row }) => formatCurrency(Number(row.original.otherCosts ?? 0)),
+        },
+        {
+            accessorKey: "totalValue",
+            header: "Valor total",
+            meta: { sortable: true },
+            cell: ({ row }) =>
+                formatCurrency(
+                    Number(
+                        row.original.items.reduce(
+                            (total, item) => total + Number(item.unitPrice) * Number(item.quantity),
+                            0
+                        ) ?? 0
+                    )
+                ),
         },
         {
             accessorKey: "createdAt",
@@ -262,6 +296,7 @@ export function SaleOrders() {
             id: "actions",
             header: "Ações",
             meta: { sortable: false },
+            enableSorting: false,
             cell: ({ row }) => renderActions(row.original),
         },
     ];
@@ -374,15 +409,25 @@ export function SaleOrders() {
 
                     const totals = data.reduce(
                         (acc, order) => {
-                            acc.total += Number(order.totalValue ?? 0);
+                            acc.subtotal += Number(
+                                order.items.reduce(
+                                    (total, item) =>
+                                        total +
+                                        Number(item.productUnitPrice) * Number(item.quantity),
+                                    0
+                                ) ?? 0
+                            );
                             acc.discount += Number(order.discount ?? 0);
+                            acc.otherCosts += Number(order.otherCosts ?? 0);
                             return acc;
                         },
-                        { total: 0, discount: 0 }
+                        { subtotal: 0, discount: 0, otherCosts: 0 }
                     );
 
-                    setTotalValue(totals.total);
+                    setSubtotalValue(totals.subtotal);
                     setTotalDiscount(totals.discount);
+                    setTotalOtherCosts(totals.otherCosts);
+                    setTotalValue(totals.subtotal - totals.discount + totals.otherCosts);
                 }}
             />
 
@@ -393,16 +438,28 @@ export function SaleOrders() {
                 </div>
 
                 <div className="flex flex-col items-end">
-                    <span className="text-sm text-muted-foreground">Valor total</span>
-                    <span className="font-semibold text-green-600">
-                        {formatCurrency(totalValue)}
-                    </span>
+                    <span className="text-sm text-muted-foreground">Subtotal</span>
+                    <span className="font-semibold">{formatCurrency(subtotalValue)}</span>
                 </div>
 
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Descontos</span>
                     <span className="font-semibold text-blue-400">
                         {formatCurrency(totalDiscount)}
+                    </span>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Outros custos</span>
+                    <span className="font-semibold text-red-400">
+                        {formatCurrency(totalOtherCosts)}
+                    </span>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Valor total</span>
+                    <span className="font-semibold text-green-600">
+                        {formatCurrency(totalValue)}
                     </span>
                 </div>
             </div>
