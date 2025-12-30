@@ -122,7 +122,10 @@ export function SaleOrders() {
 
         return (
             <div className={`flex gap-2 ${stacked ? "flex-col" : "items-center"}`}>
-                {!(order.status === OrderStatusEnum.FINISHED || order.status === OrderStatusEnum.CANCELED) && (
+                {!(
+                    order.status === OrderStatusEnum.FINISHED ||
+                    order.status === OrderStatusEnum.CANCELED
+                ) && (
                     <>
                         <StatusActionButton
                             label="Finalizar"

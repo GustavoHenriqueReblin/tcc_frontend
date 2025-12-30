@@ -150,12 +150,13 @@ export function InventoryMovementPage() {
         let inTotalValue = 0;
         let inTotalQty = 0;
 
-        // let outTotalValue = 0;
-        // let outTotalQty = 0;
+        let outTotalValue = 0;
+        let outTotalQty = 0;
 
         movements.forEach((m) => {
             const qty = Number(m.quantity);
             const unitCost = Number(m.unitCost);
+            const saleValue = Number(m.saleValue);
 
             if (!qty || !unitCost) return;
 
@@ -164,15 +165,15 @@ export function InventoryMovementPage() {
                 inTotalValue += qty * unitCost;
             }
 
-            // if (m.direction === MovementTypeEnum.OUT) {
-            //     outTotalQty += qty;
-            //     outTotalValue += qty * unitCost;
-            // }
+            if (m.direction === MovementTypeEnum.OUT) {
+                outTotalQty += qty;
+                outTotalValue += qty * saleValue;
+            }
         });
 
         return {
             avgInCost: inTotalQty > 0 ? inTotalValue / inTotalQty : null,
-            avgOutPrice: null, //outTotalQty > 0 ? outTotalValue / outTotalQty : null,
+            avgOutPrice: outTotalQty > 0 ? outTotalValue / outTotalQty : null,
         };
     }, [movements]);
 
@@ -488,6 +489,17 @@ export function InventoryMovementPage() {
                                                     </p>
                                                 </div>
                                             )}
+                                        {movement.saleValue &&
+                                            movement.direction === MovementTypeEnum.OUT && (
+                                                <div className="max-w-xl flex flex-col gap-1">
+                                                    <span className="text-xs text-muted-foreground">
+                                                        Preço de venda
+                                                    </span>
+                                                    <p className="text-sm">
+                                                        {formatCurrency(Number(movement.saleValue))}
+                                                    </p>
+                                                </div>
+                                            )}
                                         {movement.unitCost &&
                                             movement.quantity &&
                                             movement.direction === MovementTypeEnum.IN && (
@@ -499,6 +511,21 @@ export function InventoryMovementPage() {
                                                         {formatCurrency(
                                                             Number(movement.quantity) *
                                                                 Number(movement.unitCost)
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        {movement.saleValue &&
+                                            movement.quantity &&
+                                            movement.direction === MovementTypeEnum.OUT && (
+                                                <div className="max-w-xl flex flex-col gap-1">
+                                                    <span className="text-xs text-muted-foreground">
+                                                        Total
+                                                    </span>
+                                                    <p className="text-sm">
+                                                        {formatCurrency(
+                                                            Number(movement.quantity) *
+                                                                Number(movement.saleValue)
                                                         )}
                                                     </p>
                                                 </div>

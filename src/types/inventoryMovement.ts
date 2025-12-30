@@ -14,6 +14,7 @@ export interface InventoryMovement {
     quantity: number;
     balance: number;
     unitCost: number | null;
+    saleValue: number | null;
     reference: string | null;
     notes: string | null;
     supplierId: number | null;

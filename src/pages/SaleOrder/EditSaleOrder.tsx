@@ -151,8 +151,8 @@ export function EditSaleOrder() {
               warehouseId: saleOrder.warehouseId ?? null,
               code: saleOrder.code ?? "",
               status: saleOrder.status ?? OrderStatusEnum.PENDING,
-              discount: Number(saleOrder.discount) ?? 0,
-              otherCosts: Number(saleOrder.otherCosts) ?? 0,
+              discount: Number(saleOrder.discount ?? 0) || 0,
+              otherCosts: Number(saleOrder.otherCosts ?? 0) || 0,
               notes: saleOrder.notes ?? "",
               items:
                   saleOrder.items?.map((item) => ({
