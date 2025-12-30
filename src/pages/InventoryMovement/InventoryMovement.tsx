@@ -32,6 +32,7 @@ import type { ApiResponse, ServerList } from "@/types/global";
 import { MovementSourceEnum, MovementTypeEnum } from "@/types/enums";
 import { InventoryMovement } from "@/types/inventoryMovement";
 import { movementSourceLabels } from "@/types/global";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 type PeriodShortcut = "today" | "7d" | "30d" | "custom";
 
@@ -55,14 +56,13 @@ const sourceIcons: Record<keyof typeof MovementSourceEnum, JSX.Element> = {
 
 export function InventoryMovementPage() {
     usePageTitle("Movimentação de estoque - ERP industrial");
+    const isMobile = useIsMobile();
 
     const [period, setPeriod] = useState<PeriodShortcut>("7d");
     const [customRange, setCustomRange] = useState<DateRange | undefined>();
-
     const [productId, setProductId] = useState<number | null>(null);
     const [typeFilter, setTypeFilter] = useState<keyof typeof MovementTypeEnum | null>(null);
     const [sourceFilter, setSourceFilter] = useState<keyof typeof MovementSourceEnum | null>(null);
-
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -431,25 +431,70 @@ export function InventoryMovementPage() {
                                     )}
                                 </div>
                                 <div className="rounded-xl border bg-card shadow-sm p-4 space-y-3">
-                                    <div className="flex flex-wrap items-center gap-2">
+                                    <div
+                                        className={cn(
+                                            "flex gap-2",
+                                            isMobile
+                                                ? "flex-col items-start"
+                                                : "flex-wrap items-center"
+                                        )}
+                                    >
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span
+                                                className={cn(
+                                                    "px-2.5 py-1 text-xs font-semibold rounded-full border",
+                                                    typeStyle
+                                                )}
+                                            >
+                                                {movementTypeLabels[movement.direction]}
+                                            </span>
+
+                                            <span className="flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground">
+                                                {sourceIcons[movement.source]}
+                                                {movementSourceLabels[movement.source]}
+                                            </span>
+                                        </div>
+
+                                        {(movement.reference ||
+                                            movement.purchaseOrder ||
+                                            movement.saleOrder) && (
+                                            <div
+                                                className={cn(
+                                                    "text-xs text-muted-foreground",
+                                                    isMobile
+                                                        ? "flex flex-col gap-1"
+                                                        : "flex items-center gap-2"
+                                                )}
+                                            >
+                                                {movement.reference && (
+                                                    <span>
+                                                        <strong>Ref:</strong> {movement.reference}
+                                                    </span>
+                                                )}
+                                                {movement.purchaseOrder && (
+                                                    <span>
+                                                        <strong>Fornecedor:</strong>{" "}
+                                                        {
+                                                            movement.purchaseOrder.supplier.person
+                                                                .name
+                                                        }
+                                                    </span>
+                                                )}
+                                                {movement.saleOrder && (
+                                                    <span>
+                                                        <strong>Cliente:</strong>{" "}
+                                                        {movement.saleOrder.customer.person.name}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+
                                         <span
                                             className={cn(
-                                                "px-2.5 py-1 text-xs font-semibold rounded-full border",
-                                                typeStyle
+                                                "text-xs text-muted-foreground flex items-center gap-1",
+                                                isMobile ? "" : "ml-auto"
                                             )}
                                         >
-                                            {movementTypeLabels[movement.direction]}
-                                        </span>
-                                        <span className="flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground">
-                                            {sourceIcons[movement.source]}
-                                            {movementSourceLabels[movement.source]}
-                                        </span>
-                                        {movement.reference && (
-                                            <span className="text-xs text-muted-foreground">
-                                                Ref: {movement.reference}
-                                            </span>
-                                        )}
-                                        <span className="ml-auto text-xs text-muted-foreground flex items-center gap-1">
                                             <CalendarClock className="size-4" />
                                             {formatDate(new Date(movement.createdAt), {
                                                 dateStyle: "short",
@@ -457,18 +502,23 @@ export function InventoryMovementPage() {
                                             })}
                                         </span>
                                     </div>
-                                    <div className="flex flex-wrap gap-6 text-sm">
-                                        <div className="flex items-baseline gap-2">
-                                            <span
-                                                className={cn("text-2xl font-semibold", qtyColor)}
-                                            >
-                                                {isIn ? "+" : "-"}
-                                                {formatNumber(movement.quantity)}
-                                            </span>
-                                            <span className="text-muted-foreground">
-                                                {movement.product?.unity?.simbol ?? "un"}
-                                            </span>
-                                        </div>
+
+                                    <div className="flex items-baseline gap-2">
+                                        <span className={cn("text-2xl font-semibold", qtyColor)}>
+                                            {isIn ? "+" : "-"}
+                                            {formatNumber(movement.quantity)}
+                                        </span>
+                                        <span className="text-muted-foreground">
+                                            {movement.product?.unity?.simbol ?? "un"}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        className={cn(
+                                            "gap-4 text-sm",
+                                            isMobile ? "grid grid-cols-2" : "flex flex-wrap gap-6"
+                                        )}
+                                    >
                                         <div className="flex flex-col gap-1">
                                             <span className="text-xs text-muted-foreground">
                                                 Saldo após o movimento
@@ -478,9 +528,10 @@ export function InventoryMovementPage() {
                                                 {movement.product?.unity?.simbol ?? "un"}
                                             </span>
                                         </div>
+
                                         {movement.unitCost &&
                                             movement.direction === MovementTypeEnum.IN && (
-                                                <div className="max-w-xl flex flex-col gap-1">
+                                                <div className="flex flex-col gap-1">
                                                     <span className="text-xs text-muted-foreground">
                                                         Custo unitário
                                                     </span>
@@ -489,9 +540,10 @@ export function InventoryMovementPage() {
                                                     </p>
                                                 </div>
                                             )}
+
                                         {movement.saleValue &&
                                             movement.direction === MovementTypeEnum.OUT && (
-                                                <div className="max-w-xl flex flex-col gap-1">
+                                                <div className="flex flex-col gap-1">
                                                     <span className="text-xs text-muted-foreground">
                                                         Preço de venda
                                                     </span>
@@ -500,52 +552,49 @@ export function InventoryMovementPage() {
                                                     </p>
                                                 </div>
                                             )}
-                                        {movement.unitCost &&
-                                            movement.quantity &&
-                                            movement.direction === MovementTypeEnum.IN && (
-                                                <div className="max-w-xl flex flex-col gap-1">
+
+                                        {movement.quantity &&
+                                            ((movement.unitCost &&
+                                                movement.direction === MovementTypeEnum.IN) ||
+                                                (movement.saleValue &&
+                                                    movement.direction ===
+                                                        MovementTypeEnum.OUT)) && (
+                                                <div className="flex flex-col gap-1">
                                                     <span className="text-xs text-muted-foreground">
                                                         Total
                                                     </span>
-                                                    <p className="text-sm">
+                                                    <p className="text-sm font-semibold">
                                                         {formatCurrency(
                                                             Number(movement.quantity) *
-                                                                Number(movement.unitCost)
+                                                                Number(
+                                                                    movement.direction ===
+                                                                        MovementTypeEnum.IN
+                                                                        ? movement.unitCost
+                                                                        : movement.saleValue
+                                                                )
                                                         )}
                                                     </p>
                                                 </div>
                                             )}
-                                        {movement.saleValue &&
-                                            movement.quantity &&
-                                            movement.direction === MovementTypeEnum.OUT && (
-                                                <div className="max-w-xl flex flex-col gap-1">
-                                                    <span className="text-xs text-muted-foreground">
-                                                        Total
-                                                    </span>
-                                                    <p className="text-sm">
-                                                        {formatCurrency(
-                                                            Number(movement.quantity) *
-                                                                Number(movement.saleValue)
-                                                        )}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        {movement.notes && (
-                                            <div className="max-w-xl">
-                                                <span className="text-xs text-muted-foreground">
-                                                    Observação
-                                                </span>
-                                                <p className="text-sm">{movement.notes}</p>
-                                            </div>
-                                        )}
                                     </div>
+
+                                    {movement.notes && (
+                                        <div className="pt-2">
+                                            <span className="text-xs text-muted-foreground">
+                                                Observação
+                                            </span>
+                                            <p className="text-sm">{movement.notes}</p>
+                                        </div>
+                                    )}
+
                                     {movement.balance <= 0 && (
                                         <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                                            <AlertTriangle className="size-4" /> Atenção: saldo
-                                            crítico após este movimento.
+                                            <AlertTriangle className="size-4" />
+                                            Atenção: saldo crítico após este movimento.
                                         </div>
                                     )}
                                 </div>
+
                                 {idx !== movements.length - 1 && (
                                     <div className="absolute left-[15px] top-12 h-full w-px bg-border" />
                                 )}

@@ -1,6 +1,8 @@
 import { MovementSource, MovementType } from "./global";
 import { Product } from "./product";
-import { Supplier } from "./supplier";
+import { ProductionOrder } from "./productionOrder";
+import { PurchaseOrder } from "./purchaseOrder";
+import { SaleOrder } from "./saleOrder";
 import { Warehouse } from "./warehouse";
 
 export interface InventoryMovement {
@@ -25,5 +27,7 @@ export interface InventoryMovement {
 
     product?: Product;
     warehouse?: Warehouse;
-    supplier?: Supplier;
+    productionOrder?: ProductionOrder;
+    purchaseOrder?: PurchaseOrder;
+    saleOrder?: SaleOrder;
 }
