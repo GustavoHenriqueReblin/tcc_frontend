@@ -66,7 +66,7 @@ export function Products() {
         },
         {
             accessorKey: "productDefinition",
-            header: "Tipo",
+            header: "Definição",
             enableSorting: false,
             meta: { sortable: false },
             cell: ({ row }) => {

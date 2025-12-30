@@ -12,7 +12,8 @@ import { Section, FieldsGrid, TextField, TextAreaField } from "@/components/Fiel
 import { ComboboxQuery } from "@/components/ComboboxQuery";
 
 import { api } from "@/api/client";
-import { buildApiError } from "@/utils/global";
+import { buildApiError, formatCurrency, round3 } from "@/utils/global";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 import {
     purchaseEntrySchema,
@@ -64,6 +65,7 @@ export function PurchaseEntryForm() {
         resolver: zodResolver(purchaseEntrySchema),
         defaultValues: useMemo(() => buildDefaultValues(), []),
     });
+    const isMobile = useIsMobile();
 
     const { data: rawMaterialDefinition } = useQuery<ProductDefinition>({
         queryKey: ["product-definition", ProductDefinitionTypeEnum.RAW_MATERIAL],
@@ -136,7 +138,7 @@ export function PurchaseEntryForm() {
         },
     });
 
-    const { handleSubmit, control, formState } = form;
+    const { handleSubmit, control, formState, watch } = form;
 
     const handleAddItem = () => {
         itemsArray.append({
@@ -153,6 +155,56 @@ export function PurchaseEntryForm() {
 
     const submitLabel =
         mutation.isPending || formState.isSubmitting ? "Salvando..." : "Registrar compra";
+
+    const items = watch("items") ?? [];
+    const total = round3(
+        items.reduce((sum, item) => {
+            const qty = Number(item.quantity ?? 0);
+            const unitCost = Number(item.unitCost ?? 0);
+            return sum + qty * unitCost;
+        }, 0)
+    );
+
+    const renderFooter = () => {
+        const totals = (
+            <div className="rounded-md">
+                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="text-lg font-semibold">{formatCurrency(total)}</p>
+            </div>
+        );
+
+        const actions = (
+            <div className="flex gap-3">
+                <Button type="submit" disabled={formState.isSubmitting || mutation.isPending}>
+                    {submitLabel}
+                </Button>
+            </div>
+        );
+
+        const content = isMobile ? (
+            <div className="flex flex-col gap-4 w-full items-end">
+                {totals}
+                {actions}
+            </div>
+        ) : (
+            <div className="flex items-center justify-end gap-8">
+                {totals}
+                {actions}
+            </div>
+        );
+
+        return (
+            <>
+                <div id="purchase-form-actions" className="pt-4">
+                    {content}
+                </div>
+
+                <FormFooterFloating targetId="purchase-form-actions" rightOffset={20}>
+                    {content}
+                </FormFooterFloating>
+            </>
+        );
+    };
 
     return (
         <div className="rounded-md border bg-card text-card-foreground p-6 space-y-6">
@@ -280,23 +332,7 @@ export function PurchaseEntryForm() {
                         </div>
                     </Section>
 
-                    <div id="purchase-form-actions" className="flex justify-end gap-3 pt-6">
-                        <Button
-                            type="submit"
-                            disabled={formState.isSubmitting || mutation.isPending}
-                        >
-                            {submitLabel}
-                        </Button>
-                    </div>
-
-                    <FormFooterFloating targetId="purchase-form-actions" rightOffset={20}>
-                        <Button
-                            type="submit"
-                            disabled={formState.isSubmitting || mutation.isPending}
-                        >
-                            {submitLabel}
-                        </Button>
-                    </FormFooterFloating>
+                    {renderFooter()}
                 </form>
             </Form>
         </div>
