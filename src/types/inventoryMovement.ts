@@ -9,6 +9,9 @@ export interface InventoryMovement {
     productId: number;
     warehouseId: number;
     lotId: number | null;
+    productionOrderId?: number | null;
+    purchaseOrderId?: number | null;
+    saleOrderId?: number | null;
     direction: MovementType;
     source: MovementSource;
     quantity: number;
@@ -17,7 +20,6 @@ export interface InventoryMovement {
     saleValue: number | null;
     reference: string | null;
     notes: string | null;
-    supplierId: number | null;
     createdAt: string;
     updatedAt: string;
 
