@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -43,6 +43,7 @@ export function ProductForm({
     Id,
 }: Props) {
     const [adjustModalOpen, setAdjustModalOpen] = useState(false);
+    const [profitMarginEdited, setProfitMarginEdited] = useState(false);
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
         defaultValues,
@@ -78,7 +79,72 @@ export function ProductForm({
 
     useEffect(() => {
         form.reset(defaultValues);
+        setProfitMarginEdited(false);
     }, [form, defaultValues]);
+
+    const updateSaleValueFromMargin = useCallback(
+        (margin?: number | null, cost?: number | null) => {
+            if (margin === null || margin === undefined || Number.isNaN(margin)) return;
+            if (cost === null || cost === undefined || Number.isNaN(cost)) return;
+
+            const sale = cost * (1 + margin / 100);
+
+            if (!Number.isFinite(sale)) return;
+
+            const normalizedSale = Number(sale.toFixed(3));
+
+            if (normalizedSale === form.getValues("saleValue")) return;
+
+            form.setValue("saleValue", normalizedSale, { shouldDirty: true });
+        },
+        [form]
+    );
+
+    const updateMarginFromValues = useCallback(() => {
+        const cost = form.getValues("costValue");
+        const sale = form.getValues("saleValue");
+
+        if (cost === null || cost === undefined || Number.isNaN(cost) || cost === 0) {
+            form.setValue("profitMargin", 0);
+            return;
+        }
+
+        if (sale === null || sale === undefined || Number.isNaN(sale) || sale <= 0) {
+            form.setValue("profitMargin", 0);
+            return;
+        }
+
+        const margin = ((sale - cost) / cost) * 100;
+        const normalizedMargin = Number.isFinite(margin) ? Number(margin.toFixed(2)) : 0;
+
+        form.setValue("profitMargin", normalizedMargin);
+    }, [form]);
+
+    useEffect(() => {
+        const subscription = form.watch((value, { name }) => {
+            if (name === "profitMargin") {
+                const isDirty = form.getFieldState("profitMargin").isDirty;
+
+                if (isDirty) {
+                    setProfitMarginEdited(true);
+                    updateSaleValueFromMargin(
+                        value?.profitMargin as number | null,
+                        value?.costValue as number | null
+                    );
+                }
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [form, updateSaleValueFromMargin]);
+
+    const costValue = form.watch("costValue");
+
+    useEffect(() => {
+        if (!profitMarginEdited) return;
+
+        updateSaleValueFromMargin(form.getValues("profitMargin"), costValue);
+    }, [costValue, profitMarginEdited, form, updateSaleValueFromMargin]);
 
     const recipes = form.watch("recipes") ?? [];
 
@@ -141,7 +207,7 @@ export function ProductForm({
                         title="Estoque e precificação"
                         description="Valores de entrada, venda e saldo inicial."
                     >
-                        <FieldsGrid cols={3}>
+                        <FieldsGrid cols={4}>
                             <TextField
                                 control={control}
                                 name="costValue"
@@ -149,6 +215,15 @@ export function ProductForm({
                                 type="number"
                                 decimals={3}
                                 prefix="R$ "
+                                onBlur={updateMarginFromValues}
+                            />
+                            <TextField
+                                control={control}
+                                name="profitMargin"
+                                label="Margem de lucro (%)"
+                                type="number"
+                                decimals={2}
+                                suffix="%"
                             />
                             <TextField
                                 control={control}
@@ -157,6 +232,7 @@ export function ProductForm({
                                 type="number"
                                 decimals={3}
                                 prefix="R$ "
+                                onBlur={updateMarginFromValues}
                             />
                             <div className="flex items-end gap-4">
                                 <TextField
@@ -250,6 +326,7 @@ export const defaultProductFormValues: ProductFormValues = {
 
     costValue: 0,
     saleValue: 0,
+    profitMargin: 0,
     quantity: 0,
     recipes: [],
 };

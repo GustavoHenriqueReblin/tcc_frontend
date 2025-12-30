@@ -17,6 +17,14 @@ import { isEqual } from "lodash-es";
 import { buildNestedPayload } from "@/utils/buildNestedItems";
 import { ProductDefinitionTypeEnum } from "@/types/enums";
 
+const calculateProfitMargin = (costValue: number, saleValue: number) => {
+    if (!costValue || Number.isNaN(costValue)) return 0;
+    if (!saleValue || Number.isNaN(saleValue) || saleValue <= 0) return 0;
+
+    const margin = (((saleValue ?? 0) - costValue) / costValue) * 100;
+    return Number.isFinite(margin) ? Number(margin.toFixed(2)) : 0;
+};
+
 export function EditProduct() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
@@ -155,6 +163,9 @@ export function EditProduct() {
     if (isLoading) return <Loading />;
 
     const inventory = product?.productInventory?.[0];
+    const costValue = inventory ? Number(inventory.costValue) : 0;
+    const saleValue = inventory ? Number(inventory.saleValue) : 0;
+    const quantity = inventory ? Number(inventory.quantity) : 0;
 
     const formDefaults: ProductFormValues = product
         ? {
@@ -162,9 +173,10 @@ export function EditProduct() {
               barcode: product.barcode || "",
               productDefinitionId: product.productDefinitionId ?? 0,
               unityId: product.unityId ?? 0,
-              costValue: inventory ? Number(inventory.costValue) : 0,
-              saleValue: inventory ? Number(inventory.saleValue) : 0,
-              quantity: inventory ? Number(inventory.quantity) : 0,
+              costValue,
+              saleValue,
+              profitMargin: calculateProfitMargin(costValue, saleValue),
+              quantity,
 
               recipes:
                   product.recipe?.map((recipe) => ({

@@ -34,6 +34,8 @@ export const productFormSchema = z.object({
 
     saleValue: z.number().refine((v) => !isNaN(v), "Informe o valor de venda"),
 
+    profitMargin: z.number().refine((v) => !isNaN(v), "Informe a margem"),
+
     quantity: z.number().refine((v) => !isNaN(v), "Informe a quantidade"),
 
     recipes: z.array(recipeFormSchema),
