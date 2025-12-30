@@ -80,9 +80,9 @@ export function AdjustInventoryModal({
                             type="number"
                             value={quantity}
                             onChange={(val) => {
-                                const newValue = val as number;
+                                const newValue = Number(val ?? 0) as number;
                                 setQuantity(newValue);
-                                setDiference(newValue - productData.quantity);
+                                setDiference(newValue - Number(productData.quantity ?? 0));
                             }}
                         />
 

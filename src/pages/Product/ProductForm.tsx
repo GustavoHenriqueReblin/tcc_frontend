@@ -302,10 +302,10 @@ export function ProductForm({
                     onClose={() => setAdjustModalOpen(false)}
                     productData={{
                         id: Id,
-                        quantity: form.getValues("quantity"),
+                        quantity: Number(form.getValues("quantity") ?? 0),
                     }}
                     onSuccess={(newQuantity) => {
-                        form.setValue("quantity", newQuantity);
+                        form.setValue("quantity", Number(newQuantity ?? 0));
 
                         queryClient.invalidateQueries({
                             queryKey: ["datatable", "/products"],
