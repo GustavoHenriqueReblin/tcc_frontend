@@ -15,7 +15,6 @@ import { buildApiError } from "@/utils/global";
 import { toast } from "sonner";
 import { isEqual } from "lodash-es";
 import { buildNestedPayload } from "@/utils/buildNestedItems";
-import { ProductDefinitionTypeEnum } from "@/types/enums";
 
 const calculateProfitMargin = (costValue: number, saleValue: number) => {
     if (!costValue || Number.isNaN(costValue)) return 0;
@@ -35,10 +34,7 @@ export function EditProduct() {
     usePageTitle("Edição de produto - ERP industrial");
 
     useEffect(() => {
-        if (!id)
-            navigate(
-                type === ProductDefinitionTypeEnum.FINISHED_PRODUCT ? "/products" : "/raw-material"
-            );
+        if (!id) navigate("/products");
     }, [type, id, navigate]);
 
     const {
@@ -154,9 +150,7 @@ export function EditProduct() {
                 exact: false,
             });
 
-            navigate(
-                type === ProductDefinitionTypeEnum.FINISHED_PRODUCT ? "/products" : "/raw-material"
-            );
+            navigate("/products");
         },
     });
 
@@ -218,13 +212,7 @@ export function EditProduct() {
                         defaultValues={formDefaults}
                         submitLabel="Atualizar produto"
                         onSubmit={(values) => updateMutation.mutate(values)}
-                        onCancel={() =>
-                            navigate(
-                                type === ProductDefinitionTypeEnum.FINISHED_PRODUCT
-                                    ? "/products"
-                                    : "/raw-material"
-                            )
-                        }
+                        onCancel={() => navigate("/products")}
                         isLoading={updateMutation.isPending}
                         Id={Number(id)}
                     />
