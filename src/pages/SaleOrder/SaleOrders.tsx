@@ -120,12 +120,9 @@ export function SaleOrders() {
         const stacked = orientation === "column";
         const buttonClassName = stacked ? "w-full justify-center" : undefined;
 
-        const isClosed =
-            order.status === OrderStatusEnum.CANCELED || order.status === OrderStatusEnum.FINISHED;
-
         return (
             <div className={`flex gap-2 ${stacked ? "flex-col" : "items-center"}`}>
-                {!isClosed && (
+                {!(order.status === OrderStatusEnum.FINISHED || order.status === OrderStatusEnum.CANCELED) && (
                     <>
                         <StatusActionButton
                             label="Finalizar"
@@ -141,7 +138,11 @@ export function SaleOrders() {
                                 })
                             }
                         />
+                    </>
+                )}
 
+                {!(order.status === OrderStatusEnum.CANCELED) && (
+                    <>
                         <StatusActionButton
                             label="Cancelar"
                             intent="danger"
