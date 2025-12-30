@@ -13,7 +13,6 @@ import {
     Users,
     Warehouse,
     Weight,
-    Layers,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link, useLocation } from "react-router-dom";
@@ -43,7 +42,7 @@ export const menuConfig = [
         type: "group",
         label: "Estoque",
         items: [
-            { label: "Matérias primas", to: "/raw-material", icon: Layers },
+            // { label: "Matérias primas", to: "/raw-material", icon: Layers },
             { label: "Produtos", to: "/products", icon: Package },
             {
                 label: "Entrada de mercadoria",

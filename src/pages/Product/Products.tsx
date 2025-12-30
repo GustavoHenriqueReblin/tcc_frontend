@@ -1,49 +1,26 @@
-import { DataTable } from "@/components/ui/data-table";
-import { ColumnDef } from "@tanstack/react-table";
-import { Product, ProductDefinition } from "@/types/product";
-import { usePageTitle } from "@/hooks/usePageTitle";
-import { useNavigate } from "react-router-dom";
-import {
-    ApiResponse,
-    ProductDefinitionType,
-    productDefinitionTypeLabels,
-    ServerList,
-} from "@/types/global";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ColumnDef } from "@tanstack/react-table";
+
+import { DataTable } from "@/components/ui/data-table";
+import { ComboboxStandalone } from "@/components/ComboboxStandalone";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { formatCurrency, formatNumber } from "@/utils/global";
-import { useQuery } from "@tanstack/react-query";
-import { ProductDefinitionTypeEnum } from "@/types/enums";
-import { api } from "@/api/client";
+import { ProductDefinitionType, productDefinitionTypeLabels } from "@/types/global";
+import { Product } from "@/types/product";
+
+type ProductFilters = {
+    productDefinitionId?: number;
+};
 
 export function Products() {
     usePageTitle("Produtos - ERP industrial");
     const navigate = useNavigate();
 
+    const [filters, setFilters] = useState<ProductFilters>({});
     const [totalQuantity, setTotalQuantity] = useState<number>(0);
     const [totalCost, setTotalCost] = useState<number>(0);
     const [totalSaleValue, setTotalSaleValue] = useState<number>(0);
-    const [totalProducts, setTotalProducts] = useState<number>(0);
-
-    const { data: finishedProductDefinition } = useQuery<ProductDefinition>({
-        queryKey: ["product-definition", ProductDefinitionTypeEnum.FINISHED_PRODUCT],
-        queryFn: async () => {
-            const response = await api.get<ApiResponse<ServerList<ProductDefinition>>>(
-                "/product-definitions",
-                {
-                    params: {
-                        type: ProductDefinitionTypeEnum.FINISHED_PRODUCT,
-                        limit: 1,
-                    },
-                }
-            );
-
-            if (!response.data.success || response.data.data.items.length === 0) {
-                throw new Error("Definição de matéria-prima não encontrada");
-            }
-
-            return response.data.data.items[0];
-        },
-    });
 
     const columns: ColumnDef<Product>[] = [
         {
@@ -108,7 +85,7 @@ export function Products() {
     ];
 
     const handleRowClick = (row: Product) => {
-        navigate(`/products/edit/${row.id}?type=${ProductDefinitionTypeEnum.FINISHED_PRODUCT}`);
+        navigate(`/products/edit/${row.id}`);
     };
 
     return (
@@ -120,13 +97,28 @@ export function Products() {
             <DataTable<Product>
                 columns={columns}
                 endpoint="/products"
-                filters={
-                    finishedProductDefinition
-                        ? { productDefinitionId: finishedProductDefinition.id }
-                        : undefined
+                filters={filters}
+                filterComponents={
+                    <div className="w-full md:w-64">
+                        <ComboboxStandalone<{ id: number; name: string }>
+                            label="Definição de produto"
+                            endpoint="/product-definitions"
+                            valueField="id"
+                            labelField="name"
+                            value={filters.productDefinitionId ?? null}
+                            showError={false}
+                            onChange={(val) =>
+                                setFilters((prev) => {
+                                    const next = { ...prev };
+                                    if (val == null) delete next.productDefinitionId;
+                                    else next.productDefinitionId = val;
+                                    return next;
+                                })
+                            }
+                        />
+                    </div>
                 }
                 createButtonDescription="Novo produto"
-                createButtonParams={`type=${ProductDefinitionTypeEnum.FINISHED_PRODUCT}`}
                 defaultSort={{ sortBy: "createdAt", sortOrder: "desc" }}
                 onRowClick={handleRowClick}
                 mobileFields={[
@@ -187,7 +179,6 @@ export function Products() {
                         sale += q * s;
                     });
 
-                    setTotalProducts(data.length);
                     setTotalQuantity(qty);
                     setTotalCost(cost);
                     setTotalSaleValue(sale);
@@ -195,11 +186,6 @@ export function Products() {
             />
 
             <div className="flex flex-wrap justify-end gap-6 border-t pt-4">
-                <div className="flex flex-col items-end">
-                    <span className="text-sm text-muted-foreground">Produtos</span>
-                    <span className="font-semibold">{formatNumber(totalProducts)}</span>
-                </div>
-
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Quantidade total</span>
                     <span className="font-semibold">{formatNumber(totalQuantity)}</span>

@@ -71,7 +71,6 @@ export function ProductionOrders() {
     const [range, setRange] = useState<DateRange | undefined>();
     const [filters, setFilters] = useState<ProductionOrderFilters>({});
     const [finishOrder, setFinishOrder] = useState<ProductionOrder | null>(null);
-    const [totalOrders, setTotalOrders] = useState(0);
     const [plannedOrders, setPlannedOrders] = useState(0);
     const [runningOrders, setRunningOrders] = useState(0);
     const [finishedOrders, setFinishedOrders] = useState(0);
@@ -535,7 +534,6 @@ export function ProductionOrders() {
                         if (o.status === ProductionOrderStatusEnum.FINISHED) finishedC++;
                     });
 
-                    setTotalOrders(data.length);
                     setPlannedOrders(plannedC);
                     setRunningOrders(runningC);
                     setFinishedOrders(finishedC);
@@ -546,11 +544,6 @@ export function ProductionOrders() {
             />
 
             <div className="flex flex-wrap justify-end gap-6 border-t pt-4">
-                <div className="flex flex-col items-end">
-                    <span className="text-sm text-muted-foreground">Total de ordens</span>
-                    <span className="font-semibold">{totalOrders}</span>
-                </div>
-
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Planejadas</span>
                     <span className="font-semibold">{plannedOrders}</span>

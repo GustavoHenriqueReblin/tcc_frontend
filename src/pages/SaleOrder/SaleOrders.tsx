@@ -69,7 +69,6 @@ export function SaleOrders() {
 
     const [range, setRange] = useState<DateRange | undefined>();
     const [filters, setFilters] = useState<SaleOrderFilters>({});
-    const [totalOrders, setTotalOrders] = useState(0);
     const [subtotalValue, setSubtotalValue] = useState(0);
     const [totalValue, setTotalValue] = useState(0);
     const [totalOtherCosts, setTotalOtherCosts] = useState(0);
@@ -403,8 +402,6 @@ export function SaleOrders() {
                     handleRowClick(row);
                 }}
                 onDataResult={(data) => {
-                    setTotalOrders(data.length);
-
                     const totals = data.reduce(
                         (acc, order) => {
                             acc.subtotal += Number(
@@ -430,11 +427,6 @@ export function SaleOrders() {
             />
 
             <div className="flex flex-wrap justify-end gap-6 border-t pt-4">
-                <div className="flex flex-col items-end">
-                    <span className="text-sm text-muted-foreground">Vendas</span>
-                    <span className="font-semibold">{totalOrders}</span>
-                </div>
-
                 <div className="flex flex-col items-end">
                     <span className="text-sm text-muted-foreground">Subtotal</span>
                     <span className="font-semibold">{formatCurrency(subtotalValue)}</span>
