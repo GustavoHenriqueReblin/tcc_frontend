@@ -33,9 +33,7 @@ export const purchaseEntrySchema = z.object({
         .refine((value) => value !== null && value > 0, {
             message: "Selecione um depósito.",
         }),
-    code: z.string().refine((value) => value.trim().length > 0, {
-        message: "Informe o código da compra.",
-    }),
+    code: z.string().optional().nullable(),
     notes: z.string(),
     items: z
         .array(purchaseEntryItemSchema)
