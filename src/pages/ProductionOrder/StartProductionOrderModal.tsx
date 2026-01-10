@@ -8,12 +8,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { TextField, TextAreaField } from "@/components/Fields";
+import { TextField } from "@/components/Fields";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
-    finishProductionOrderSchema,
-    FinishProductionOrderValues,
+    startProductionOrderSchema,
+    StartProductionOrderValues,
 } from "@/schemas/production-order.schema";
 import { ProductionOrder } from "@/types/productionOrder";
 import { cn } from "@/utils/global";
@@ -22,34 +22,29 @@ interface Props {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     order: ProductionOrder;
-    onConfirm: (values: FinishProductionOrderValues) => void;
+    onConfirm: (values: StartProductionOrderValues) => void;
     isLoading?: boolean;
 }
 
-export function FinishProductionOrderModal({
+export function StartProductionOrderModal({
     open,
     onOpenChange,
     order,
     onConfirm,
     isLoading = false,
 }: Props) {
-    const form = useForm<FinishProductionOrderValues>({
-        resolver: zodResolver(finishProductionOrderSchema),
+    const form = useForm<StartProductionOrderValues>({
+        resolver: zodResolver(startProductionOrderSchema),
         defaultValues: {
-            producedQty: order.plannedQty,
-            wasteQty: null,
-            endDate: new Date().toISOString(),
-            notes: null,
+            startDate: order.startDate ?? new Date().toISOString(),
         },
     });
-
-    const unitySimbol = order.recipe.product?.unity?.simbol;
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
             <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Finalizar ordem de produção</AlertDialogTitle>
+                    <AlertDialogTitle>Iniciar ordem de produção</AlertDialogTitle>
                 </AlertDialogHeader>
 
                 <Form {...form}>
@@ -67,31 +62,11 @@ export function FinishProductionOrderModal({
                     >
                         <TextField
                             control={form.control}
-                            name="producedQty"
-                            label="Quantidade produzida"
-                            type="number"
-                            decimals={3}
-                            suffix={unitySimbol ? ` ${unitySimbol}` : undefined}
-                        />
-
-                        <TextField
-                            control={form.control}
-                            name="wasteQty"
-                            label="Perda"
-                            type="number"
-                            decimals={3}
-                            suffix={unitySimbol ? ` ${unitySimbol}` : undefined}
-                        />
-
-                        <TextField
-                            control={form.control}
-                            name="endDate"
-                            label="Data de término"
+                            name="startDate"
+                            label="Data de inicio"
                             type="date"
                             withTime
                         />
-
-                        <TextAreaField control={form.control} name="notes" label="Observações" />
 
                         <AlertDialogFooter>
                             <AlertDialogCancel
@@ -107,11 +82,11 @@ export function FinishProductionOrderModal({
                                 className={cn(
                                     buttonVariants({
                                         className: "cursor-pointer",
-                                        variant: "success",
+                                        variant: "primary",
                                     })
                                 )}
                             >
-                                {isLoading ? "Finalizando..." : "Finalizar produção"}
+                                {isLoading ? "Iniciando..." : "Iniciar produção"}
                             </Button>
                         </AlertDialogFooter>
                     </form>

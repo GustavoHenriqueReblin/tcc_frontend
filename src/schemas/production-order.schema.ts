@@ -74,7 +74,19 @@ export const finishProductionOrderSchema = z.object({
     notes: z.string().nullable().optional(),
 });
 
+export const startProductionOrderSchema = z.object({
+    startDate: z
+        .string()
+        .min(1, "Informe a data de inicio")
+        .refine((value) => {
+            const date = new Date(value);
+            return !Number.isNaN(date.getTime()) && date <= new Date();
+        }, "Data de início não pode ser futura"),
+});
+
 export type FinishProductionOrderValues = z.infer<typeof finishProductionOrderSchema>;
+
+export type StartProductionOrderValues = z.infer<typeof startProductionOrderSchema>;
 
 export type ProductionOrderInputValues = z.infer<typeof productionOrderInputSchema>;
 

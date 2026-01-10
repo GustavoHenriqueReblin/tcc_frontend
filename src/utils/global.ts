@@ -187,7 +187,12 @@ export const formatDate = (value: Date, opts?: Intl.DateTimeFormatOptions) => {
 };
 
 export async function openPDF(id: number, path: string) {
-    const url = `${env.VITE_API_URL}/reports/${path}/${id}/pdf`;
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    const url =
+        `${env.VITE_API_URL}/reports/${path}/${id}/pdf` +
+        `?timezone=${encodeURIComponent(timeZone)}`;
+
     const response = await fetch(url, {
         credentials: "include",
     });

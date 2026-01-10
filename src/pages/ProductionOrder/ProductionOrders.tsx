@@ -1,4 +1,4 @@
-﻿import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
 
@@ -25,8 +25,12 @@ import {
 } from "@/utils/global";
 import { StatusActionButton } from "@/components/StatusActionButton";
 import { useState } from "react";
-import { FinishProductionOrderValues } from "@/schemas/production-order.schema";
+import {
+    FinishProductionOrderValues,
+    StartProductionOrderValues,
+} from "@/schemas/production-order.schema";
 import { FinishProductionOrderModal } from "./FinishProductionOrderModal";
+import { StartProductionOrderModal } from "./StartProductionOrderModal";
 import { Button } from "@/components/ui/button";
 import { ComboboxStandalone } from "@/components/ComboboxStandalone";
 import { EnumStandalone } from "@/components/Fields";
@@ -52,6 +56,7 @@ const productionOrderStatusColors: Record<ProductionOrderStatus, string> = {
 type UpdateStatusPayload = {
     order: ProductionOrder;
     status: ProductionOrderStatus;
+    startDate?: string;
 };
 
 type ProductionOrderFilters = {
@@ -72,6 +77,7 @@ export function ProductionOrders() {
     const [range, setRange] = useState<DateRange | undefined>();
     const [filters, setFilters] = useState<ProductionOrderFilters>({});
     const [finishOrder, setFinishOrder] = useState<ProductionOrder | null>(null);
+    const [startOrder, setStartOrder] = useState<ProductionOrder | null>(null);
     const [plannedOrders, setPlannedOrders] = useState(0);
     const [runningOrders, setRunningOrders] = useState(0);
     const [finishedOrders, setFinishedOrders] = useState(0);
@@ -153,7 +159,7 @@ export function ProductionOrders() {
     });
 
     const updateStatusMutation = useMutation<ProductionOrder, Error, UpdateStatusPayload>({
-        mutationFn: async ({ order, status }) => {
+        mutationFn: async ({ order, status, startDate }) => {
             const toastId = toast.loading("Atualizando ordem de produção...");
 
             try {
@@ -161,7 +167,9 @@ export function ProductionOrders() {
                     ...order,
                     status,
                     startDate:
-                        status === ProductionOrderStatusEnum.RUNNING ? new Date() : order.startDate,
+                        status === ProductionOrderStatusEnum.RUNNING
+                            ? (startDate ?? new Date().toISOString())
+                            : order.startDate,
                 };
 
                 const response = await api.put<ApiResponse<ProductionOrder>>(
@@ -188,6 +196,7 @@ export function ProductionOrders() {
             }
         },
         onSuccess: () => {
+            setStartOrder(null);
             queryClient.invalidateQueries({
                 queryKey: ["datatable", "/production-orders"],
                 exact: false,
@@ -202,29 +211,17 @@ export function ProductionOrders() {
         return (
             <div className={cn("flex gap-2", stacked ? "flex-col" : "items-center")}>
                 {order.status === ProductionOrderStatusEnum.PLANNED && (
-                    <>
-                        <StatusActionButton
-                            label="Iniciar"
-                            intent="primary"
-                            className={buttonClassName}
-                            confirmTitle="Iniciar ordem de produção?"
-                            confirmDescription={
-                                <>
-                                    A ordem passará para o status
-                                    <strong> Em produção</strong>.
-                                    <br />
-                                    Deseja continuar?
-                                </>
-                            }
-                            confirmLabel="Iniciar produção"
-                            onConfirm={() =>
-                                updateStatusMutation.mutate({
-                                    order,
-                                    status: ProductionOrderStatusEnum.RUNNING,
-                                })
-                            }
-                        />
-                    </>
+                    <Button
+                        size="sm"
+                        variant="primary"
+                        className={buttonClassName}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setStartOrder(order);
+                        }}
+                    >
+                        Iniciar
+                    </Button>
                 )}
 
                 {order.status === ProductionOrderStatusEnum.RUNNING && (
@@ -576,6 +573,21 @@ export function ProductionOrders() {
                         finishOrderMutation.mutate({
                             values,
                             order: finishOrder,
+                        })
+                    }
+                />
+            )}
+            {startOrder && (
+                <StartProductionOrderModal
+                    open
+                    order={startOrder}
+                    isLoading={updateStatusMutation.isPending}
+                    onOpenChange={() => setStartOrder(null)}
+                    onConfirm={(values: StartProductionOrderValues) =>
+                        updateStatusMutation.mutate({
+                            order: startOrder,
+                            status: ProductionOrderStatusEnum.RUNNING,
+                            startDate: values.startDate,
                         })
                     }
                 />
