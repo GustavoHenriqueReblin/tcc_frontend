@@ -109,6 +109,7 @@ export function EditSaleOrder() {
                     otherCosts,
                     totalValue: Math.max(subtotal - discount + otherCosts, 0),
                     notes: values.notes?.trim() || null,
+                    createdAt: values.createdAt,
                     items: itemsPayload,
                 };
 
@@ -154,6 +155,7 @@ export function EditSaleOrder() {
               discount: Number(saleOrder.discount ?? 0) || 0,
               otherCosts: Number(saleOrder.otherCosts ?? 0) || 0,
               notes: saleOrder.notes ?? "",
+              createdAt: saleOrder.createdAt,
               items:
                   saleOrder.items?.map((item) => ({
                       id: item.id,

@@ -15,6 +15,7 @@ export const adjustmentEntrySchema = z.object({
             message: "Quantidade deve ser informada.",
         }),
     notes: z.string(),
+    createdAt: z.iso.datetime().nullable().optional(),
 });
 
 export type AdjustmentEntryFormValues = z.infer<typeof adjustmentEntrySchema>;

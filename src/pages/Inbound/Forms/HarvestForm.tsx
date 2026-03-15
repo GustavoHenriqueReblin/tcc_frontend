@@ -54,13 +54,14 @@ export function HarvestForm() {
             const toastId = toast.loading("Registrando colheita...");
 
             try {
-                const { productId, quantity, unitCost, warehouseId, notes } = values;
+                const { productId, quantity, unitCost, warehouseId, notes, createdAt } = values;
                 await api.post<ApiResponse<InventoryMovement>>("/inventory-movement/harvest", {
                     productId,
                     quantity,
                     unitCost,
                     warehouseId,
                     notes: notes.trim() || null,
+                    createdAt,
                 });
 
                 setUnitySimbol(null);
@@ -105,7 +106,7 @@ export function HarvestForm() {
                         title="Dados da colheita"
                         description="Informe produto, depósito e quantidade para dar entrada no estoque."
                     >
-                        <FieldsGrid cols={4}>
+                        <FieldsGrid cols={5}>
                             <ComboboxQuery<
                                 HarvestFormValues,
                                 {
@@ -130,6 +131,15 @@ export function HarvestForm() {
                                 onSelectItem={(e) => {
                                     setUnitySimbol(e.unity.simbol);
                                 }}
+                            />
+
+                            <TextField
+                                control={control}
+                                name="createdAt"
+                                label="Data"
+                                type="date"
+                                allowFutureDates
+                                withTime
                             />
 
                             <ComboboxQuery<
@@ -198,4 +208,5 @@ export const defaultHarvestValues: HarvestFormValues = {
     quantity: 0,
     unitCost: 0,
     notes: "",
+    createdAt: new Date().toISOString(),
 };

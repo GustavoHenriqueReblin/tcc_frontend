@@ -35,6 +35,7 @@ export const purchaseEntrySchema = z.object({
         }),
     code: z.string().optional().nullable(),
     notes: z.string(),
+    createdAt: z.iso.datetime().nullable().optional(),
     items: z
         .array(purchaseEntryItemSchema)
         .min(1, "Adicione ao menos um item.")

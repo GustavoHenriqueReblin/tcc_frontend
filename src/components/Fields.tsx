@@ -770,7 +770,9 @@ export function FieldsGrid({ cols, children }: { cols: number; children: ReactNo
                 cols === 1 && "md:grid-cols-1",
                 cols === 2 && "md:grid-cols-2",
                 cols === 3 && "md:grid-cols-3",
-                cols === 4 && "md:grid-cols-4"
+                cols === 4 && "md:grid-cols-4",
+                cols === 5 && "md:grid-cols-5",
+                cols === 6 && "md:grid-cols-6"
             )}
         >
             {children}

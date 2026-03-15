@@ -104,6 +104,7 @@ export function PurchaseEntryForm() {
                     code: values.code.trim(),
                     status: OrderStatusEnum.PENDING,
                     notes: toNullable(values.notes),
+                    createdAt: values.createdAt,
                     items: {
                         create: values.items.map((item) => ({
                             productId: item.productId,
@@ -220,7 +221,7 @@ export function PurchaseEntryForm() {
                         title="Dados da compra"
                         description="Fornecedor, documento e observações da entrada."
                     >
-                        <FieldsGrid cols={3}>
+                        <FieldsGrid cols={4}>
                             <ComboboxQuery<PurchaseEntryFormValues, SupplierOption>
                                 control={control}
                                 name="supplierId"
@@ -229,6 +230,15 @@ export function PurchaseEntryForm() {
                                 valueField="id"
                                 labelField="id"
                                 formatLabel={supplierLabel}
+                            />
+
+                            <TextField
+                                control={control}
+                                name="createdAt"
+                                label="Data"
+                                type="date"
+                                allowFutureDates
+                                withTime
                             />
 
                             <ComboboxQuery<PurchaseEntryFormValues, WareHouseOption>
@@ -344,6 +354,7 @@ export const defaultPurchaseEntryValues: PurchaseEntryFormValues = {
     warehouseId: null,
     code: "",
     notes: "",
+    createdAt: new Date().toISOString(),
     items: [
         {
             productId: null,

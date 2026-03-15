@@ -18,6 +18,7 @@ export const harvestSchema = z.object({
             message: "Quantidade deve ser informada.",
         }),
     notes: z.string(),
+    createdAt: z.iso.datetime().nullable().optional(),
 });
 
 export type HarvestFormValues = z.infer<typeof harvestSchema>;

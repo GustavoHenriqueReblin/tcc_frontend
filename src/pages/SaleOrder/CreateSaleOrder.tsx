@@ -64,6 +64,7 @@ export function CreateSaleOrder() {
                     otherCosts,
                     totalValue: Math.max(subtotal - discount + otherCosts, 0),
                     notes: values.notes?.trim() || null,
+                    createdAt: values.createdAt,
                     items: itemsPayload,
                 };
 

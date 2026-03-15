@@ -1,5 +1,5 @@
-﻿import { useEffect, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+﻿import { useEffect, useMemo, useState } from "react";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, PlusCircle, Trash2 } from "lucide-react";
@@ -68,6 +68,8 @@ const defaultItem: SaleOrderItemFormValues = {
     inventoryQuantity: 0,
 };
 
+const EMPTY_ITEMS: SaleOrderItemFormValues[] = [];
+
 export function SaleOrderForm({
     defaultValues,
     onSubmit,
@@ -99,19 +101,28 @@ export function SaleOrderForm({
         keyName: "fieldId",
     });
 
-    const items = watch("items") ?? [];
+    const items =
+        useWatch({
+            control,
+            name: "items",
+        }) ?? EMPTY_ITEMS;
     const discount = watch("discount") ?? 0;
     const otherCosts = watch("otherCosts") ?? 0;
 
-    const subtotal = round3(
-        items.reduce((sum, item) => {
-            const qty = Number(item.quantity ?? 0);
-            const baseUnit = Number(item.productUnitPrice ?? 0);
-            return sum + qty * baseUnit;
-        }, 0)
-    );
+    const subtotal = useMemo(() => {
+        return round3(
+            items.reduce((sum, item) => {
+                const qty = Number(item?.quantity ?? 0);
+                const unitPrice = Number(item?.unitPrice ?? 0);
 
-    const total = round3(Math.max(subtotal - discount + otherCosts, 0));
+                return sum + qty * unitPrice;
+            }, 0)
+        );
+    }, [items]);
+
+    const total = useMemo(() => {
+        return round3(Math.max(subtotal - discount + otherCosts, 0));
+    }, [subtotal, discount, otherCosts]);
 
     const { data: lastSaleOrder, isLoading: lastOrderIsLoading } = useQuery<SaleOrder | null>({
         enabled: !code,
@@ -126,7 +137,7 @@ export function SaleOrderForm({
                     params: {
                         page: 1,
                         limit: 1,
-                        sortBy: "createdAt",
+                        sortBy: "code",
                         sortOrder: "desc",
                     },
                 });
@@ -160,39 +171,6 @@ export function SaleOrderForm({
             setCodeLocked(true);
         }
     }, [code, lastSaleOrder, lastOrderIsLoading, setValue]);
-
-    const recalcItemPriceAdjustments = () => {
-        const currentItems = getValues("items") ?? [];
-
-        let nextDiscount = 0;
-        let nextOtherCosts = 0;
-
-        currentItems.forEach((item) => {
-            const qty = Number(item?.quantity ?? 0);
-            const unitPrice = Number(item?.unitPrice ?? 0);
-            const productUnitPrice = Number(item?.productUnitPrice ?? 0);
-
-            if (qty <= 0 || productUnitPrice <= 0) return;
-
-            const diff = round3((unitPrice - productUnitPrice) * qty);
-
-            if (diff > 0) {
-                nextOtherCosts = round3(nextOtherCosts + diff);
-            } else if (diff < 0) {
-                nextDiscount = round3(nextDiscount + Math.abs(diff));
-            }
-        });
-
-        setValue("discount", round3(nextDiscount), {
-            shouldDirty: true,
-            shouldValidate: true,
-        });
-
-        setValue("otherCosts", round3(nextOtherCosts), {
-            shouldDirty: true,
-            shouldValidate: true,
-        });
-    };
 
     const distributeAdjustmentsToItems = () => {
         const currentItems = getValues("items") ?? [];
@@ -244,7 +222,6 @@ export function SaleOrderForm({
 
         if (itemsArray.fields.length > 1) {
             itemsArray.remove(index);
-            recalcItemPriceAdjustments();
         }
     };
 
@@ -323,12 +300,21 @@ export function SaleOrderForm({
                         title="Identificação"
                         description="Código, cliente, depósito e status da venda."
                     >
-                        <FieldsGrid cols={4}>
+                        <FieldsGrid cols={5}>
                             <TextField
                                 control={control}
                                 name="code"
                                 label="Código"
                                 disabled={codeLocked}
+                            />
+
+                            <TextField
+                                control={control}
+                                name="createdAt"
+                                label="Data"
+                                type="date"
+                                allowFutureDates
+                                withTime
                             />
 
                             <ComboboxQuery<SaleOrderFormValues, CustomerOption>
@@ -364,14 +350,13 @@ export function SaleOrderForm({
                     <Section title="Itens da venda" description="Produtos, quantidades e valores.">
                         <div className="space-y-4">
                             {itemsArray.fields.map((field, index) => {
-                                const unity = watch(`items.${index}.unitySimbol`);
-                                const qty = watch(`items.${index}.quantity`) ?? 0;
-                                const price = watch(`items.${index}.unitPrice`) ?? 0;
-                                const productId = watch(`items.${index}.productId`) ?? 0;
-                                const productUnitPrice =
-                                    watch(`items.${index}.productUnitPrice`) ?? 0;
-                                const inventoryQty =
-                                    watch(`items.${index}.inventoryQuantity`) ?? null;
+                                const item = items[index];
+                                const unity = item?.unitySimbol;
+                                const qty = item?.quantity ?? 0;
+                                const price = item?.unitPrice ?? 0;
+                                const productUnitPrice = item?.productUnitPrice ?? 0;
+                                const productId = item?.productId ?? 0;
+                                const inventoryQty = item?.inventoryQuantity ?? null;
 
                                 return (
                                     <div
@@ -438,7 +423,6 @@ export function SaleOrderForm({
                                                             Number(inv.costValue)
                                                         );
                                                     }
-                                                    recalcItemPriceAdjustments();
                                                 }}
                                             />
 
@@ -449,7 +433,6 @@ export function SaleOrderForm({
                                                 type="number"
                                                 decimals={3}
                                                 suffix={unity && ` ${unity}`}
-                                                onBlur={() => recalcItemPriceAdjustments()}
                                             />
 
                                             <TextField
@@ -459,7 +442,6 @@ export function SaleOrderForm({
                                                 type="number"
                                                 decimals={3}
                                                 prefix="R$ "
-                                                onBlur={() => recalcItemPriceAdjustments()}
                                             />
                                         </FieldsGrid>
 
@@ -467,7 +449,9 @@ export function SaleOrderForm({
                                             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                                                 <span>
                                                     Total do item:{" "}
-                                                    <strong>{formatCurrency(qty * price)}</strong>
+                                                    <strong>
+                                                        {formatCurrency(round3(qty * price))}
+                                                    </strong>
                                                 </span>
                                                 {productUnitPrice !== price && (
                                                     <div className="text-sm text-muted-foreground">
@@ -548,6 +532,7 @@ export const defaultSaleOrderFormValues: SaleOrderFormValues = {
     discount: 0,
     otherCosts: 0,
     notes: "",
+    createdAt: new Date().toISOString(),
     items: [
         {
             productId: null,

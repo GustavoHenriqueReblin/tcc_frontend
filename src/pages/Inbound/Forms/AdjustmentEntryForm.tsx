@@ -34,12 +34,13 @@ export function AdjustmentEntryForm() {
             const toastId = toast.loading("Registrando ajuste...");
 
             try {
-                const { productId, quantity, warehouseId, notes } = values;
+                const { productId, quantity, warehouseId, notes, createdAt } = values;
                 await api.post<ApiResponse<InventoryMovement>>("/inventory-movement/adjustments", {
                     productId,
                     quantity,
                     warehouseId,
                     notes: notes.trim() || null,
+                    createdAt,
                 });
 
                 setUnitySimbol(null);
@@ -84,7 +85,7 @@ export function AdjustmentEntryForm() {
                         title="Dados do ajuste"
                         description="Informe produto, depósito e quantidade para corrigir o saldo."
                     >
-                        <FieldsGrid cols={3}>
+                        <FieldsGrid cols={4}>
                             <ComboboxQuery<
                                 AdjustmentEntryFormValues,
                                 {
@@ -119,6 +120,15 @@ export function AdjustmentEntryForm() {
                                 endpoint="/warehouses"
                                 valueField="id"
                                 labelField="name"
+                            />
+
+                            <TextField
+                                control={control}
+                                name="createdAt"
+                                label="Data"
+                                type="date"
+                                allowFutureDates
+                                withTime
                             />
 
                             <TextField
@@ -162,4 +172,5 @@ export const defaultAdjustmentEntryValues: AdjustmentEntryFormValues = {
     warehouseId: null,
     quantity: 0,
     notes: "",
+    createdAt: new Date().toISOString(),
 };

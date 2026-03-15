@@ -59,6 +59,7 @@ export const saleOrderFormSchema = z.object({
     discount: z.number().min(0, "Desconto nao pode ser negativo."),
     otherCosts: z.number().min(0, "Outros custos nao podem ser negativos."),
     notes: z.string(),
+    createdAt: z.iso.datetime().nullable().optional(),
 
     items: z
         .array(saleOrderItemSchema)

@@ -95,7 +95,7 @@ export function ProductionOrderForm({
                                 page: 1,
                                 limit: 1,
                                 search: code ?? "",
-                                sortBy: "createdAt",
+                                sortBy: "code",
                                 sortOrder: "desc",
                             },
                         }
