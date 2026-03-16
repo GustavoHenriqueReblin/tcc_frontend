@@ -28,12 +28,11 @@ import {
 import { ProductionOrderItemModal } from "./ProductionOrderItemModal";
 
 import { ProductionOrderStatusEnum } from "@/types/enums";
-import { ApiResponse, productionOrderStatusLabels, ServerList } from "@/types/global";
+import { ApiResponse, productionOrderStatusLabels } from "@/types/global";
 import { Recipe } from "@/types/recipe";
 import { PlusCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { buildApiError, formatCurrency, formatNumber } from "@/utils/global";
-import { ProductionOrder } from "@/types/productionOrder";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/client";
 
@@ -78,34 +77,27 @@ export function ProductionOrderForm({
 
     const isMobile = useIsMobile();
 
-    const { data: lastOrderData, isLoading: lastOrderIsLoading } = useQuery<ProductionOrder | null>(
+    const { data: nextProductionOrderCode, isLoading: nextCodeIsLoading } = useQuery<string | null>(
         {
             enabled: !code,
-            queryKey: ["production-order-last", code],
+            queryKey: ["production-order-next-code"],
             staleTime: 0,
             gcTime: 0,
             refetchOnMount: "always",
             refetchOnWindowFocus: false,
             queryFn: async () => {
                 try {
-                    const response = await api.get<ApiResponse<ServerList<ProductionOrder>>>(
-                        "/production-orders",
-                        {
-                            params: {
-                                page: 1,
-                                limit: 1,
-                                search: code ?? "",
-                                sortBy: "code",
-                                sortOrder: "desc",
-                            },
-                        }
+                    const response = await api.get<ApiResponse<{ code: string | number }>>(
+                        "/production-orders/next-code"
                     );
 
                     if (!response.data.success) {
                         throw new Error(response.data.message || "Erro ao carregar última OP");
                     }
 
-                    return response.data.data.items[0] ?? null;
+                    return response.data.data?.code != null
+                        ? String(response.data.data.code)
+                        : null;
                 } catch (error) {
                     throw buildApiError(error, "Erro ao carregar última ordem de produção");
                 }
@@ -116,7 +108,7 @@ export function ProductionOrderForm({
     useEffect(() => {
         if (code) return;
 
-        if (!lastOrderData && !lastOrderIsLoading) {
+        if (!nextProductionOrderCode && !nextCodeIsLoading) {
             setValue("code", "1", {
                 shouldDirty: true,
                 shouldTouch: true,
@@ -125,15 +117,14 @@ export function ProductionOrderForm({
             return;
         }
 
-        const lastCode = Number(lastOrderData?.code);
-        if (Number.isNaN(lastCode)) return;
+        if (!nextProductionOrderCode) return;
 
-        setValue("code", String(lastCode + 1), {
+        setValue("code", nextProductionOrderCode, {
             shouldDirty: true,
             shouldTouch: true,
             shouldValidate: true,
         });
-    }, [lastOrderData, lastOrderIsLoading, code, setValue]);
+    }, [nextProductionOrderCode, nextCodeIsLoading, code, setValue]);
 
     const handleAddItem = () => {
         setEditingItemIndex(null);

@@ -17,8 +17,7 @@ import {
     type SaleOrderItemFormValues,
 } from "@/schemas/sale-order.schema";
 import { OrderStatusEnum } from "@/types/enums";
-import { ApiResponse, ServerList, orderStatusLabels } from "@/types/global";
-import { SaleOrder } from "@/types/saleOrder";
+import { ApiResponse, orderStatusLabels } from "@/types/global";
 import { api } from "@/api/client";
 import { buildApiError, formatCurrency, round3 } from "@/utils/global";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -124,31 +123,25 @@ export function SaleOrderForm({
         return round3(Math.max(subtotal - discount + otherCosts, 0));
     }, [subtotal, discount, otherCosts]);
 
-    const { data: lastSaleOrder, isLoading: lastOrderIsLoading } = useQuery<SaleOrder | null>({
+    const { data: nextSaleOrderCode, isLoading: nextCodeIsLoading } = useQuery<string | null>({
         enabled: !code,
-        queryKey: ["sale-order-last", code],
+        queryKey: ["sale-order-next-code"],
         staleTime: 0,
         gcTime: 0,
         refetchOnMount: "always",
         refetchOnWindowFocus: false,
         queryFn: async () => {
             try {
-                const response = await api.get<ApiResponse<ServerList<SaleOrder>>>("/sale-orders", {
-                    params: {
-                        page: 1,
-                        limit: 1,
-                        sortBy: "code",
-                        sortOrder: "desc",
-                    },
-                });
+                const response =
+                    await api.get<ApiResponse<{ code: string | number }>>("/sale-orders/next-code");
 
                 if (!response.data.success) {
-                    throw new Error(response.data.message || "Erro ao carregar venda");
+                    throw new Error(response.data.message || "Erro ao carregar próximo código");
                 }
 
-                return response.data.data.items[0] ?? null;
+                return response.data.data?.code != null ? String(response.data.data.code) : null;
             } catch (error) {
-                throw buildApiError(error, "Erro ao carregar última venda");
+                throw buildApiError(error, "Erro ao carregar próximo código da venda");
             }
         },
     });
@@ -156,21 +149,20 @@ export function SaleOrderForm({
     useEffect(() => {
         if (code) return;
 
-        if (!lastSaleOrder && !lastOrderIsLoading) {
+        if (!nextSaleOrderCode && !nextCodeIsLoading) {
             setValue("code", "1", { shouldDirty: true, shouldValidate: true });
             setCodeLocked(true);
             return;
         }
 
-        const lastCode = Number(lastSaleOrder?.code);
-        if (!Number.isNaN(lastCode)) {
-            setValue("code", String(lastCode + 1), {
+        if (nextSaleOrderCode) {
+            setValue("code", nextSaleOrderCode, {
                 shouldDirty: true,
                 shouldValidate: true,
             });
             setCodeLocked(true);
         }
-    }, [code, lastSaleOrder, lastOrderIsLoading, setValue]);
+    }, [code, nextSaleOrderCode, nextCodeIsLoading, setValue]);
 
     const distributeAdjustmentsToItems = () => {
         const currentItems = getValues("items") ?? [];
