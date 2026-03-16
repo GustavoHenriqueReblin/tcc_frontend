@@ -33,6 +33,12 @@ import {
     toISOEndOfDay,
     toISOStartOfDay,
 } from "@/utils/global";
+import { subDays, startOfDay, endOfDay } from "date-fns";
+
+const defaultRange = {
+    from: startOfDay(subDays(new Date(), 6)),
+    to: endOfDay(new Date()),
+};
 
 const statusColors: Record<OrderStatus, string> = {
     PENDING: "bg-gray-200 text-gray-800",
@@ -67,8 +73,11 @@ export function SaleOrders() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    const [range, setRange] = useState<DateRange | undefined>();
-    const [filters, setFilters] = useState<SaleOrderFilters>({});
+    const [range, setRange] = useState<DateRange | undefined>(defaultRange);
+    const [filters, setFilters] = useState<SaleOrderFilters>({
+        createdAtFrom: toISOStartOfDay(defaultRange.from),
+        createdAtTo: toISOEndOfDay(defaultRange.to),
+    });
     const [subtotalValue, setSubtotalValue] = useState(0);
     const [totalValue, setTotalValue] = useState(0);
     const [totalOtherCosts, setTotalOtherCosts] = useState(0);
@@ -247,8 +256,7 @@ export function SaleOrders() {
                 formatCurrency(
                     Number(
                         row.original.items.reduce(
-                            (total, item) =>
-                                total + Number(item.productUnitPrice) * Number(item.quantity),
+                            (total, item) => total + Number(item.unitPrice) * Number(item.quantity),
                             0
                         ) ?? 0
                     )
@@ -321,6 +329,7 @@ export function SaleOrders() {
                                     if (!selectedRange?.from || !selectedRange?.to) return;
 
                                     setRange(selectedRange);
+
                                     setFilters((prev) => ({
                                         ...prev,
                                         createdAtFrom: toISOStartOfDay(selectedRange.from),
