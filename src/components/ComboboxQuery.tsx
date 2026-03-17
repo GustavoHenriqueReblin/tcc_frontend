@@ -35,6 +35,7 @@ interface ComboboxQueryProps<
     disabled?: boolean;
     extraParams?: Record<string, unknown>;
     onSelectItem?: (item: TItem) => void;
+    initialSearch?: string;
 }
 
 export function ComboboxQuery<
@@ -51,9 +52,10 @@ export function ComboboxQuery<
     disabled = false,
     extraParams = {},
     onSelectItem,
+    initialSearch,
 }: ComboboxQueryProps<TFieldValues, TItem>) {
     const [open, setOpen] = useState(false);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState(initialSearch ?? "");
     const searchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const ref = useRef<HTMLButtonElement>(null);
 

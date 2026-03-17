@@ -65,6 +65,10 @@ export const saleOrderFormSchema = z.object({
         .array(saleOrderItemSchema)
         .min(1, "Adicione ao menos um item.")
         .max(100, "Limite de 100 itens por venda."),
+
+    // UI
+    customerName: z.string().optional().nullable(),
+    warehouseName: z.string().optional().nullable(),
 });
 
 export type SaleOrderItemFormValues = z.infer<typeof saleOrderItemSchema>;

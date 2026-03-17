@@ -317,6 +317,7 @@ export function SaleOrderForm({
                                 valueField="id"
                                 labelField="id"
                                 formatLabel={customerLabel}
+                                initialSearch={getValues("customerName")}
                             />
 
                             <ComboboxQuery<SaleOrderFormValues, WareHouseOption>
@@ -327,6 +328,7 @@ export function SaleOrderForm({
                                 valueField="id"
                                 labelField="id"
                                 formatLabel={(w) => w.name}
+                                initialSearch={getValues("warehouseName")}
                             />
 
                             <EnumSelect
@@ -378,6 +380,9 @@ export function SaleOrderForm({
                                                 endpoint="/products"
                                                 valueField="id"
                                                 labelField="name"
+                                                initialSearch={getValues(
+                                                    `items.${index}.productName`
+                                                )}
                                                 onSelectItem={(product) => {
                                                     setValue(
                                                         `items.${index}.unitySimbol`,

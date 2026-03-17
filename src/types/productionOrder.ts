@@ -42,6 +42,13 @@ export interface ProductionOrder {
             };
         };
     };
+    warehouse: {
+        id: number;
+        code: string;
+        name: string;
+        description: string;
+        createdAt: string;
+    };
 
     lotId: number | null;
     lot?: {

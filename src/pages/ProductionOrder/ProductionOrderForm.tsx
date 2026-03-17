@@ -64,7 +64,7 @@ export function ProductionOrderForm({
         form.reset(defaultValues);
     }, [defaultValues, form]);
 
-    const { control, handleSubmit, formState, watch, setValue } = form;
+    const { control, handleSubmit, formState, watch, setValue, getValues } = form;
     const code = watch("code");
     const status = watch("status");
     const inputs = watch("inputs") ?? [];
@@ -311,6 +311,7 @@ export function ProductionOrderForm({
                                 endpoint="/warehouses"
                                 valueField="id"
                                 labelField="name"
+                                initialSearch={getValues("warehouseName")}
                             />
 
                             <ComboboxQuery<
@@ -331,6 +332,7 @@ export function ProductionOrderForm({
                                 valueField="id"
                                 labelField="description"
                                 formatLabel={(e) => `${e.product.name} - ${e.description}`}
+                                initialSearch={getValues("recipeName")}
                                 onSelectItem={(e) => {
                                     const selected = e as Recipe;
 

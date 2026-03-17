@@ -152,6 +152,8 @@ export function EditProductionOrder() {
               startDate: order.startDate ?? null,
               endDate: order.endDate ?? null,
               notes: order.notes ?? "",
+              recipeName: order.recipe.product.name,
+              warehouseName: order.warehouse.name,
 
               inputs:
                   order.inputs?.map((input) => ({

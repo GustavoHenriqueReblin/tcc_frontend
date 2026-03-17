@@ -59,6 +59,10 @@ export const productionOrderFormSchema = z.object({
     endDate: z.iso.datetime().nullable().optional(),
     notes: z.string().nullable().optional(),
     inputs: z.array(productionOrderInputSchema).optional(),
+
+    // UI
+    recipeName: z.string().optional().nullable(),
+    warehouseName: z.string().optional().nullable(),
 });
 
 export const finishProductionOrderSchema = z.object({

@@ -156,6 +156,7 @@ export function EditSaleOrder() {
               otherCosts: Number(saleOrder.otherCosts ?? 0) || 0,
               notes: saleOrder.notes ?? "",
               createdAt: saleOrder.createdAt,
+              customerName: saleOrder.customer.person.name,
               items:
                   saleOrder.items?.map((item) => ({
                       id: item.id,
