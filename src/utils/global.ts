@@ -209,6 +209,33 @@ export async function openPDF(id: number, path: string) {
     setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
 }
 
+export async function openListPDF(path: string, filters?: Record<string, unknown>) {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    const params = new URLSearchParams({ timezone: timeZone });
+    for (const [key, value] of Object.entries(filters ?? {})) {
+        if (value === null || value === undefined || value === "") continue;
+        params.set(key, String(value));
+    }
+
+    const url = `${env.VITE_API_URL}/reports/${path}/pdf?${params.toString()}`;
+
+    const response = await fetch(url, {
+        credentials: "include",
+    });
+
+    if (!response.ok) {
+        throw new Error("Erro ao gerar PDF");
+    }
+
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    window.open(blobUrl, "_blank");
+
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+}
+
 export function normalizeString(text: string) {
     return text
         .normalize("NFD")

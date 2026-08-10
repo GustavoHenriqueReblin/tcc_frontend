@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { MoreHorizontal } from "lucide-react";
+import { FileText, MoreHorizontal } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
 import { DataTable } from "@/components/ui/data-table";
@@ -29,6 +29,7 @@ import {
     buildApiError,
     formatCurrency,
     formatDate,
+    openListPDF,
     openPDF,
     toISOEndOfDay,
     toISOStartOfDay,
@@ -310,6 +311,21 @@ export function SaleOrders() {
         navigate(`/sale-orders/edit/${row.id}`);
     };
 
+    const handleExportReport = async () => {
+        const toastId = toast.loading("Gerando relatório...");
+        try {
+            await openListPDF("sale-order-list", {
+                createdAtFrom: filters.createdAtFrom,
+                createdAtTo: filters.createdAtTo,
+                customerId: filters.customerId,
+                status: filters.status,
+            });
+            toast.success("Relatório gerado com sucesso.", { id: toastId });
+        } catch {
+            toast.error("Falha ao gerar o relatório.", { id: toastId });
+        }
+    };
+
     return (
         <div className="space-y-4">
             <h2 className="text-xl font-semibold">Vendas</h2>
@@ -368,6 +384,11 @@ export function SaleOrders() {
                                 }
                             />
                         </div>
+
+                        <Button variant="outline" className="ml-auto" onClick={handleExportReport}>
+                            <FileText className="size-4" />
+                            Exportar vendas
+                        </Button>
                     </>
                 }
                 mobileFields={[
